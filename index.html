@@ -24,6 +24,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#ai">AI Assistant</a></li>
       <li><a href="#reports">Reports</a></li>
+      <li><a href="#outliers">Outliers</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#palettes">Palettes</a></li>
       <li><a href="#faq">FAQ</a></li>
@@ -47,7 +48,7 @@
           <span class="tagline"><span class="tl-word">Simple.</span> <span class="tl-word">Fast.</span> <span class="tl-word">Nice.</span> <span class="tl-word">Magic.</span></span>
         </div>
       </div>
-      <span class="eyebrow">✦&nbsp; Publication-quality statistical analysis</span>
+      <span class="eyebrow">✦&nbsp; Built for scientists.</span>
       <h1 class="hero-title">From your spreadsheet to a <span class="grad">publishable</span> figure in seconds</h1>
       <p class="hero-sub">
         <strong>Magic Stat</strong> turns data into science. Go from exploratory
@@ -66,20 +67,56 @@
       </div>
     </div>
 
-    <!-- Carousel -->
+    <!-- AI-powered demo carousel -->
     <div class="hero-stage">
+      <div class="ai-empowered-word">AI&#8209;empowered</div>
       <div class="showcase-frame">
-        <div class="carousel" id="carousel">
-          <div class="slide"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix with significance" loading="lazy" data-full="assets/screenshots/correlation_matrix.png"><span class="slide-zoom">⛶ view full size</span></div>
-          <div class="slide"><img src="assets/screenshots/box1.png" alt="Publication-style box plot" loading="lazy" data-full="assets/screenshots/box1.png"><span class="slide-zoom">⛶ view full size</span></div>
-          <div class="slide"><img src="assets/screenshots/dot1.png" alt="Dot plot with means" loading="lazy" data-full="assets/screenshots/dot1.png"><span class="slide-zoom">⛶ view full size</span></div>
-          <div class="slide"><img src="assets/screenshots/Scater2.png" alt="Scatter plot with regression line and CI" loading="lazy" data-full="assets/screenshots/Scater2.png"><span class="slide-zoom">⛶ view full size</span></div>
+        <div class="ai-demo" id="aiDemo">
+
+          <!-- Scene 1: Box plot (diálogo, depois figura) -->
+          <div class="scene" data-figure="assets/screenshots/box1.png" data-figalt="Box plot with jitter and significance letters" data-caption="Box plot · jitter + post-hoc letters · viridis">
+            <div class="scene-chat">
+              <p class="demo-eq">🗨️ Magic&#8201;Stat&#8201;Assistant</p>
+              <div class="demo-bubbles">
+                <div class="typing msg msg-user" data-text="Please, generate a box plot with jitter and post-hoc significance letters comparing the groups."></div>
+                <div class="typing msg msg-ai" data-text="Sure! Would you like the viridis color theme?"></div>
+                <div class="typing msg msg-user" data-text="Yes, please."></div>
+                <div class="typing msg msg-ai" data-text="Running it now… ✅ generating the box plot with jitter and compact letter display."></div>
+              </div>
+            </div>
+            <div class="scene-figure"><img src="assets/screenshots/box1.png" alt="Box plot" data-full="assets/screenshots/box1.png"></div>
+          </div>
+
+          <!-- Scene 2: Dot plot with post-hoc significance letters -->
+          <div class="scene" data-figure="assets/screenshots/dot1.png" data-figalt="Dot plot with significance letters" data-caption="Dot plot · post-hoc significance letters by group">
+            <div class="scene-chat">
+              <p class="demo-eq">🗨️ Magic&#8201;Stat&#8201;Assistant</p>
+              <div class="demo-bubbles">
+                <div class="typing msg msg-user" data-text="Now a dot plot with post-hoc significance letters comparing the groups."></div>
+                <div class="typing msg msg-ai" data-text="On it. ✅ I ran the post-hoc test and generated the dot plot with significance letters (a, b, c) by group."></div>
+              </div>
+            </div>
+            <div class="scene-figure"><img src="assets/screenshots/dot1.png" alt="Dot plot" data-full="assets/screenshots/dot1.png"></div>
+          </div>
+
+          <!-- Scene 3: Regression (fitted line + CI) -->
+          <div class="scene" data-figure="assets/screenshots/Scater2.png" data-figalt="Scatter plot with regression and CI" data-caption="Linear regression · Visceral Fat → SBP + 95% CI">
+            <div class="scene-chat">
+              <p class="demo-eq">🗨️ Magic&#8201;Stat&#8201;Assistant</p>
+              <div class="demo-bubbles">
+                <div class="typing msg msg-user" data-text="Now run a linear regression between Visceral Fat and SBP. Have we handled the outliers?"></div>
+                <div class="typing msg msg-ai" data-text="Yes — outliers were already handled. Samples #198 and #123 were removed. ✅ fitted the regression with the confidence interval."></div>
+              </div>
+            </div>
+            <div class="scene-figure"><img src="assets/screenshots/Scater2.png" alt="Scatter plot" data-full="assets/screenshots/Scater2.png"></div>
+          </div>
+
         </div>
         <div class="carousel-dots" id="carouselDots"></div>
         <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous">‹</button>
         <button class="carousel-arrow next" id="carouselNext" aria-label="Next">›</button>
       </div>
-      <p class="showcase-caption">Figures like these — ready for your paper.</p>
+      <p class="showcase-caption" id="demoCaption">Your data, your words — Magic Stat does the work.</p>
     </div>
   </div>
 
@@ -231,32 +268,39 @@
       <ul class="report-feats">
         <li>✔ APA/editorial-style tables, no rework</li>
         <li>✔ Statistically formatted output (p, d, η², BF…)</li>
+        <li>✔ Post-hoc significance letters (Compact Letter Display — a, b, c)</li>
         <li>✔ AI comments on every section — integrated review</li>
         <li>✔ Export formatted and keep the session for review</li>
       </ul>
     </div>
     <div class="report-strip">
-      <div class="mini-card mini-tab"><span>📊 ANOVA</span><span>F(4, 495) = 21.3, p &lt; .001, η²p = .147</span></div>
+      <div class="mini-card mini-tab"><span>📊 ANOVA + post-hoc</span><span>F(4, 495) = 21.3, p &lt; .001, η²p = .147</span></div>
+      <div class="mini-card mini-cld">
+        <span>Post-hoc (Tukey)</span>
+        <span class="cld-row">Group D: <b>a</b>&nbsp;&nbsp;Group E: <b>a</b>&nbsp;&nbsp;Group A: <b>b</b>&nbsp;&nbsp;Group B: <b>bc</b>&nbsp;&nbsp;Group C: <b>c</b></span>
+      </div>
       <div class="mini-card mini-tab"><span>🔗 Correlation</span><span>r(498) = .978, 95% CI [.973, .982], p &lt; .001</span></div>
       <div class="mini-card mini-tab"><span>📈 Regression</span><span>β = 6.78, SE = 0.13, p &lt; .001, R² = .956</span></div>
-      <div class="mini-card mini-note">✨ "The CI band on the line is narrow — suggesting high precision in the estimate of the effect."</div>
+      <div class="mini-card mini-note">✨ "Groups sharing a letter are not significantly different — the report adds the letters automatically."</div>
     </div>
   </div>
 </section>
 
-<!-- ===== Gallery ===== -->
-<section class="section section-alt" id="gallery">
-  <div class="section-head container">
-    <span class="eyebrow">Gallery</span>
-    <h2 class="section-title">Made to <span class="grad">impress</span>.</h2>
-    <p class="section-sub">Every figure leaves the app with the look reviewers want to see — clean, crisp and labeled.</p>
-  </div>
-  <div class="gallery container">
-    <figure class="g-item g-wide"><div class="g-media"><img src="assets/screenshots/home_screen.png" alt="Magic Stat home screen" data-full="assets/screenshots/home_screen.png"><span class="g-zoom">⛶</span></div><figcaption>Magic Stat home screen</figcaption></figure>
-    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix" data-full="assets/screenshots/correlation_matrix.png"><span class="g-zoom">⛶</span></div><figcaption>Correlation matrix with significance</figcaption></figure>
-    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/box1.png" alt="Box plot" data-full="assets/screenshots/box1.png"><span class="g-zoom">⛶</span></div><figcaption>Box plot by group</figcaption></figure>
-    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/dot1.png" alt="Dot plot" data-full="assets/screenshots/dot1.png"><span class="g-zoom">⛶</span></div><figcaption>Dot plot with means</figcaption></figure>
-    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/Scater2.png" alt="Scatter plot" data-full="assets/screenshots/Scater2.png"><span class="g-zoom">⛶</span></div><figcaption>Regression with confidence interval</figcaption></figure>
+<!-- ===== Outliers ===== -->
+<section class="section section-alt" id="outliers">
+  <div class="out-simple container">
+    <span class="eyebrow">Data quality</span>
+    <h2 class="section-title">Detect outliers <span class="grad">fast</span>.</h2>
+
+    <p class="section-sub">
+      Find suspicious values using standard methods — then <strong>remove them
+      automatically</strong>, from one variable or the whole sample.
+    </p>
+
+    <div class="out-methods">
+      <span>IQR</span><span>Z-score</span><span>Modified Z (MAD)</span><span>Grubbs' test</span>
+    </div>
+    <p class="out-caption">Flagged values are highlighted in the data grid and box plot — inspect, then exclude with one click.</p>
   </div>
 </section>
 
@@ -264,7 +308,7 @@
 <section class="section" id="palettes">
   <div class="section-head container">
     <span class="eyebrow">Color palettes</span>
-    <h2 class="section-title">Cores <span class="grad">pensadas por cientistas</span>.</h2>
+    <h2 class="section-title">Color palettes <span class="grad">designed for scientists</span>.</h2>
     <p class="section-sub">Choose from a curated catalog of perceptually uniform and colorblind-safe palettes — so your figures stay beautiful and publication-ready, not washed out or clashing.</p>
   </div>
   <div class="palettes container">
@@ -285,6 +329,24 @@
     </div>
   </div>
   <p class="palettes-note container">One palette selector across every figure — box plots, dot plots, scatter, bars, error plots, and more — with live color previews.</p>
+</section>
+
+<!-- ===== Gallery ===== -->
+<section class="section section-alt" id="gallery">
+  <div class="section-head container">
+    <span class="eyebrow">Gallery</span>
+    <h2 class="section-title">What <span class="grad">leaves</span> the app.</h2>
+    <p class="section-sub">Real figures, exactly as they leave Magic Stat — clean, crisp and labeled, ready for your paper.</p>
+  </div>
+  <div class="gallery container">
+    <figure class="g-item g-wide"><div class="g-media"><img src="assets/screenshots/home_screen.png" alt="Magic Stat home screen" data-full="assets/screenshots/home_screen.png"><span class="g-zoom">⛶</span></div><figcaption>Magic Stat home screen</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix" data-full="assets/screenshots/correlation_matrix.png"><span class="g-zoom">⛶</span></div><figcaption>Correlation matrix with significance</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/box1.png" alt="Box plot" data-full="assets/screenshots/box1.png"><span class="g-zoom">⛶</span></div><figcaption>Box plot by group</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/dot1.png" alt="Dot plot" data-full="assets/screenshots/dot1.png"><span class="g-zoom">⛶</span></div><figcaption>Dot plot with means</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/Scater2.png" alt="Scatter plot" data-full="assets/screenshots/Scater2.png"><span class="g-zoom">⛶</span></div><figcaption>Regression with confidence interval</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/logistic.png" alt="Logistic regression" data-full="assets/screenshots/logistic.png"><span class="g-zoom">⛶</span></div><figcaption>Logistic regression &amp; ROC</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/bee_plot.png" alt="Bee swarm plot" data-full="assets/screenshots/bee_plot.png"><span class="g-zoom">⛶</span></div><figcaption>Bee swarm plot by group</figcaption></figure>
+  </div>
 </section>
 
 <!-- ===== Download ===== -->
@@ -340,7 +402,6 @@
       <a href="#reports">Reports</a>
       <a href="#faq">FAQ</a>
     </div>
-    <p class="footer-copy">© <span id="year"></span> Magic Stat Team.</p>
   </div>
 </footer>
 

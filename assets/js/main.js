@@ -16,47 +16,105 @@
     });
   }
 
-  // ---- Carrossel ----
-  var track = document.getElementById('carousel');
+  // ---- AI demo carousel (palco unico; execução 100% automatica) ----
+  var track = document.getElementById('aiDemo');
   var dotsBox = document.getElementById('carouselDots');
   var prevBtn = document.getElementById('carouselPrev');
   var nextBtn = document.getElementById('carouselNext');
   if (track) {
-    var slides = track.querySelectorAll('.slide');
+    var slides = track.querySelectorAll('.scene');
     var index = 0;
     var count = slides.length;
+    var typingTimers = [];
+    var MS_PER_CHAR = 20;      // velocidade da digitação
+    var PAUSE_AFTER_MSG = 420; // pausa entre as bolhas (ms)
+    var FIGURE_HOLD = 3200;    // tempo exibindo a figura antes de avançar (ms)
+    var autoTimer = null;
 
+    // Cria os dots (não-autofires; apenas indicadores)
     slides.forEach(function (_, i) {
       var d = document.createElement('button');
-      d.setAttribute('aria-label', 'Ir para slide ' + (i + 1));
+      d.setAttribute('aria-label', 'Scene ' + (i + 1));
       d.addEventListener('click', function () { goTo(i); });
       dotsBox.appendChild(d);
     });
     var dots = dotsBox.querySelectorAll('button');
 
+    function clearTyping() {
+      typingTimers.forEach(function (t) { window.clearTimeout(t); window.clearInterval(t); });
+      typingTimers = [];
+    }
+
+    // Duração total de uma cena = digitação + figura
+    function sceneDur(s) {
+      var total = 250;
+      s.querySelectorAll('.typing.msg').forEach(function (m) {
+        total += (m.getAttribute('data-text') || '').length * MS_PER_CHAR + PAUSE_AFTER_MSG;
+      });
+      return total + FIGURE_HOLD;
+    }
+
+    // Digita letra a letra a cena atual; ao terminar, mostra a figura.
+    function playScene(scene) {
+      var msgs = scene.querySelectorAll('.typing.msg');
+      msgs.forEach(function (m) { m.textContent = ''; });
+      scene.classList.remove('show-fig');
+
+      var seq = 0;              // mensagem atual
+      function typeNext() {
+        if (!scene.classList.contains('active')) return;
+        if (seq >= msgs.length) {
+          // fim do diálogo: mostra a figura
+          scene.classList.add('show-fig');
+          return;
+        }
+        var m = msgs[seq];
+        var text = m.getAttribute('data-text') || '';
+        var pos = 0;
+        var t = window.setInterval(function () {
+          if (!scene.classList.contains('active')) { window.clearInterval(t); return; }
+          pos++;
+          m.textContent = text.slice(0, pos);
+          if (pos >= text.length) {
+            window.clearInterval(t);
+            seq++;
+            typingTimers.push(window.setTimeout(typeNext, PAUSE_AFTER_MSG));
+          }
+        }, MS_PER_CHAR);
+        typingTimers.push(t);
+      }
+      typeNext();
+    }
+
     function goTo(i) {
+      window.clearInterval(autoTimer);
       index = (i + count) % count;
-      track.scrollTo({ left: track.clientWidth * index, behavior: 'smooth' });
+      slides.forEach(function (s, k) {
+        var on = k === index;
+        s.classList.toggle('active', on);
+        s.classList.toggle('show-fig', false);
+      });
       dots.forEach(function (d, k) { d.classList.toggle('active', k === index); });
+      clearTyping();
+      playScene(slides[index]);
+      // Autoplay: avança sozinho depois da duração da cena
+      autoTimer = window.setInterval(next, sceneDur(slides[index]));
     }
     function next() { goTo(index + 1); }
     function prev() { goTo(index - 1); }
-    if (prevBtn) prevBtn.addEventListener('click', prev);
-    if (nextBtn) nextBtn.addEventListener('click', next);
-    goTo(0);
+    var autoTimer = null;
+    if (prevBtn) prevBtn.addEventListener('click', next);
+    if (nextBtn) nextBtn.addEventListener('click', prev);
 
-    // swipe
+    goTo(0); // inicia o carrossel
+
+    // swipe (opcional, automático também avança)
     var startX = 0;
     track.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; });
     track.addEventListener('touchend', function (e) {
       var dx = e.changedTouches[0].clientX - startX;
       if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
     });
-
-    // autoplay
-    var timer = setInterval(next, 5000);
-    track.addEventListener('mouseenter', function () { clearInterval(timer); });
-    track.addEventListener('mouseleave', function () { timer = setInterval(next, 5000); });
   }
 
   // ---- Contadores animados ----
@@ -103,10 +161,6 @@
     });
   });
 
-  // ---- Ano do rodapé ----
-  var year = document.getElementById('year');
-  if (year) year.textContent = new Date().getFullYear();
-
   // ---- Lightbox (fullscreen, original quality) ----
   var lightbox = document.getElementById('lightbox');
   var lbImg = document.getElementById('lbImg');
@@ -117,9 +171,9 @@
   var lbClose = document.getElementById('lbClose');
 
   if (lightbox && lbImg) {
-    // Coleção de imagens clicáveis (galeria + carrossel)
+    // Coleção de imagens clicáveis (galeria + cenas do demo + carrossel)
     var lbSources = Array.prototype.slice.call(
-      document.querySelectorAll('.g-media img[data-full], .slide img[data-full]')
+      document.querySelectorAll('.g-media img[data-full], .scene-figure img[data-full], .slide img[data-full]')
     );
 
     var lbIndex = 0;
@@ -154,7 +208,7 @@
 
     // Abrir ao clicar
     lbSources.forEach(function (img, i) {
-      var host = img.closest('.g-media, .slide') || img;
+      var host = img.closest('.g-media, .scene-figure, .slide') || img;
       host.addEventListener('click', function () { openLb(i); });
     });
 
