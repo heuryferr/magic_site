@@ -106,4 +106,75 @@
   // ---- Ano do rodapé ----
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
+
+  // ---- Lightbox (fullscreen, original quality) ----
+  var lightbox = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  var lbCount = document.getElementById('lbCount');
+  var lbDpi = document.getElementById('lbDpi');
+  var lbPrev = document.getElementById('lbPrev');
+  var lbNext = document.getElementById('lbNext');
+  var lbClose = document.getElementById('lbClose');
+
+  if (lightbox && lbImg) {
+    // Coleção de imagens clicáveis (galeria + carrossel)
+    var lbSources = Array.prototype.slice.call(
+      document.querySelectorAll('.g-media img[data-full], .slide img[data-full]')
+    );
+
+    var lbIndex = 0;
+
+    function openLb(idx) {
+      lbIndex = (idx + lbSources.length) % lbSources.length;
+      var img = lbSources[lbIndex];
+      var full = img.getAttribute('data-full') || img.src;
+      lbImg.src = full;
+      lbImg.alt = img.alt || '';
+      lbImg.classList.remove('zoomed');
+      updateMeta(img, full);
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLb() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function nextLb() { openLb(lbIndex + 1); }
+    function prevLb() { openLb(lbIndex - 1); }
+
+    function updateMeta(img, src) {
+      if (lbCount) lbCount.textContent = (lbIndex + 1) + ' / ' + lbSources.length;
+      if (lbDpi) {
+        var i = new Image();
+        i.onload = function () { lbDpi.textContent = i.naturalWidth + ' × ' + i.naturalHeight + ' px'; };
+        i.onerror = function () { lbDpi.textContent = ''; };
+        i.src = src;
+      }
+    }
+
+    // Abrir ao clicar
+    lbSources.forEach(function (img, i) {
+      var host = img.closest('.g-media, .slide') || img;
+      host.addEventListener('click', function () { openLb(i); });
+    });
+
+    // Navegação
+    if (lbPrev) lbPrev.addEventListener('click', function (e) { e.stopPropagation(); prevLb(); });
+    if (lbNext) lbNext.addEventListener('click', function (e) { e.stopPropagation(); nextLb(); });
+    if (lbClose) lbClose.addEventListener('click', closeLb);
+
+    // Zoom (qualidade original, 1:1) ao clicar na imagem
+    lbImg.addEventListener('click', function (e) { e.stopPropagation(); lbImg.classList.toggle('zoomed'); });
+
+    // Fechar clicando no fundo
+    lightbox.addEventListener('click', function (e) { if (e.target === lightbox) closeLb(); });
+
+    // Teclado: Esc fecha, setas navegam
+    document.addEventListener('keydown', function (e) {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLb();
+      else if (e.key === 'ArrowRight') nextLb();
+      else if (e.key === 'ArrowLeft') prevLb();
+    });
+  }
 })();

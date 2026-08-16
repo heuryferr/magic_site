@@ -6,9 +6,12 @@ paper.
 
 ## ✨ Highlights
 
-- **Carousel** of real screenshots of figures generated inside the app.
-- **AI assistant** highlighted as the key differentiator (BYOK — OpenAI,
-  Claude, Gemini, DeepSeek, OpenRouter or local models).
+- **AI data scientist** — plug your favorite language model via API (BYOK:
+  OpenAI, Claude, Gemini, DeepSeek, OpenRouter or local) and **operate the
+  whole program by conversation**: it runs real analyses, creates figures and
+  tables, and discusses the results.
+- **Carousel** of real screenshots of figures generated inside the app, plus a
+  fullscreen lightbox that shows each figure at its **original resolution**.
 - **Differentiated scientific reports** — tables in APA/editorial format and
   commented by AI.
 - **Twelve feature domains**: SEM/PLS, Psychometrics, Ecology, Time series,

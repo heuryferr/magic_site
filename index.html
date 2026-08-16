@@ -25,6 +25,7 @@
       <li><a href="#ai">AI Assistant</a></li>
       <li><a href="#reports">Reports</a></li>
       <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#palettes">Palettes</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <a href="#download" class="btn btn-primary btn-sm nav-cta">Download</a>
@@ -39,8 +40,14 @@
 
   <div class="hero-inner container">
     <div class="hero-text">
-      <img src="assets/img/logo.png" alt="Magic Stat" class="hero-logo" aria-hidden="true">
-      <span class="eyebrow">✦&nbsp; Publication-grade statistical analysis</span>
+      <div class="hero-lockup">
+        <img src="assets/img/logo.png" alt="Magic Stat" class="hero-logo">
+        <div class="hero-tagline">
+          <span class="tag-big">Magic&nbsp;Stat</span>
+          <span class="tagline"><span class="tl-word">Simple.</span> <span class="tl-word">Fast.</span> <span class="tl-word">Nice.</span> <span class="tl-word">Magic.</span></span>
+        </div>
+      </div>
+      <span class="eyebrow">✦&nbsp; Publication-quality statistical analysis</span>
       <h1 class="hero-title">From your spreadsheet to a <span class="grad">publishable</span> figure in seconds</h1>
       <p class="hero-sub">
         <strong>Magic Stat</strong> turns data into science. Go from exploratory
@@ -63,10 +70,10 @@
     <div class="hero-stage">
       <div class="showcase-frame">
         <div class="carousel" id="carousel">
-          <div class="slide"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix with significance" loading="lazy"></div>
-          <div class="slide"><img src="assets/screenshots/box1.png" alt="Publication-style box plot" loading="lazy"></div>
-          <div class="slide"><img src="assets/screenshots/dot1.png" alt="Dot plot with means" loading="lazy"></div>
-          <div class="slide"><img src="assets/screenshots/Scater2.png" alt="Scatter plot with regression line and CI" loading="lazy"></div>
+          <div class="slide"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix with significance" loading="lazy" data-full="assets/screenshots/correlation_matrix.png"><span class="slide-zoom">⛶ view full size</span></div>
+          <div class="slide"><img src="assets/screenshots/box1.png" alt="Publication-style box plot" loading="lazy" data-full="assets/screenshots/box1.png"><span class="slide-zoom">⛶ view full size</span></div>
+          <div class="slide"><img src="assets/screenshots/dot1.png" alt="Dot plot with means" loading="lazy" data-full="assets/screenshots/dot1.png"><span class="slide-zoom">⛶ view full size</span></div>
+          <div class="slide"><img src="assets/screenshots/Scater2.png" alt="Scatter plot with regression line and CI" loading="lazy" data-full="assets/screenshots/Scater2.png"><span class="slide-zoom">⛶ view full size</span></div>
         </div>
         <div class="carousel-dots" id="carouselDots"></div>
         <button class="carousel-arrow prev" id="carouselPrev" aria-label="Previous">‹</button>
@@ -89,7 +96,7 @@
   <div class="section-head container">
     <span class="eyebrow">What it does</span>
     <h2 class="section-title">A statistical arsenal, with the <span class="grad">simplicity</span> of an app</h2>
-    <p class="section-sub">From descriptive statistics to advanced structural modeling — all in one place, no plugins, no compromise on rigor.</p>
+    <p class="section-sub">From descriptive statistics to advanced structural modeling — all in one place, no plugins, with the rigorous output your paper demands.</p>
   </div>
 
   <div class="domains container">
@@ -173,27 +180,36 @@
   <div class="ia-wrap container">
     <div class="ia-copy">
       <span class="eyebrow">The differentiator</span>
-      <h2 class="section-title">A <span class="grad">data scientist</span> on your desk</h2>
-      <p class="section-sub">Magic Stat embeds <strong>AI assistants</strong> that talk to your data. Give an instruction in plain language and watch the analysis happen — and get explained.</p>
+      <h2 class="section-title">An AI <span class="grad">data scientist</span> you already know</h2>
+      <p class="section-sub">
+        <strong>Plug in your favorite language model via API</strong> — OpenAI,
+        Claude, Gemini, DeepSeek, OpenRouter, or a local model — and <strong>operate
+        the whole program by conversation</strong>. The assistant actually runs
+        Magic Stat for you: it creates figures, runs analyses, builds tables,
+        discusses the results and helps with everything.
+      </p>
       <ul class="ia-list">
-        <li><strong>"Explore my data"</strong> — the AI picks the analysis and opens the right window.</li>
-        <li><strong>"Interpret this result"</strong> — clear explanation in plain language, with context from your field.</li>
-        <li><strong>"What do these coefficients mean?"</strong> — the assistant reads the exact numbers from your session.</li>
-        <li><strong>Respects your data</strong> — it never invents results: it only acts once it has actually run the tool.</li>
+        <li><strong>Your model, your key (BYOK)</strong> — bring your own API key; nothing is stored or sent anywhere else.</li>
+        <li><strong>Talk to your data</strong> — “explore this dataset”, “compare the groups”, “check the assumptions”.</li>
+        <li><strong>It does the work</strong> — the agent opens the right window and executes real analyses, figures and tables.</li>
+        <li><strong>It discusses with you</strong> — interprets coefficients, folds, p-values and effect sizes in plain language.</li>
+        <li><strong>Never invents results</strong> — it only reports what it actually ran, reading the real numbers from your session.</li>
       </ul>
-      <div class="ia-chips">
-        <span>BYOK — bring your own key</span>
-        <span>OpenAI · Claude · Gemini · DeepSeek · OpenRouter · Local</span>
+      <div class="ia-providers">
+        <span>Plug your favorite:</span>
+        <span class="prv">OpenAI</span><span class="prv">Claude</span><span class="prv">Gemini</span><span class="prv">DeepSeek</span><span class="prv">OpenRouter</span><span class="prv">Local (Ollama, LM Studio)</span>
       </div>
     </div>
     <div class="ia-demo" aria-hidden="true">
       <div class="chat-window">
-        <div class="chat-head"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span><span class="chat-title">🗝️ Magic Stat Assistant</span></div>
+        <div class="chat-head"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span><span class="chat-title">🗝️ Magic Stat Assistant (Claude via API)</span></div>
         <div class="chat-body">
           <div class="msg msg-user">Explore this data and tell me if there's a difference between the groups.</div>
-          <div class="msg msg-ai">I analyzed <code>SBP_mmHg</code> across the 5 groups. I ran an ANOVA followed by a Tukey post-hoc. 💡 There's a significant difference (p &lt; 0.001) between groups D and A.</div>
-          <div class="msg msg-user">Can you generate the boxplot with these groups?</div>
-          <div class="msg msg-ai">Sure — running it now. ✅ <em>I opened the box plot, colored by group, ready for publication.</em></div>
+          <div class="msg msg-ai">On it. I'll run a one-way ANOVA across the 5 groups, then a Tukey post-hoc. 💡 <code>F(4,495)=21.3, p&lt;.001</code> — significant difference, driven by groups D &amp; A.</div>
+          <div class="msg msg-user">Great — generate the boxplot with those groups, ready for the paper.</div>
+          <div class="msg msg-ai">Done. ✅ <em>I opened the box plot, colored by group — publication-ready. Want me to add the significance letters or export it?</em></div>
+          <div class="msg msg-user">Yes, add significance letters and export as PNG at 300 DPI.</div>
+          <div class="msg msg-ai">Perfect. 🎨 <em>Letters added, exported at 300 DPI. I can also paste the formatted table into the report.</em></div>
         </div>
       </div>
     </div>
@@ -236,11 +252,39 @@
     <p class="section-sub">Every figure leaves the app with the look reviewers want to see — clean, crisp and labeled.</p>
   </div>
   <div class="gallery container">
-    <figure class="g-item g-wide"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix"><figcaption>Correlation matrix with significance</figcaption></figure>
-    <figure class="g-item"><img src="assets/screenshots/box1.png" alt="Box plot"><figcaption>Box plot by group</figcaption></figure>
-    <figure class="g-item"><img src="assets/screenshots/dot1.png" alt="Dot plot"><figcaption>Dot plot with means</figcaption></figure>
-    <figure class="g-item"><img src="assets/screenshots/Scater2.png" alt="Scatter plot"><figcaption>Regression with confidence interval</figcaption></figure>
+    <figure class="g-item g-wide"><div class="g-media"><img src="assets/screenshots/home_screen.png" alt="Magic Stat home screen" data-full="assets/screenshots/home_screen.png"><span class="g-zoom">⛶</span></div><figcaption>Magic Stat home screen</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/correlation_matrix.png" alt="Correlation matrix" data-full="assets/screenshots/correlation_matrix.png"><span class="g-zoom">⛶</span></div><figcaption>Correlation matrix with significance</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/box1.png" alt="Box plot" data-full="assets/screenshots/box1.png"><span class="g-zoom">⛶</span></div><figcaption>Box plot by group</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/dot1.png" alt="Dot plot" data-full="assets/screenshots/dot1.png"><span class="g-zoom">⛶</span></div><figcaption>Dot plot with means</figcaption></figure>
+    <figure class="g-item"><div class="g-media"><img src="assets/screenshots/Scater2.png" alt="Scatter plot" data-full="assets/screenshots/Scater2.png"><span class="g-zoom">⛶</span></div><figcaption>Regression with confidence interval</figcaption></figure>
   </div>
+</section>
+
+<!-- ===== Color palettes ===== -->
+<section class="section" id="palettes">
+  <div class="section-head container">
+    <span class="eyebrow">Color palettes</span>
+    <h2 class="section-title">Cores <span class="grad">pensadas por cientistas</span>.</h2>
+    <p class="section-sub">Choose from a curated catalog of perceptually uniform and colorblind-safe palettes — so your figures stay beautiful and publication-ready, not washed out or clashing.</p>
+  </div>
+  <div class="palettes container">
+    <div class="palette-group">
+      <h3>Qualitative</h3>
+      <p>Perfect for categories and groups — distinct, harmonious colors that pop.</p>
+      <img src="assets/palettes/qualitative.png" alt="Qualitative palettes" loading="lazy">
+    </div>
+    <div class="palette-group">
+      <h3>Sequential</h3>
+      <p>Great for continuous data and gradients, perceptually uniform by design.</p>
+      <img src="assets/palettes/sequential.png" alt="Sequential palettes" loading="lazy">
+    </div>
+    <div class="palette-group">
+      <h3>Diverging</h3>
+      <p>Ideal for correlations and centered data — highlights direction and magnitude.</p>
+      <img src="assets/palettes/diverging.png" alt="Diverging palettes" loading="lazy">
+    </div>
+  </div>
+  <p class="palettes-note container">One palette selector across every figure — box plots, dot plots, scatter, bars, error plots, and more — with live color previews.</p>
 </section>
 
 <!-- ===== Download ===== -->
@@ -299,6 +343,21 @@
     <p class="footer-copy">© <span id="year"></span> Magic Stat Team.</p>
   </div>
 </footer>
+
+<!-- ===== Lightbox (fullscreen, original quality) ===== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Fullscreen figure viewer">
+  <button class="lb-close" id="lbClose" aria-label="Close">&#10005;</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous figure">&#8249;</button>
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next figure">&#8250;</button>
+  <div class="lb-stage">
+    <img src="" alt="" class="lb-img" id="lbImg">
+  </div>
+  <div class="lb-meta">
+    <span class="lb-count" id="lbCount">1 / 4</span>
+    <span class="lb-dpi" id="lbDpi"></span>
+    <span class="lb-hint">Click the image or press Esc to close</span>
+  </div>
+</div>
 
 <script src="assets/js/main.js"></script>
 </body>
