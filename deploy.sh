@@ -1,44 +1,44 @@
 #!/bin/bash
 # ============================================================
-# Publica o site magic_site no GitHub (repo: magic_site)
-# Uso:
-#   1) Autentique o GitHub (uma vez):
+# Publish the magic_site website to GitHub (repo: magic_site)
+# Usage:
+#   1) Authenticate with GitHub (once):
 #         gh auth login
-#   2) Rode este script:
+#   2) Run this script:
 #         bash deploy.sh
 # ============================================================
 set -e
 cd "$(dirname "$0")"
 
 REPO_NAME="magic_site"
-USER="${GH_USER:-heuryfer}"
+USER="${GH_USER:-heuryferr}"
 
-echo "→ Verificando autenticacao do GitHub..."
-gh auth status >/dev/null 2>&1 || { echo "❌ gh não autenticado. Rode 'gh auth login' primeiro."; exit 1; }
+echo "→ Checking GitHub authentication..."
+gh auth status >/dev/null 2>&1 || { echo "❌ gh not authenticated. Run 'gh auth login' first."; exit 1; }
 
-# 1) Garante o remote origin
+# 1) Ensure the origin remote exists
 if ! git remote get-url origin >/dev/null 2>&1; then
-  echo "→ Configurando remote origin..."
+  echo "→ Configuring origin remote..."
   git remote add origin "https://github.com/$USER/$REPO_NAME.git"
 fi
 
-# 2) Cria o repositório, se ainda não existir
+# 2) Create the repository if it doesn't exist yet
 if ! gh repo view "$USER/$REPO_NAME" >/dev/null 2>&1; then
-  echo "→ Criando repositório $USER/$REPO_NAME..."
+  echo "→ Creating repository $USER/$REPO_NAME..."
   gh repo create "$REPO_NAME" --public --source=. --push \
-    --description "Site institucional do Magic Stat" --remote=origin
+    --description "Magic Stat institutional website" --remote=origin
 else
-  echo "→ Repositório já existe; enviando alterações..."
+  echo "→ Repository already exists; pushing changes..."
   git push -u origin main
 fi
 
-# 3) (Opcional) Ativa o GitHub Pages a partir de 'main'/'/' (branch raiz)
-echo "→ (Opcional) Ativando GitHub Pages..."
+# 3) (Optional) Enable GitHub Pages from 'main'/'/'
+echo "→ (Optional) Enabling GitHub Pages..."
 gh api "repos/$USER/$REPO_NAME/pages" \
   -X POST -f "source[branch]=main" -f "source[path]=/" \
-  >/dev/null 2>&1 && echo "  ✔ GitHub Pages ativado: https://$USER.github.io/$REPO_NAME/" \
-  || echo "  · Paginas já configuradas ou indisponíveis."
+  >/dev/null 2>&1 && echo "  ✔ GitHub Pages enabled: https://$USER.github.io/$REPO_NAME/" \
+  || echo "  · Pages already configured or unavailable."
 
 echo ""
-echo "✔ Site publicado: https://github.com/$USER/$REPO_NAME"
-echo "  GitHub Pages (se ativado): https://$USER.github.io/$REPO_NAME/"
+echo "✔ Site published: https://github.com/$USER/$REPO_NAME"
+echo "  GitHub Pages (if enabled): https://$USER.github.io/$REPO_NAME/"

@@ -1,38 +1,39 @@
-# 🎩 Magic Stat — Site institucional
+# 🎩 Magic Stat — Official website
 
-Site de divulgação do **Magic Stat**, software de análise estatística com
-qualidade de publicação, IA acoplada e relatórios científicos prontos para a
-sua paper.
+Institutional website for **Magic Stat** — statistical analysis software with
+publication-quality output, built-in AI and scientific reports ready for your
+paper.
 
-## ✨ Destaques
+## ✨ Highlights
 
-- **Carrossel** de screenshots reais de gráficos gerados no app.
-- **Assistente de IA** destacado como o grande diferencial (BYOK — OpenAI,
-  Claude, Gemini, DeepSeek, OpenRouter ou modelos locais).
-- **Relatórios científicos diferenciados** — tabelas no formato APA/editorial e
-  comentadas por IA.
-- **Doze domínios de funcionalidades**: SEM/PLS, Psicometria, Ecologia, Séries
-  temporais, Modelos mistos, Estatística médica, Multivariada, Meta-análise,
-  Análise de poder, Bayesiana, Regressão & correlação e análises clássicas.
-- Visual dark moderno (glassmorphism, gradientes, animações) — feito com
-  **HTML/CSS/JS puro**, sem frameworks.
+- **Carousel** of real screenshots of figures generated inside the app.
+- **AI assistant** highlighted as the key differentiator (BYOK — OpenAI,
+  Claude, Gemini, DeepSeek, OpenRouter or local models).
+- **Differentiated scientific reports** — tables in APA/editorial format and
+  commented by AI.
+- **Twelve feature domains**: SEM/PLS, Psychometrics, Ecology, Time series,
+  Mixed models, Medical statistics, Multivariate, Meta-analysis, Power
+  analysis, Bayesian, Regression & correlation, and classics.
+- Modern dark visual (glassmorphism, gradients, animations) — built in clean
+  **HTML/CSS/JS**, no frameworks.
 
-## 📁 Estrutura
+## 📁 Structure
 
 ```
 magic_site/
 ├── index.html
+├── deploy.sh
 ├── assets/
 │   ├── css/style.css
 │   ├── js/main.js
-│   ├── img/        (logo cartola + favicon)
-│   └── screenshots (gráficos reais do app)
+│   ├── img/        (top-hat logo + favicon)
+│   └── screenshots (real figures from the app)
 └── README.md
 ```
 
-## 🚀 Como rodar localmente
+## 🚀 Run locally
 
-Abra o `index.html` no navegador, ou suba um servidor simples:
+Open `index.html` in the browser, or serve it:
 
 ```bash
 cd magic_site
@@ -40,19 +41,20 @@ python -m http.server 8080
 # → http://localhost:8080
 ```
 
-## 📦 Download do app
+## 📦 Download
 
-O botão "Baixar" espera o instalador `MagicStat.pkg` no diretório raiz do site
-(ou um caminho configurado no `index.html`). Copie o `.pkg` para cá antes de
-publicar:
+The "Download" button expects the `MagicStat.pkg` installer in the site root
+(or a configured path in `index.html`). Copy the `.pkg` here before publishing:
 
 ```bash
 cp ~/Desktop/MagicStat.pkg ./MagicStat.pkg
 ```
 
-## 🧙 GitHub Pages
+> Note: GitHub Pages limits files over 100 MB. For the ~260 MB `.pkg`, host it
+> via GitHub Releases or elsewhere and point the button to that URL.
 
-Para publicar como o GitHub Pages, coloque `MagicStat.pkg` na raiz e ajuste o
-hyperlink "Baixar" no `index.html` para o endereço do arquivo (GitHub Pages
-costuma limitar grandes binários — verifique a política de repositório para
-arquivos >100 MB).
+## 🧙 Publish
+
+```bash
+bash deploy.sh
+```
