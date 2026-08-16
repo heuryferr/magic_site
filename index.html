@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Stat — Análise estatística que entende você</title>
+<meta name="description" content="Magic Stat: software de análise estatística com qualidade de publicação, IA acoplada, SEM/PLS e relatórios científicos prontos para a sua paper.">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="#home" class="brand">
+      <img src="assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#recursos">Recursos</a></li>
+      <li><a href="#ia">Assistente IA</a></li>
+      <li><a href="#relatorio">Relatórios</a></li>
+      <li><a href="#galeria">Galeria</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#download" class="btn btn-primary btn-sm nav-cta">Baixar</a>
+    <button class="nav-burger" id="navBurger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<header class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <div class="hero-inner container">
+    <div class="hero-text">
+      <span class="eyebrow">✦&nbsp; Análise estatística de nível editorial</span>
+      <h1 class="hero-title">Da sua planilha ao gráfico <span class="grad">publicável</span> em segundos</h1>
+      <p class="hero-sub">
+        <strong>Magic Stat</strong> transforma dados em ciência. Conduza de
+        análise exploratória a <em>modelagem de equações estruturais (SEM/PLS)</em>,
+        com gráficos e tabelas <strong>já em formato científico</strong> — e um
+        modelo de IA que <strong>lê, interpreta e comenta</strong> cada resultado.
+      </p>
+      <div class="hero-actions">
+        <a href="#download" class="btn btn-primary">Baixar para macOS</a>
+        <a href="#recursos" class="btn btn-ghost">Explorar recursos</a>
+      </div>
+      <div class="hero-trust">
+        <span>✓ Sem linha de comando</span>
+        <span>✓ Qualidade de publicação</span>
+        <span>✓ Assistentes de IA integrados</span>
+      </div>
+    </div>
+
+    <!-- Carrossel -->
+    <div class="hero-stage">
+      <div class="showcase-frame">
+        <div class="carousel" id="carousel">
+          <div class="slide"><img src="assets/screenshots/correlation_matrix.png" alt="Matriz de correlação com significância" loading="lazy"></div>
+          <div class="slide"><img src="assets/screenshots/box1.png" alt="Box plot estilo publicação" loading="lazy"></div>
+          <div class="slide"><img src="assets/screenshots/dot1.png" alt="Dot plot com médias" loading="lazy"></div>
+          <div class="slide"><img src="assets/screenshots/Scater2.png" alt="Scatter plot com reta de regressão e IC" loading="lazy"></div>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
+        <button class="carousel-arrow prev" id="carouselPrev" aria-label="Anterior">‹</button>
+        <button class="carousel-arrow next" id="carouselNext" aria-label="Próximo">›</button>
+      </div>
+      <p class="showcase-caption">Gráficos como este — prontos para o seu artigo.</p>
+    </div>
+  </div>
+
+  <div class="hero-stats container">
+    <div class="stat"><span class="stat-num" data-target="140">0</span><span class="stat-label">+ funcionalidades</span></div>
+    <div class="stat"><span class="stat-num" data-target="15">0</span><span class="stat-label">domínios estatísticos</span></div>
+    <div class="stat"><span class="stat-num" data-target="100">0</span><span class="stat-label">% qualidade editorial</span></div>
+    <div class="stat"><span class="stat-num" data-target="1">0</span><span class="stat-label">clique p/ a IA explicar</span></div>
+  </div>
+</header>
+
+<!-- ===== Recursos ===== -->
+<section class="section" id="recursos">
+  <div class="section-head container">
+    <span class="eyebrow">O que ele faz</span>
+    <h2 class="section-title">Um arsenal estatístico, com a <span class="grad">simplicidade</span> de um app</h2>
+    <p class="section-sub">Da estatística descritiva à modelagem estrutural avançada — tudo em um só lugar, sem plugins e sem sacrificar o rigor.</p>
+  </div>
+
+  <div class="domains container">
+    <div class="domain-card">
+      <div class="dc-icon">🧬</div>
+      <h3>SEM &amp; PLS</h3>
+      <p>Modelagem de equações estruturais e <strong>PLS-SEM</strong> com interface de arrastar e soltar, mais covariância-baseada em covariação.</p>
+      <ul><li>Diagrama de caminhos editável</li><li>Fiabilidade, validade e HTMT</li><li>Efeitos indiretos e bootstrapping</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🧠</div>
+      <h3>Psicometria</h3>
+      <p>Análise de fiabilidade e validade de construtos para a psicologia e as ciências sociais.</p>
+      <ul><li>Alfa de Cronbach &amp; Ômega</li><li>Análise fatorial (EFA)</li><li>KMO, Bartlett e item-total</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🌿</div>
+      <h3>Ecologia</h3>
+      <p>Biodiversidade e ecologia de comunidades com as métricas canônicas.</p>
+      <ul><li>Diversidade alfa e beta</li><li>Análise de ordenação</li><li>Diversidade funcional e filogenética</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">📈</div>
+      <h3>Séries temporais</h3>
+      <p>Previsão e decomposição para dados ao longo do tempo.</p>
+      <ul><li>Holt-Winters, Theta, ARIMA</li><li>Decomposição STL</li><li>ACF/PACF e estacionariedade</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">⚙️</div>
+      <h3>Modelos mistos</h3>
+      <p>Efeitos fixos e aleatórios para dados agrupados e repetidos.</p>
+      <ul><li>Intercepto aleatório</li><li>ANOVA de medidas repetidas</li><li>Desenhos mistos</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🩺</div>
+      <h3>Estatística médica</h3>
+      <p>Ferramentas específicas para pesquisa clínica e diagnóstica.</p>
+      <ul><li>Curvas ROC e AUC (DeLong)</li><li>Bland-Altman e Kaplan-Meier</li><li>Kappa de Cohen e testes diagnósticos</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">📊</div>
+      <h3>Multivariada</h3>
+      <p>Redução de dimensão e ordenação para qualquer campo.</p>
+      <ul><li>PCA, PCoA, NMDS</li><li>CA, DCA, RDA, CCA</li><li>PERMANOVA e MANOVA</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">📚</div>
+      <h3>Meta-análise</h3>
+      <p>Combine e quantifique evidências de múltiplos estudos.</p>
+      <ul><li>Forest e funnel plots</li><li>Heterogeneidade (I², τ²)</li><li>Teste de Egger e sensibilidade</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🎯</div>
+      <h3>Análise de poder</h3>
+      <p>Planeje seu estudo com o tamanho amostral ideal.</p>
+      <ul><li>t, ANOVA, correlação, qui-quadrado</li><li>Regressão e SEM</li><li>Compatível com G*Power/WebPower</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🔮</div>
+      <h3>Estatística Bayesiana</h3>
+      <p>Inferência com fatores de Bayes e intervalos de credibilidade.</p>
+      <ul><li>BF JZS para t, ANOVA, correlação e regressão</li><li>HDI / ROPE</li><li>Posteriors</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">📉</div>
+      <h3>Regressão &amp; correlação</h3>
+      <p>Do simples ao flexível.</p>
+      <ul><li>Simples, múltipla, polinomial</li><li>Logística com OR e ROC</li><li>LOESS, splines, VIF</li></ul>
+    </div>
+    <div class="domain-card">
+      <div class="dc-icon">🧮</div>
+      <h3>Clássicas</h3>
+      <p>O essencial, refinado.</p>
+      <ul><li>Tabulação cruzada (χ²)</li><li>t-teste, ANOVA e pós-hocs</li><li>Tabela de descritivos para o paper</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== IA ===== -->
+<section class="section section-alt" id="ia">
+  <div class="ia-wrap container">
+    <div class="ia-copy">
+      <span class="eyebrow">O grande diferencial</span>
+      <h2 class="section-title">Um <span class="grad">cientista de dados</span> na sua mesa</h2>
+      <p class="section-sub">O Magic Stat embute <strong>assistentes de IA</strong> que conversam com seus dados. Dê uma instrução em linguagem natural e veja a análise acontecer — e ser explicada.</p>
+      <ul class="ia-list">
+        <li><strong>“Explore meus dados”</strong> — a IA escolhe a análise e abre a janela certa.</li>
+        <li><strong>“Interprete este resultado”</strong> — explicação clara, em linguagem comum, com contexto do seu campo.</li>
+        <li><strong>“O que significam estes coeficientes?”</strong> — o assistente lê os números exatos da sua sessão.</li>
+        <li><strong>Respeita o seu dado</strong> — nunca inventa resultado: só age se de fato executou a ferramenta.</li>
+      </ul>
+      <div class="ia-chips">
+        <span>BYOK — traga sua chave</span>
+        <span>OpenAI · Claude · Gemini · DeepSeek · OpenRouter · Local</span>
+      </div>
+    </div>
+    <div class="ia-demo" aria-hidden="true">
+      <div class="chat-window">
+        <div class="chat-head"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span><span class="chat-title">🗝️ Magic Stat Assistant</span></div>
+        <div class="chat-body">
+          <div class="msg msg-user">Explore estes dados e me diga se há diferença entre os grupos.</div>
+          <div class="msg msg-ai">Analisei a variável <code>PAS_mmHg</code> entre os 5 grupos. Rodei uma ANOVA seguida de post-hoc de Tukey. 💡 Encontrei diferença significativa (p &lt; 0.001) entre os grupos D e A.</div>
+          <div class="msg msg-user">Pode gerar o boxplot com esses grupos?</div>
+          <div class="msg msg-ai">Claro — executando agora. ✅ <em>Abri o box plot com cor por grupo, pronto para publicação.</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Relatório ===== -->
+<section class="section" id="relatorio">
+  <div class="report-grid container">
+    <div class="report-card-feature">
+      <span class="eyebrow">Report inteligente</span>
+      <h2 class="section-title">Um relatório <span class="grad">pronto para a paper</span></h2>
+      <p class="section-sub">
+        Esqueça a saída crua dos softwares convencionais. O Magic Stat gera um
+        <strong>relatório formatado</strong> — com tabelas em <strong>formato
+        científico</strong> e gráficos — que pode ser <strong>lido e comentado
+        pela IA</strong>, e exportado já formatado.
+      </p>
+      <ul class="report-feats">
+        <li>✔ Tabelas no estilo APA/editorial, sem retrabalho</li>
+        <li>✔ Estatísticas formatadas cientificamente (p, d, η², BF…)</li>
+        <li>✔ Comentários da IA sobre cada seção — revisão integrada</li>
+        <li>✔ Exporta formatado e mantém a sessão para revisão</li>
+      </ul>
+    </div>
+    <div class="report-strip">
+      <div class="mini-card mini-tab"><span>📊 ANOVA</span><span>F(4, 495) = 21.3, p &lt; .001, η²p = .147</span></div>
+      <div class="mini-card mini-tab"><span>🔗 Correlação</span><span>r(498) = .978, 95% CI [.973, .982], p &lt; .001</span></div>
+      <div class="mini-card mini-tab"><span>📈 Regressão</span><span>β = 6.78, SE = 0.13, p &lt; .001, R² = .956</span></div>
+      <div class="mini-card mini-note">✨ “A faixa do IC na reta é estreita, sugerindo alta precisão na estimativa do efeito.”</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Galeria ===== -->
+<section class="section section-alt" id="galeria">
+  <div class="section-head container">
+    <span class="eyebrow">Galeria</span>
+    <h2 class="section-title">Feito para <span class="grad">impressionar</span>.</h2>
+    <p class="section-sub">Cada gráfico sai com o visual que os revisores querem ver — limpo, nítido e legendado.</p>
+  </div>
+  <div class="gallery container">
+    <figure class="g-item g-wide"><img src="assets/screenshots/correlation_matrix.png" alt="Matriz de correlação"><figcaption>Matriz de correlação com significância</figcaption></figure>
+    <figure class="g-item"><img src="assets/screenshots/box1.png" alt="Box plot"><figcaption>Box plot por grupo</figcaption></figure>
+    <figure class="g-item"><img src="assets/screenshots/dot1.png" alt="Dot plot"><figcaption>Dot plot com médias</figcaption></figure>
+    <figure class="g-item"><img src="assets/screenshots/Scater2.png" alt="Scatter plot"><figcaption>Regressão com intervalo de confiança</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===== Download ===== -->
+<section class="section" id="download">
+  <div class="cta-box container">
+    <span class="eyebrow">Experimente</span>
+    <h2 class="cta-title">Vamos fazer sua análise bonita.</h2>
+    <p class="cta-sub">Instalador .pkg para macOS — instala em um clique, sem linha de comando.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-primary btn-lg">Baixar MagicStat.pkg</a>
+    </div>
+    <p class="cta-note">macOS · ~260 MB · instala em Aplicativos, pronto para usar.</p>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Dúvidas</span>
+    <h2 class="section-title">Perguntas frequentes</h2>
+  </div>
+  <div class="faq container">
+    <div class="faq-item">
+      <button class="faq-q">Preciso saber programar ou usar linha de comando?</button>
+      <div class="faq-a"><p>Não. O Magic Stat é um aplicativo de janelas, com menus e planilha integrada. Você abre o arquivo, clica na análise e recebe gráfico + tabela + relatório formatados.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">O modelo de IA funciona offline?</button>
+      <div class="faq-a"><p>A IA usa a sua chave (BYOK) com provedores OpenAI, Claude, Gemini, DeepSeek, OpenRouter ou modelos locais. O app em si funciona offline; o assistente precisa de conexão (ou de um modelo local).</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">Que formatos de dados ele abre?</button>
+      <div class="faq-a"><p>Excel (.xlsx/.xls), CSV e ODS (LibreOffice). Você também pode colar dados direto na planilha.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">As tabelas saem prontas para o papel?</button>
+      <div class="faq-a"><p>Sim. As tabelas já nascem em formato científico/APA, e o relatório pode ser exportado formatado — sem copiar e colar de uma saída bruta.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">Análise estatística com qualidade de publicação e inteligência. Feito para cientistas.</p>
+    <div class="footer-links">
+      <a href="#recursos">Recursos</a>
+      <a href="#ia">Assistente IA</a>
+      <a href="#relatorio">Relatórios</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <p class="footer-copy">© <span id="year"></span> Magic Stat Team.</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

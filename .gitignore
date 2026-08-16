@@ -1,0 +1,7 @@
+# Build / instalação (não versionar o binário grande)
+MagicStat.pkg
+*.pkg
+
+# Sistema
+.DS_Store
+Thumbs.db
