@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Lemon Squeezy checkout overlay -->
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 </head>
 <body>
 
@@ -27,6 +29,7 @@
       <li><a href="#outliers">Outliers</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#palettes">Palettes</a></li>
+      <li><a href="#pricing">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <a href="#download" class="btn btn-primary btn-sm nav-cta">Download</a>
@@ -393,6 +396,136 @@
       <button class="faq-q">Are the tables ready for print?</button>
       <div class="faq-a"><p>Yes. Tables are born in scientific/APA format, and the report can be exported formatted — no copying raw output.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ===== Pricing ===== -->
+<style>
+  /* ---- Pricing section (matches Magic Stat design system) ---- */
+  .pricing-section{padding:96px 24px;position:relative}
+  .pricing-head{max-width:640px;margin:0 auto 48px;text-align:center}
+  .pricing-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;color:#b986ff;font-weight:600;font-size:13px;
+    letter-spacing:.06em;text-transform:uppercase;
+    background:linear-gradient(100deg,rgba(124,140,255,.16),rgba(185,134,255,.16) 65%,rgba(79,216,200,.14));
+    border:1px solid rgba(185,134,255,.25);padding:7px 14px;border-radius:999px;margin-bottom:22px;
+  }
+  .pricing-title{font-size:clamp(28px,4vw,44px);font-weight:900;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px;color:#eef1ff}
+  .pricing-title .grad{
+    background:linear-gradient(100deg,#7c8cff,#b986ff 65%,#4fd8c8);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .pricing-sub{color:#a6aed6;font-size:17px;margin:0}
+
+  .pricing-card{max-width:480px;margin:0 auto}
+  .pricing-frame{
+    position:relative;border-radius:26px;padding:1px;
+    background:linear-gradient(160deg,rgba(124,140,255,.6),rgba(185,134,255,.45) 50%,rgba(79,216,200,.45));
+    box-shadow:0 30px 70px -28px rgba(0,0,0,.75);
+  }
+  .pricing-inner{
+    position:relative;border-radius:25px;background:#141936;padding:44px 38px;
+    display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden;
+  }
+  .pricing-inner::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:180px;pointer-events:none;
+    background:radial-gradient(60% 100% at 50% 0%,rgba(124,140,255,.18),transparent 70%);
+  }
+  .pricing-badge{
+    position:relative;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase;color:#0b0e1a;
+    background:linear-gradient(100deg,#7c8cff,#b986ff 65%,#4fd8c8);
+    padding:6px 14px;border-radius:999px;margin-bottom:20px;
+    box-shadow:0 10px 24px -10px rgba(124,140,255,.8);
+  }
+  .pricing-name{font-size:21px;font-weight:800;letter-spacing:-.01em;color:#eef1ff;margin-bottom:6px}
+  .pricing-tagline{font-size:14px;color:#a6aed6;margin-bottom:24px}
+
+  .pricing-price-row{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:4px}
+  .pricing-currency{font-size:22px;font-weight:800;color:#a6aed6}
+  .pricing-price{
+    font-size:64px;font-weight:900;letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(100deg,#7c8cff,#b986ff 65%,#4fd8c8);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .pricing-period{font-size:14px;color:#a6aed6;font-weight:500}
+  .pricing-payonce{font-size:13px;color:#4fd8c8;font-weight:600;margin-bottom:26px}
+
+  .pricing-features{list-style:none;width:100%;margin:0 0 28px;padding:0;display:grid;gap:12px;text-align:left}
+  .pricing-features li{display:flex;align-items:flex-start;gap:10px;font-size:15px;color:#eef1ff;line-height:1.45}
+  .pricing-features .check{
+    flex:none;width:20px;height:20px;margin-top:1px;border-radius:50%;
+    background:linear-gradient(100deg,rgba(124,140,255,.25),rgba(79,216,200,.25));
+    border:1px solid rgba(124,140,255,.45);color:#4fd8c8;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;
+  }
+
+  .pricing-cta{
+    width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    font-family:inherit;font-size:17px;font-weight:800;color:#0b0e1a;text-decoration:none;
+    background:linear-gradient(100deg,#7c8cff,#b986ff 65%,#4fd8c8);
+    border-radius:14px;padding:17px 24px;cursor:pointer;
+    box-shadow:0 14px 34px -12px rgba(124,140,255,.85);
+    transition:transform .15s,box-shadow .2s,filter .2s;
+  }
+  .pricing-cta:hover{transform:translateY(-2px);box-shadow:0 20px 44px -14px rgba(124,140,255,1);filter:brightness(1.06)}
+  .pricing-cta:active{transform:translateY(0)}
+
+  .pricing-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;margin-top:18px;font-size:12.5px;color:#a6aed6}
+  .pricing-trust span{display:inline-flex;align-items:center;gap:6px}
+
+  .pricing-note{max-width:480px;margin:26px auto 0;text-align:center;font-size:13px;color:#a6aed6}
+  .pricing-note a{color:#7c8cff;font-weight:600}
+
+  @media(max-width:520px){
+    .pricing-inner{padding:34px 22px}
+    .pricing-price{font-size:52px}
+  }
+  @media(prefers-reduced-motion:reduce){.pricing-cta{transition:none}}
+</style>
+
+<section class="pricing-section" id="pricing">
+  <div class="pricing-head">
+    <span class="pricing-eyebrow">Pricing</span>
+    <h2 class="pricing-title">One license, <span class="grad">lifetime access</span>.</h2>
+    <p class="pricing-sub">Pay once, own it forever. No subscriptions, no surprises.</p>
+  </div>
+
+  <div class="pricing-card">
+    <div class="pricing-frame">
+      <div class="pricing-inner">
+        <span class="pricing-badge">⚡ Best value</span>
+        <h3 class="pricing-name">Commercial Lifetime License</h3>
+        <p class="pricing-tagline">Every feature of Magic Stat on macOS — yours forever.</p>
+
+        <div class="pricing-price-row">
+          <span class="pricing-currency">$</span>
+          <span class="pricing-price">199</span>
+          <span class="pricing-period">USD</span>
+        </div>
+        <!-- 🔑 SET YOUR REAL PRICE above -->
+        <p class="pricing-payonce">One-time payment · no subscription</p>
+
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Full access to every analysis &amp; feature on macOS</li>
+          <li><span class="check">✓</span> All future updates included, free forever</li>
+          <li><span class="check">✓</span> Priority support by email</li>
+          <li><span class="check">✓</span> Activation on 1 device</li>
+        </ul>
+
+        <a class="pricing-cta lemon-squeezy-button"
+           href="https://magicstat.lemonsqueezy.com/checkout/buy/cc874403-c73c-4e3f-b403-fc359552c88c?embed=1">
+          Buy now — get lifetime access
+        </a>
+
+        <div class="pricing-trust">
+          <span>🔒 Secure checkout by Lemon Squeezy</span>
+          <span>⚡ Instant delivery</span>
+          <span>↩ 14-day money-back guarantee</span> <!-- 🔑 EDIT: adjust guarantee terms -->
+        </div>
+      </div>
+    </div>
+    <p class="pricing-note">Need more than one device or a team license? <a href="#">Contact us</a>.</p>
   </div>
 </section>
 
