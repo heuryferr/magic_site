@@ -40,9 +40,9 @@ const redis = new Redis({
 // Nº máximo de dispositivos por chave de licença.
 const DEVICE_LIMIT = 2;
 
-// Permalink público do produto Magic Stat no Gumroad
-// (parte final da URL: https://magicstat.gumroad.com/l/hjjfhq).
-const DEFAULT_PRODUCT_ID = "hjjfhq";
+// product_id do produto Magic Stat no Gumroad.
+// O Gumroad exige este valor ao validar (devolvido na mensagem de erro da API).
+const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 
 // TTL do registro de dispositivos: ~1 ano (equivale à licença anual), renovado
 // a cada validação para que um usuário ativo nunca perca seus devices — e o
@@ -66,8 +66,8 @@ function serverError(res, message) {
 async function verifyWithGumroad(licenseKey, productId, incrementUses) {
   const form = new URLSearchParams();
   form.append("access_token", GUMROAD_ACCESS_TOKEN);
-  // Usa o permalink (slug) do produto, não o ID interno do Gumroad.
-  form.append("product_permalink", productId);
+  // O Gumroad pede o parâmetro 'product_id' com o ID da conta do produto.
+  form.append("product_id", productId);
   form.append("license_key", licenseKey);
   if (incrementUses) form.append("increment_uses_count", "true");
 
