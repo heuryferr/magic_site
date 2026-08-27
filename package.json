@@ -1,0 +1,23 @@
+{
+  "name": "magic_site",
+  "version": "1.0.0",
+  "description": "Institutional website for **Magic Stat** — statistical analysis software with publication-quality output, built-in AI and scientific reports ready for your paper.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heuryferr/magic_site.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heuryferr/magic_site/issues"
+  },
+  "homepage": "https://github.com/heuryferr/magic_site#readme",
+  "dependencies": {
+    "@upstash/redis": "^1.38.3"
+  }
+}

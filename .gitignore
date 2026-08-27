@@ -5,3 +5,6 @@ MagicStat.pkg
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Node / dependências
+node_modules/
