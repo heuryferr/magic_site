@@ -1,0 +1,29 @@
+Onde o Magic Stat está à frente
+
+**1. Estatística → manuscrito no mesmo fluxo (o diferencial nº 1)**
+Softwares tradicionais te dão o número e te deixam brigando com o Word depois. Aqui o output já nasce **publicação-ready**: tabelas em convenção APA (`<0.001***`, p-value exact na coluna irmã), CLD como sobrescrito real, "Paper Table" com **duas versões** (concisa para caber em A4 + completa detalhada), e o **Copy Table** cola no Word/LibreOffice como tabela *perfeita* (largura por conteúdo, fonte adaptativa 6/7pt, booktabs, centralizado). Isso é uma dor diária real de cientista que o SPSS/Prism nunca resolveu.
+
+**2. O Report é um caderno de laboratório automático**
+Toda análise entra sozinha num relatório estilo artigo, com interpretação, premissas, efeito, poder — auditável e exportável (.docx/.html/.md). Nenhum software tradicional faz *auto-coleta* de tudo o que você rodou. O usuário nunca precisa "copiar e colar resultados antes de esquecer onde estava".
+
+**3. Largura de métodos num app só (sem pagar módulo por módulo)**
+Means/ANOVA/MANOVA/PERMANOVA, contraste planejado e tendência, SEM, GAM, modelos mistos, Bayesiano, psicometria, econometria, ecologia/ordinação, **análise espacial e SDM**, séries temporais, poder amostral compatível com G*Power… Num só lugar, com a mesma linguagem visual.
+
+**4. Lotes de análises com correção honesta**
+Rodar 60 ANOVAs de um painel de biomarcadores **de uma vez**, com FDR/Šidák/Holm e p ajustado reportado — coisa que em SPSS/R você monta com gambiarras.
+
+**5. O agente de IA com disciplina de ferramenta (e não um "consultor que inventa")**
+A diferença para "pedir pro ChatGPT fazer estatística": aqui o agente **executa os mesmos motores do programa** (paridade por construção: o que a UI mostra = o que o agente entrega = o que vai pro report), com guardas anti-deriva (edição cirúrgica, IRON RULE, contraste nunca vira ANOVA). E o plano é executado pelo app, não alucinado.
+
+**6. Detalhe que vira qualidade**
+Display names em tudo, quebra automática de nomes longos, legendas fora do gráfico, "espelho do estado real" nos editores (nada de reset silencioso), ticks com tracinhos… É o tipo de coisa que o usuário sente como "isso aqui respeita meu trabalho".
+
+**7. Privacidade e propriedade**
+BYOK (sua chave, sua máquina), dados nunca saem sem você pedir, e o projeto é versionado/aberto para o dono — sem lock-in de licença ou formato.
+
+
+O que UM SOFTWARE TRADICIONAL faz **depois** que você aperta OK? Te entrega um gráfico bonito e te manda embora brigar com a formatação. O Magic Stat entrega o gráfico **e**:
+- a tabela já em estilo de paper (Mean (SD), CLD, p com convenção APA),
+- o **copy que cola perfeito** no Word/LibreOffice (largura por conteúdo, fonte 6/7pt, booktabs),
+- o **report automático** com interpretação e poder,
+- e se você quiser, o **agente** roda o mesmo teste pelo chat com os mesmos números (paridade por construção).
