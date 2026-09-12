@@ -1,6 +1,8 @@
 # Build / instalação (não versionar o binário grande)
 MagicStat.pkg
 *.pkg
+*.dmg
+MagicStat.dmg
 
 # Sistema
 .DS_Store

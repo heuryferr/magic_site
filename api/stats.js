@@ -46,7 +46,7 @@ function esc(v) {
 
 function classify(name) {
   const n = String(name).toLowerCase();
-  if (n.endsWith(".pkg")) return "macos";
+  if (n.endsWith(".pkg") || n.endsWith(".dmg")) return "macos";
   if (n.endsWith(".exe") || n.endsWith(".msi")) return "windows";
   if (n.endsWith(".appimage") || n.endsWith(".deb") || n.endsWith(".rpm")) return "linux";
   return "other";

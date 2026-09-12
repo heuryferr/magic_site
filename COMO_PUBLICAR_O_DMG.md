@@ -1,4 +1,4 @@
-# 📦 Como publicar o instalador do Magic Stat (.pkg)
+# 📦 Como publicar o instalador do Magic Stat (.dmg)
 
 > Guia simples, para consultar no dia do lançamento.
 
@@ -12,7 +12,7 @@
 |---|---|
 | No app — `Magic-Stat/utils/app_meta.py` → `APP_VERSION` | `"1.0.1"` |
 | Tag do Release no GitHub | `v1.0.1` |
-| Nome do arquivo | `MagicStat-1.0.1.pkg` |
+| Nome do arquivo | `MagicStat-1.0.1.dmg` |
 | Manifesto — `updates/manifest.json` → `latest_version` | `"1.0.1"` |
 
 ### ⚠️ De onde veio o "1.0.2"?
@@ -27,13 +27,13 @@ manifesto **sempre** tem que bater com o pkg que ele aponta.
 
 Só quando você **mudar o app de verdade**. Aí sim:
 1. Bump em `app_meta.py` (`APP_VERSION = "1.0.2"`)
-2. Gera o `MagicStat-1.0.2.pkg`
+2. Gera o `MagicStat-1.0.2.dmg`
 3. Publica um Release novo (tag `v1.0.2`)
 4. Atualiza o manifesto → o app passa a oferecer a atualização sozinho ✅
 
 ---
 
-## 📍 Onde o .pkg vai?
+## 📍 Onde o .dmg vai?
 
 **Não é em pasta do repositório!** Ele vai **anexado a um "Release"**
 (seção separada do GitHub, feita para arquivos grandes).
@@ -46,30 +46,30 @@ MagicStat-Releases/
     └── manifest.json   ← só este arquivo
 ```
 
-> ⚠️ **Não** suba o `.pkg` como arquivo comum no repositório: ele tem ~380 MB e
+> ⚠️ **Não** suba o `.dmg` como arquivo comum no repositório: ele tem centenas de MB e
 > o GitHub rejeita arquivos acima de 100 MB. Release é o lugar certo (sem limite).
 
 ---
 
 ## 🚀 Passo a passo (dia do lançamento)
 
-1. No Mac, gere o instalador **`MagicStat-1.0.1.pkg`**
+1. No Mac, gere o instalador **`MagicStat-1.0.1.dmg`** (assinado com os certificados Apple)
 2. Abra → **https://github.com/heuryferr/MagicStat-Releases/releases**
 3. Clique em **"Draft a new release"**
 4. Preencha:
    - **Choose a tag** → `v1.0.1` → *Create new tag*
    - **Release title** → `Magic Stat 1.0.1`
-5. **Arraste o `MagicStat-1.0.1.pkg`** para a caixa *"Attach binaries…"*
-   👉 **é aqui que o pkg entra**, não em pasta
+5. **Arraste o `MagicStat-1.0.1.dmg`** para a caixa *"Attach binaries…"*
+   👉 **é aqui que o dmg entra**, não em pasta
 6. Clique em **"Publish release"** ✅
 
 O link de download será:
 
 ```
-https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg
+https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.dmg
 ```
 
-### 🔁 E se o pkg `v1.0.1` de lá for um build antigo de teste?
+### 🔁 E se o dmg `v1.0.1` de lá for um build antigo de teste?
 
 Não precisa criar release novo: abra o Release `v1.0.1` → **Edit** →
 apague o asset antigo e **arraste o novo com o mesmo nome**.
@@ -85,7 +85,7 @@ A URL continua idêntica e nada mais precisa mudar. 👍
 {
   "latest_version": "1.0.1",
   "installer": {
-    "url": "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg",
+    "url": "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.dmg",
     "sha256": "...",
     "size_bytes": 123456789
   }
@@ -101,7 +101,7 @@ Confirme a URL do macOS (é o que o contador usa):
 
 ```js
 const FILES = {
-  macos: "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg",
+  macos: "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.dmg",
 };
 ```
 
@@ -114,8 +114,8 @@ No dia do lançamento, ligue no Vercel: **`DOWNLOAD_ENABLED=1`**
 Quando existir um Release **mais novo** que a versão instalada, o app:
 
 1. avisa que há atualização (só com licença válida)
-2. baixa o .pkg + confere o `sha256`
-3. pede a senha de administrador do macOS e instala
+2. baixa o .dmg + confere o `sha256`
+3. abre o instalador (arrastar para Aplicativos) e conclui a instalação
 4. mostra: *"Magic Stat foi atualizado! O app vai fechar e reabrir com a nova
    versão em alguns segundos. Não se preocupe — é automático."*
 5. fecha e reabre **já atualizado** (sem loop, porque a versão nova == manifesto)
@@ -125,10 +125,10 @@ Quando existir um Release **mais novo** que a versão instalada, o app:
 ## ✅ Checklist final
 
 - [ ] `APP_VERSION` no `app_meta.py` = versão que você está lançando (`1.0.1`)
-- [ ] `.pkg` gerado no Mac
-- [ ] Release `v1.0.1` no GitHub com o **pkg anexado**
+- [ ] `.dmg` gerado no Mac (assinado)
+- [ ] Release `v1.0.1` no GitHub com o **dmg anexado**
 - [ ] `updates/manifest.json` → `latest_version` + `url` + `sha256` + `size_bytes`
-- [ ] `api/download.js` → mesma URL do pkg
+- [ ] `api/download.js` → mesma URL do dmg
 - [ ] Vercel → `DOWNLOAD_ENABLED=1`
 - [ ] Botões do site apontando para `/api/download?file=macos`
 

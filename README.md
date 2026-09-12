@@ -46,15 +46,12 @@ python -m http.server 8080
 
 ## 📦 Download
 
-The "Download" button expects the `MagicStat.pkg` installer in the site root
-(or a configured path in `index.html`). Copy the `.pkg` here before publishing:
+The "Download" button uses `/api/download?file=macos`, which redirects to the
+signed `MagicStat-<version>.dmg` hosted as a GitHub Releases asset (see
+`COMO_PUBLICAR_O_DMG.md`). The installer is **not** stored in this repository.
 
-```bash
-cp ~/Desktop/MagicStat.pkg ./MagicStat.pkg
-```
-
-> Note: GitHub Pages limits files over 100 MB. For the ~260 MB `.pkg`, host it
-> via GitHub Releases or elsewhere and point the button to that URL.
+> Note: don't commit the `.dmg` here — it's hundreds of MB and GitHub rejects
+> files over 100 MB. Releases are the right place (no practical limit).
 
 ## 📊 Download analytics (Vercel + Upstash Redis)
 

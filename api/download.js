@@ -7,7 +7,7 @@
 //
 // Fluxo:
 //   1. registra o clique no Upstash Redis (por dia + únicos por IP);
-//   2. responde 302 redirecionando para o arquivo real (.pkg no GitHub).
+//  2. responde 302 redirecionando para o arquivo real (.dmg no GitHub).
 //
 // IMPORTANTE: a contagem é "best-effort" — se o Redis falhar por qualquer
 // motivo, o usuário é redirecionado do MESMO jeito (o download nunca
@@ -31,7 +31,7 @@ const redis = new Redis({
 // /api/download, então trocar aqui vale para todos os botões).
 const FILES = {
   macos:
-    "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg",
+    "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.dmg",
   // windows: "https://.../MagicStat-Setup.exe",
   // linux:   "https://.../MagicStat.AppImage",
 };
