@@ -1,57 +1,85 @@
-# 📦 Onde colocar o .pkg quando estiver pronto?
+# 📦 Como publicar o instalador do Magic Stat (.pkg)
 
-> ℹ️ **Primeiro lançamento = `1.0.1`** — já é a versão que o app reporta e a
-> tag que já existe. **Não precisa bumpar nada** para lançar.
-> Nos exemplos abaixo usei `1.0.2` só para ilustrar a *próxima* atualização
-> (quando você mudar o app de novo).
+> Guia simples, para consultar no dia do lançamento.
 
-## Resposta curta
+---
 
-**O `.pkg` NÃO vai em nenhuma pasta do repositório.** Ele vai **anexado a um
-"Release"** (uma seção separada do GitHub, feita para arquivos grandes).
+## 🧠 Entenda as versões primeiro (importante!)
 
-O único arquivo que você edita no repositório é o **manifesto de atualização**
-(que já existe):
+**Seu primeiro lançamento é o `1.0.1`.** Não precisa mudar número nenhum.
+
+| Onde a versão aparece | Valor no 1º lançamento |
+|---|---|
+| No app — `Magic-Stat/utils/app_meta.py` → `APP_VERSION` | `"1.0.1"` |
+| Tag do Release no GitHub | `v1.0.1` |
+| Nome do arquivo | `MagicStat-1.0.1.pkg` |
+| Manifesto — `updates/manifest.json` → `latest_version` | `"1.0.1"` |
+
+### ⚠️ De onde veio o "1.0.2"?
+
+Do **teste** que fizemos: colocamos um manifesto anunciando `1.0.2` mas o pkg
+anexado era o `1.0.1`. Resultado: o app dizia *"tem 1.0.2!"*, baixava o `1.0.1`,
+reabria ainda como `1.0.1` e avisava de novo → **loop infinito**.
+Já corrigimos (o manifesto está em `1.0.1`). **Lição:** o `latest_version` do
+manifesto **sempre** tem que bater com o pkg que ele aponta.
+
+### Quando usar `1.0.2`, `1.1.0`…?
+
+Só quando você **mudar o app de verdade**. Aí sim:
+1. Bump em `app_meta.py` (`APP_VERSION = "1.0.2"`)
+2. Gera o `MagicStat-1.0.2.pkg`
+3. Publica um Release novo (tag `v1.0.2`)
+4. Atualiza o manifesto → o app passa a oferecer a atualização sozinho ✅
+
+---
+
+## 📍 Onde o .pkg vai?
+
+**Não é em pasta do repositório!** Ele vai **anexado a um "Release"**
+(seção separada do GitHub, feita para arquivos grandes).
+
+O único arquivo do repositório que você edita é o **manifesto**:
 
 ```
 MagicStat-Releases/
 └── updates/
-    └── manifest.json   ← só este arquivo você edita
+    └── manifest.json   ← só este arquivo
 ```
+
+> ⚠️ **Não** suba o `.pkg` como arquivo comum no repositório: ele tem ~380 MB e
+> o GitHub rejeita arquivos acima de 100 MB. Release é o lugar certo (sem limite).
 
 ---
 
-## 🚀 Passo a passo (quando o .pkg estiver pronto)
+## 🚀 Passo a passo (dia do lançamento)
 
-1. No seu Mac, gere o instalador: **`MagicStat-1.0.1.pkg`**
-   (é a versão atual — só mude o número em `utils/app_meta.py` quando lançar
-   uma versão NOVA de verdade)
-
-2. Vá em → **https://github.com/heuryferr/MagicStat-Releases/releases**
-
-3. Clique em **"Draft a new release"** — se o `v1.0.1` já existir, use ele e
-   apenas **substitua o arquivo** (arrastar outro com o mesmo nome por cima)
-
+1. No Mac, gere o instalador **`MagicStat-1.0.1.pkg`**
+2. Abra → **https://github.com/heuryferr/MagicStat-Releases/releases**
+3. Clique em **"Draft a new release"**
 4. Preencha:
-   - **Choose a tag** → `v1.0.1` → *Create new tag* (ou reaproveite a existente)
+   - **Choose a tag** → `v1.0.1` → *Create new tag*
    - **Release title** → `Magic Stat 1.0.1`
-
-5. **Arraste o arquivo `MagicStat-1.0.1.pkg`** para a caixa
-   *"Attach binaries…"* (é aqui que o pkg entra! Não é em pasta.)
-
+5. **Arraste o `MagicStat-1.0.1.pkg`** para a caixa *"Attach binaries…"*
+   👉 **é aqui que o pkg entra**, não em pasta
 6. Clique em **"Publish release"** ✅
 
-Pronto! O link de download dele passa a ser:
+O link de download será:
 
 ```
 https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg
 ```
 
+### 🔁 E se o pkg `v1.0.1` de lá for um build antigo de teste?
+
+Não precisa criar release novo: abra o Release `v1.0.1` → **Edit** →
+apague o asset antigo e **arraste o novo com o mesmo nome**.
+A URL continua idêntica e nada mais precisa mudar. 👍
+
 ---
 
-## 🔄 Depois de publicar, atualize 2 coisas
+## 🔄 Depois de publicar, ajuste 2 coisas
 
-### 1) O manifesto de atualização — `updates/manifest.json`
+### 1) O manifesto — `updates/manifest.json`
 
 ```json
 {
@@ -64,12 +92,12 @@ https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicSt
 }
 ```
 
-> 💡 Pode me pedir: **"publica o 1.0.1"** que eu preencho o manifesto com a URL,
-> o `sha256` e o tamanho certos automaticamente.
+> 💡 Pode me pedir: **"publica o 1.0.1"** que eu preencho a URL, o `sha256` e o
+> tamanho certos automaticamente.
 
 ### 2) O site — `api/download.js`
 
-Confirme a URL do macOS:
+Confirme a URL do macOS (é o que o contador usa):
 
 ```js
 const FILES = {
@@ -77,19 +105,39 @@ const FILES = {
 };
 ```
 
-E (só no dia do lançamento) ligue no Vercel: **`DOWNLOAD_ENABLED=1`**
+No dia do lançamento, ligue no Vercel: **`DOWNLOAD_ENABLED=1`**
 
 ---
 
-## ✅ Checklist rápido
+## 🤖 O que acontece DEPOIS (o ciclo da atualização)
 
-- [ ] `APP_VERSION` confere com o nome do pkg (primeiro lançamento: `1.0.1`)
+Quando existir um Release **mais novo** que a versão instalada, o app:
+
+1. avisa que há atualização (só com licença válida)
+2. baixa o .pkg + confere o `sha256`
+3. pede a senha de administrador do macOS e instala
+4. mostra: *"Magic Stat foi atualizado! O app vai fechar e reabrir com a nova
+   versão em alguns segundos. Não se preocupe — é automático."*
+5. fecha e reabre **já atualizado** (sem loop, porque a versão nova == manifesto)
+
+---
+
+## ✅ Checklist final
+
+- [ ] `APP_VERSION` no `app_meta.py` = versão que você está lançando (`1.0.1`)
 - [ ] `.pkg` gerado no Mac
-- [ ] Release `v1.0.1` com o pkg **anexado** (ou asset substituído)
-- [ ] `updates/manifest.json` atualizado (versão + URL + sha256 + tamanho)
-- [ ] `api/download.js` → URL correta
+- [ ] Release `v1.0.1` no GitHub com o **pkg anexado**
+- [ ] `updates/manifest.json` → `latest_version` + `url` + `sha256` + `size_bytes`
+- [ ] `api/download.js` → mesma URL do pkg
 - [ ] Vercel → `DOWNLOAD_ENABLED=1`
+- [ ] Botões do site apontando para `/api/download?file=macos`
 
-> ⚠️ **Não coloque o `.pkg` como arquivo comum no repositório** — ele tem
-> ~380 MB e o GitHub rejeita arquivos acima de 100 MB. Release (passo 5) é o
-> lugar certo e não tem esse limite.
+---
+
+## 📊 Bônus: acompanhar os downloads
+
+Depois de lançar, veja a contabilidade (cliques do site + downloads reais do GitHub):
+
+```
+https://statmagic.vercel.app/api/stats?token=SEU_TOKEN&format=html
+```
