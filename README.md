@@ -81,6 +81,12 @@ Two serverless functions keep a **daily count of downloads**:
 | `DOWNLOAD_ENABLED` | `1` opens downloads; anything else keeps 404 (pre-launch) |
 | `STATS_TOKEN` | Secret required by `/api/stats` |
 | `DOWNLOAD_IP_SALT` *(optional)* | Salt for the visitor hash (unique counts) |
+| `GITHUB_TOKEN` *(optional)* | Raises the GitHub API rate limit for real download counts |
+| `GITHUB_RELEASES_REPO` *(optional)* | Defaults to `heuryferr/MagicStat-Releases` |
+
+The report shows **two sources**, so you can compare *clicked* vs *actually downloaded*:
+1. our counter (site clicks + unique visitors, per day);
+2. GitHub's real `download_count` of each installer asset (cached 5 min).
 
 Counting is best-effort: if Redis fails, the download still works.
 
