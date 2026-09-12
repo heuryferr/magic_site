@@ -56,6 +56,34 @@ cp ~/Desktop/MagicStat.pkg ./MagicStat.pkg
 > Note: GitHub Pages limits files over 100 MB. For the ~260 MB `.pkg`, host it
 > via GitHub Releases or elsewhere and point the button to that URL.
 
+## 📊 Download analytics (Vercel + Upstash Redis)
+
+Two serverless functions keep a **daily count of downloads**:
+
+- `api/download.js` — counts the click (per day + unique visitors) and
+  redirects to the real installer. Wire a button with:
+  ```html
+  <a href="/api/download?file=macos" class="btn btn-primary">Download for macOS</a>
+  ```
+  Update the installer URL in `FILES` (single place) on every release.
+- `api/stats.js` — daily report, protected by a token:
+  ```
+  /api/stats?token=YOUR_TOKEN              # JSON
+  /api/stats?token=YOUR_TOKEN&format=html  # table in the browser
+  /api/stats?token=YOUR_TOKEN&days=90      # window (default 30, max 365)
+  ```
+
+### Environment variables (Vercel → Settings → Environment Variables)
+
+| Variable | Purpose |
+|----------|---------|
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Already set (license server) |
+| `DOWNLOAD_ENABLED` | `1` opens downloads; anything else keeps 404 (pre-launch) |
+| `STATS_TOKEN` | Secret required by `/api/stats` |
+| `DOWNLOAD_IP_SALT` *(optional)* | Salt for the visitor hash (unique counts) |
+
+Counting is best-effort: if Redis fails, the download still works.
+
 ## 🧙 Publish
 
 ```bash
