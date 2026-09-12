@@ -1,5 +1,10 @@
 # 📦 Onde colocar o .pkg quando estiver pronto?
 
+> ℹ️ **Primeiro lançamento = `1.0.1`** — já é a versão que o app reporta e a
+> tag que já existe. **Não precisa bumpar nada** para lançar.
+> Nos exemplos abaixo usei `1.0.2` só para ilustrar a *próxima* atualização
+> (quando você mudar o app de novo).
+
 ## Resposta curta
 
 **O `.pkg` NÃO vai em nenhuma pasta do repositório.** Ele vai **anexado a um
@@ -18,18 +23,20 @@ MagicStat-Releases/
 
 ## 🚀 Passo a passo (quando o .pkg estiver pronto)
 
-1. No seu Mac, gere o instalador: **`MagicStat-1.0.2.pkg`**
-   (lembre de subir a versão: `utils/app_meta.py` → `APP_VERSION = "1.0.2"`)
+1. No seu Mac, gere o instalador: **`MagicStat-1.0.1.pkg`**
+   (é a versão atual — só mude o número em `utils/app_meta.py` quando lançar
+   uma versão NOVA de verdade)
 
 2. Vá em → **https://github.com/heuryferr/MagicStat-Releases/releases**
 
-3. Clique em **"Draft a new release"**
+3. Clique em **"Draft a new release"** — se o `v1.0.1` já existir, use ele e
+   apenas **substitua o arquivo** (arrastar outro com o mesmo nome por cima)
 
 4. Preencha:
-   - **Choose a tag** → digite `v1.0.2` → *Create new tag*
-   - **Release title** → `Magic Stat 1.0.2`
+   - **Choose a tag** → `v1.0.1` → *Create new tag* (ou reaproveite a existente)
+   - **Release title** → `Magic Stat 1.0.1`
 
-5. **Arraste o arquivo `MagicStat-1.0.2.pkg`** para a caixa
+5. **Arraste o arquivo `MagicStat-1.0.1.pkg`** para a caixa
    *"Attach binaries…"* (é aqui que o pkg entra! Não é em pasta.)
 
 6. Clique em **"Publish release"** ✅
@@ -37,7 +44,7 @@ MagicStat-Releases/
 Pronto! O link de download dele passa a ser:
 
 ```
-https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.2/MagicStat-1.0.2.pkg
+https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg
 ```
 
 ---
@@ -48,25 +55,25 @@ https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.2/MagicSt
 
 ```json
 {
-  "latest_version": "1.0.2",
+  "latest_version": "1.0.1",
   "installer": {
-    "url": "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.2/MagicStat-1.0.2.pkg",
+    "url": "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg",
     "sha256": "...",
     "size_bytes": 123456789
   }
 }
 ```
 
-> 💡 Pode me pedir: **"publica o 1.0.2"** que eu preencho o manifesto com a URL,
+> 💡 Pode me pedir: **"publica o 1.0.1"** que eu preencho o manifesto com a URL,
 > o `sha256` e o tamanho certos automaticamente.
 
 ### 2) O site — `api/download.js`
 
-Troque a URL do macOS:
+Confirme a URL do macOS:
 
 ```js
 const FILES = {
-  macos: "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.2/MagicStat-1.0.2.pkg",
+  macos: "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.pkg",
 };
 ```
 
@@ -76,11 +83,11 @@ E (só no dia do lançamento) ligue no Vercel: **`DOWNLOAD_ENABLED=1`**
 
 ## ✅ Checklist rápido
 
-- [ ] `APP_VERSION` atualizado no código antes de buildar
+- [ ] `APP_VERSION` confere com o nome do pkg (primeiro lançamento: `1.0.1`)
 - [ ] `.pkg` gerado no Mac
-- [ ] Release criado com a tag `v1.0.2` + pkg **anexado**
+- [ ] Release `v1.0.1` com o pkg **anexado** (ou asset substituído)
 - [ ] `updates/manifest.json` atualizado (versão + URL + sha256 + tamanho)
-- [ ] `api/download.js` → URL nova
+- [ ] `api/download.js` → URL correta
 - [ ] Vercel → `DOWNLOAD_ENABLED=1`
 
 > ⚠️ **Não coloque o `.pkg` como arquivo comum no repositório** — ele tem
