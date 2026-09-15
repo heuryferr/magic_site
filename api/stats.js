@@ -117,7 +117,7 @@ async function githubDownloads() {
   return data;
 }
 
-function htmlPage(rows, totals, days, github) {
+function htmlPage(rows, totals, days, github, visits, origin) {
   const body = rows.length
     ? rows
         .map(
@@ -171,7 +171,143 @@ function htmlPage(rows, totals, days, github) {
 <tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>—</td></tr></tfoot>
 </table>
 ${gh}
+${htmlVisits(visits)}
+${htmlOrigin(origin)}
 </body></html>`;
+}
+
+
+// ── VISITAS do site (gravadas pelo api/visit) ──────────────────────────
+async function visitsWindow(days) {
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+  const p = redis.pipeline();
+  dias.forEach((d) => {
+    p.get(`visits:${d}`);
+    p.scard(`visits:uniq:${d}`);
+    p.get(`visits:bots:${d}`);
+  });
+  p.get("visits:total");
+  const res = await p.exec();
+  const rows = dias.map((d, i) => ({
+    date: d,
+    views: Number(res[i * 3] || 0),
+    unique: Number(res[i * 3 + 1] || 0),
+    bots: Number(res[i * 3 + 2] || 0),
+  }));
+  return {
+    ok: true,
+    window_days: days,
+    rows,
+    totals: {
+      views: rows.reduce((a, r) => a + r.views, 0),
+      uniques: rows.reduce((a, r) => a + r.unique, 0),
+      bots: rows.reduce((a, r) => a + r.bots, 0),
+      all_time_views: Number(res[dias.length * 3] || 0),
+    },
+  };
+}
+
+// ── De onde veio: país (x-vercel-ip-country) e conta (utm_content) ─────
+async function origemWindow(days) {
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+
+  // 1) quais países/contas apareceram em cada dia
+  const p = redis.pipeline();
+  dias.forEach((d) => {
+    p.smembers(`visits:ccs:${d}`);
+    p.smembers(`visits:utms:${d}`);
+    p.smembers(`downloads:ccs:${d}`);
+    p.smembers(`downloads:utms:${d}`);
+  });
+  const achados = await p.exec();
+  const ccV = new Set(), utmV = new Set(), ccC = new Set(), utmC = new Set();
+  achados.forEach((v, i) => {
+    const arr = Array.isArray(v) ? v : [];
+    const slot = i % 4;
+    if (slot === 0) arr.forEach((x) => ccV.add(x));
+    else if (slot === 1) arr.forEach((x) => utmV.add(x));
+    else if (slot === 2) arr.forEach((x) => ccC.add(x));
+    else arr.forEach((x) => utmC.add(x));
+  });
+
+  // 2) soma os contadores dia a dia
+  const q = redis.pipeline();
+  const jobs = [];
+  const somar = (pref, chave, valores) => {
+    valores.forEach((valor) => {
+      dias.forEach((d) => {
+        q.get(`${pref}:${chave}:${valor}:${d}`);
+        jobs.push({ destino: `${pref}_${chave}`, nome: valor });
+      });
+    });
+  };
+  somar("visits", "cc", ccV);
+  somar("visits", "utm", utmV);
+  somar("downloads", "cc", ccC);
+  somar("downloads", "utm", utmC);
+  const res2 = await q.exec();
+  const acc = {};
+  res2.forEach((v, i) => {
+    const job = jobs[i];
+    if (!job) return;
+    const n = Number(v || 0);
+    if (!n) return;
+    acc[job.destino] = acc[job.destino] || {};
+    acc[job.destino][job.nome] = (acc[job.destino][job.nome] || 0) + n;
+  });
+  const lista = (chave) =>
+    Object.entries(acc[chave] || {})
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+  return {
+    ok: true,
+    window_days: days,
+    clicks_country: lista("downloads_cc"),
+    clicks_utm: lista("downloads_utm"),
+    visits_country: lista("visits_cc"),
+    visits_utm: lista("visits_utm"),
+  };
+}
+
+// ── Quadros extras do relatório HTML ───────────────────────────────────
+function htmlVisits(visits) {
+  if (!visits || !visits.ok) return "";
+  const linhas = (visits.rows || [])
+    .filter((r) => r.views || r.unique || r.bots)
+    .map((r) => `<tr><td>${esc(r.date)}</td><td>${r.views || 0}</td>` +
+                `<td>${r.unique || 0}</td><td>${r.bots || 0}</td></tr>`)
+    .join("");
+  const t = visits.totals || {};
+  return `
+<h1 style="margin-top:42px">Site visits (our counter)</h1>
+<p class="sub">Page views recorded by <code>/api/visit</code> in the window &middot; "unique" = distinct visitor (IP+UA hash) &middot; robots are counted apart.</p>
+<table>
+<thead><tr><th>Date</th><th>Views</th><th>Unique</th><th>Robots</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="4">No visits recorded in this window.</td></tr>`}</tbody>
+<tfoot><tr><td>Window</td><td>${t.views || 0}</td><td>${t.uniques || 0}</td><td>${t.bots || 0}</td></tr></tfoot>
+</table>`;
+}
+
+function htmlOrigin(origin) {
+  if (!origin || !origin.ok) return "";
+  const bloco = (titulo, lista) => {
+    const linhas = (lista || []).slice(0, 12)
+      .map((r) => `<tr><td>${esc(r.name)}</td><td>${r.count || 0}</td></tr>`)
+      .join("");
+    return `<h2 style="font-size:15px;margin:24px 0 6px">${esc(titulo)}</h2>
+<table><thead><tr><th>${esc(titulo)}</th><th>Total</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="2">No data.</td></tr>`}</tbody></table>`;
+  };
+  return `
+<h1 style="margin-top:42px">Where it came from</h1>
+<p class="sub">Country = <code>x-vercel-ip-country</code> &middot; account = <code>utm_content</code> (the Magic Stat Mail sending account).</p>
+${bloco("Clicks by country", origin.clicks_country)}
+${bloco("Clicks by account", origin.clicks_utm)}
+${bloco("Visits by country", origin.visits_country)}
+${bloco("Visits by account", origin.visits_utm)}`;
 }
 
 export default async function handler(req, res) {
@@ -244,17 +380,42 @@ export default async function handler(req, res) {
       github = { ok: false, error: String(err?.message ?? err) };
     }
 
+    // ── 3) Visitas do site + de onde vieram (nunca derruba o resto) ─────
+    let visits = null;
+    let origin = null;
+    try {
+      visits = await visitsWindow(days);
+    } catch (err) {
+      console.error("visits stats error:", err?.message ?? err);
+      visits = { ok: false, error: String(err?.message ?? err) };
+    }
+    try {
+      origin = await origemWindow(days);
+    } catch (err) {
+      console.error("origin stats error:", err?.message ?? err);
+      origin = { ok: false, error: String(err?.message ?? err) };
+    }
+
     if (req.query.format === "html") {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).send(htmlPage(rows, totals, days, github));
+      return res.status(200).send(
+        htmlPage(rows, totals, days, github, visits, origin)
+      );
     }
 
     return res.status(200).json({
       ok: true,
       days,
       generated_at: new Date().toISOString(),
-      clicks: { totals, rows },
+      clicks: {
+        totals,
+        rows,
+        by_country: (origin && origin.clicks_country) || [],
+        by_utm: (origin && origin.clicks_utm) || [],
+      },
+      visits,
+      origin,
       github,
     });
   } catch (err) {

@@ -137,6 +137,28 @@ function visitorHash(req) {
     .slice(0, 32);
 }
 
+// ── Origem (país + conta) — usado pelo contador de origem abaixo ───────
+const RETENCAO_UNICOS = 120 * 24 * 60 * 60; // 120 dias (igual ao resto)
+const RETENCAO_INDICE = 400 * 24 * 60 * 60; // 400 dias para os índices
+
+// Rótulo seguro para virar chave: minúsculo, sem acento/espaço, curto.
+function slug(valor, max = 60) {
+  const limpo = String(valor || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._@-]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, max);
+  return limpo;
+}
+
+// A conta vem do utm_content que o Magic Stat Mail coloca no link.
+function utmContent(req) {
+  return slug(req.query.utm_content, 60) || "(direto)";
+}
+
 export default async function handler(req, res) {
   const file = String(req.query.file || "macos").toLowerCase();
   if (file !== "macos") {
@@ -165,6 +187,37 @@ export default async function handler(req, res) {
     ]);
   } catch (err) {
     console.error("download counter error:", err?.message ?? err);
+  }
+
+  // ── De onde veio o clique: país (header do Vercel) + conta (utm_content)
+  // Chaves NOVAS (downloads:cc:*, downloads:utm:*) — as de cima não mudam.
+  try {
+    const day = localDayKey();
+    const cc =
+      String(req.headers["x-vercel-ip-country"] || "??")
+        .toUpperCase()
+        .replace(/[^A-Z]/g, "")
+        .slice(0, 2) || "??";
+    const conta = utmContent(req);
+    const hash = visitorHash(req);
+    const p = redis.pipeline();
+    p.incr(`downloads:cc:${cc}:${day}`);
+    p.incr(`downloads:cc:${cc}`);
+    p.sadd(`downloads:ccs:${day}`, cc);
+    p.expire(`downloads:ccs:${day}`, RETENCAO_INDICE);
+    p.sadd("downloads:ccs", cc);
+    p.sadd(`downloads:unicc:${cc}`, hash);
+    p.expire(`downloads:unicc:${cc}`, RETENCAO_UNICOS);
+    p.incr(`downloads:utm:${conta}:${day}`);
+    p.incr(`downloads:utm:${conta}`);
+    p.sadd(`downloads:utms:${day}`, conta);
+    p.expire(`downloads:utms:${day}`, RETENCAO_INDICE);
+    p.sadd("downloads:utms", conta);
+    p.sadd(`downloads:uniutm:${conta}`, hash);
+    p.expire(`downloads:uniutm:${conta}`, RETENCAO_UNICOS);
+    await p.exec();
+  } catch (err) {
+    console.error("download origin counter error:", err?.message ?? err);
   }
 
   // ── Redireciona para o instalador real ────────────────────────────────
