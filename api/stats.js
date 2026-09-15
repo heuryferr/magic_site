@@ -247,7 +247,9 @@ async function origemWindow(days) {
   somar("visits", "utm", utmV);
   somar("downloads", "cc", ccC);
   somar("downloads", "utm", utmC);
-  const res2 = await q.exec();
+  // O Upstash recusa pipeline vazio — e é o caso normal no começo, quando
+  // nenhum país/conta foi registrado ainda.
+  const res2 = jobs.length ? await q.exec() : [];
   const acc = {};
   res2.forEach((v, i) => {
     const job = jobs[i];
