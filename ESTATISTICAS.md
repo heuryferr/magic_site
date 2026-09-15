@@ -22,6 +22,15 @@ sabemos **de qual conta de envio** veio cada visita, clique e venda.
   `utm_content=<conta de envio>` (ex.: `heuryferr@gmail.com`).
 * **Dispositivo/robô** — robôs claros (scanner, monitor, curl) não contam como
   visita: vão para `visits:bots:{dia}` e aparecem separados no relatório.
+* **Navegador/SO** — derivado do user-agent (`macOS/Safari 17`, `Windows/Chrome
+  126`, `HeadlessChrome`…). É o desempate entre **pessoa** e **robô com cara de
+  navegador**.
+* **Origem (referrer)** — de qual site a pessoa veio (`(sem referrer)` quando
+  abre direto). Vai na mão do `track.js`, porque numa requisição de beacon o
+  header `Referer` seria a própria página.
+* **Página** — em qual página do site ela estava.
+* **País × conta** — a leitura combinada: responde "as visitas da Holanda
+  vieram do nosso e-mail ou foram diretas?".
 
 ## Chaves no Redis
 
@@ -39,6 +48,13 @@ visits:bots:{dia}                          requisições de robô (ignoradas)
 visits:cc:{cc}:{dia} / visits:cc:{cc}                visitas por país / acumulado
 visits:utm:{conta}:{dia} / visits:utm:{conta}        visitas por conta / acumulado
 visits:ccs:{dia} / visits:utms:{dia}                 índices do dia (400d)
+
+visits:x:{dia}          HASH  dimensões extras do dia, campo por valor:
+                              ua:<SO/navegador>   ref:<site de origem>
+                              path:<página>       ccut:<país>|<conta>
+downloads:x:{dia}       HASH  as mesmas 4 dimensões, para os cliques
+                              (um hash por dia = 1 comando para gravar e 1
+                               para ler tudo; expira em 400 dias)
 ```
 
 ## Privacidade

@@ -274,6 +274,50 @@ async function origemWindow(days) {
   };
 }
 
+// ── Dimensões extras (um hash por dia): navegador, origem, página, país×conta
+async function extraWindow(days) {
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+  const p = redis.pipeline();
+  dias.forEach((d) => {
+    p.hgetall(`visits:x:${d}`);
+    p.hgetall(`downloads:x:${d}`);
+  });
+  const res = await p.exec();
+  const acc = {
+    visits_ua: {}, visits_ref: {}, visits_path: {}, visits_ccut: {},
+    clicks_ua: {}, clicks_ref: {}, clicks_path: {}, clicks_ccut: {},
+  };
+  res.forEach((hash, i) => {
+    if (!hash || typeof hash !== "object") return;
+    const destino = i % 2 === 0 ? "visits" : "clicks";
+    Object.entries(hash).forEach(([campo, valor]) => {
+      const corte = String(campo).indexOf(":");
+      if (corte < 0) return;
+      const chave = `${destino}_${String(campo).slice(0, corte)}`;
+      if (!acc[chave]) return;
+      const nome = String(campo).slice(corte + 1);
+      acc[chave][nome] = (acc[chave][nome] || 0) + Number(valor || 0);
+    });
+  });
+  const lista = (chave) =>
+    Object.entries(acc[chave] || {})
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  return {
+    ok: true,
+    window_days: days,
+    visits_ua: lista("visits_ua"),
+    visits_ref: lista("visits_ref"),
+    visits_path: lista("visits_path"),
+    visits_ccut: lista("visits_ccut"),
+    clicks_ua: lista("clicks_ua"),
+    clicks_ref: lista("clicks_ref"),
+    clicks_path: lista("clicks_path"),
+    clicks_ccut: lista("clicks_ccut"),
+  };
+}
+
 // ── Quadros extras do relatório HTML ───────────────────────────────────
 function htmlVisits(visits) {
   if (!visits || !visits.ok) return "";
@@ -309,7 +353,13 @@ function htmlOrigin(origin) {
 ${bloco("Clicks by country", origin.clicks_country)}
 ${bloco("Clicks by account", origin.clicks_utm)}
 ${bloco("Visits by country", origin.visits_country)}
-${bloco("Visits by account", origin.visits_utm)}`;
+${bloco("Visits by account", origin.visits_utm)}
+${bloco("Visits by country · account", origin.visits_ccut)}
+${bloco("Visits by browser / OS", origin.visits_ua)}
+${bloco("Visits by referrer", origin.visits_ref)}
+${bloco("Visits by page", origin.visits_path)}
+${bloco("Clicks by browser / OS", origin.clicks_ua)}
+${bloco("Clicks by country · account", origin.clicks_ccut)}`;
 }
 
 export default async function handler(req, res) {
@@ -396,6 +446,12 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("origin stats error:", err?.message ?? err);
       origin = { ok: false, error: String(err?.message ?? err) };
+    }
+    try {
+      const extra = await extraWindow(days);
+      if (origin && origin.ok) origin = { ...origin, ...extra };
+    } catch (err) {
+      console.error("extra stats error:", err?.message ?? err);
     }
 
     if (req.query.format === "html") {

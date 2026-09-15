@@ -19,12 +19,22 @@
 //   visits:utm:{conta}               INCR  -> acumulado por conta
 //   visits:utms:{dia} / visits:utms  SET   -> índice de contas do dia / geral
 //   visits:uniutm:{conta}            SET   -> únicos por conta
+//   visits:x:{dia}                   HASH  -> dimensões extras do dia, campo:
+//                                            "ua:<SO/navegador>",
+//                                            "ref:<site de origem>",
+//                                            "path:<página>",
+//                                            "ccut:<país>|<conta>"
+//                                            (um hash por dia = 1 comando
+//                                            para gravar e 1 para ler tudo)
 //
 // O país vem do header `x-vercel-ip-country` (o Vercel entrega em qualquer
 // plano). A conta vem do `utm_content` que o Magic Stat Mail coloca no link.
+// O `ref` e o `path` chegam do `assets/js/track.js` (o referrer de uma
+// requisição de beacon seria a própria página, não de onde a pessoa veio).
 //
 // PRIVACIDADE: nunca guardamos o IP — só um hash irreversível de IP +
 // user-agent (mesmo esquema do download.js), dentro de SETs com expiração.
+// Nada de dado pessoal: só contagens por país/navegador/origem/página.
 //
 // Best-effort: se o Redis falhar, o site segue funcionando do mesmo jeito.
 // ======================================================================
@@ -42,6 +52,7 @@ const REPORT_TZ_OFFSET_MINUTES = -180;
 const IP_SALT = process.env.DOWNLOAD_IP_SALT || "magic-stat-downloads";
 const RETENCAO_UNICOS = 120 * 24 * 60 * 60; // 120 dias (igual ao download.js)
 const RETENCAO_INDICE = 400 * 24 * 60 * 60; // 400 dias para os índices
+const RETENCAO_DIM = 400 * 24 * 60 * 60; // 400 dias para o hash do dia
 
 function localDayKey(offsetDays = 0) {
   const now = Date.now() + REPORT_TZ_OFFSET_MINUTES * 60 * 1000;
@@ -65,7 +76,7 @@ function slug(valor, max = 60) {
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9._@-]+/g, "-")
+    .replace(/[^a-z0-9._@|-]+/g, "-")
     .replace(/-{2,}/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, max);
@@ -74,6 +85,50 @@ function slug(valor, max = 60) {
 
 function utmContent(req) {
   return slug(req.query.utm_content, 60) || "(direto)";
+}
+
+// "macOS/Safari 17" — serve para separar pessoa de robô com cara de navegador.
+function familiaUA(req) {
+  const ua = String(req.headers["user-agent"] || "");
+  if (!ua) return "(sem user-agent)";
+  const os = /iPhone|iPad|iPod/i.test(ua)
+    ? "iOS"
+    : /Android/i.test(ua)
+      ? "Android"
+      : /Macintosh|Mac OS X/i.test(ua)
+        ? "macOS"
+        : /Windows/i.test(ua)
+          ? "Windows"
+          : /CrOS/i.test(ua)
+            ? "ChromeOS"
+            : /Linux/i.test(ua)
+              ? "Linux"
+              : "outro";
+  const nav = /HeadlessChrome/i.test(ua)
+    ? "HeadlessChrome"
+    : /Edg\//i.test(ua)
+      ? "Edge"
+      : /OPR\/|Opera/i.test(ua)
+        ? "Opera"
+        : /Firefox\//i.test(ua)
+          ? "Firefox"
+          : /Chrome\//i.test(ua)
+            ? "Chrome"
+            : /Safari\//i.test(ua)
+              ? "Safari"
+              : "outro";
+  const v = (ua.match(/(?:Chrome|Firefox|Version|Edg)\/(\d+)/) || [])[1] || "";
+  return `${os}/${nav}${v ? " " + v : ""}`.slice(0, 44);
+}
+
+function origemExterna(req) {
+  const bruto = slug(req.query.ref, 80);
+  if (!bruto) return "(sem referrer)";
+  return bruto;
+}
+
+function pagina(req) {
+  return slug(req.query.p, 60) || "/";
 }
 
 // Requisições claramente automáticas (scanners, monitores, curl): atrapalham a
@@ -126,6 +181,13 @@ export default async function handler(req, res) {
     p.sadd("visits:utms", conta);
     p.sadd(`visits:uniutm:${conta}`, hash);
     p.expire(`visits:uniutm:${conta}`, RETENCAO_UNICOS);
+    // dimensões extras — um hash por dia (1 comando por campo, 1 para ler)
+    const dimKey = `visits:x:${day}`;
+    p.hincrby(dimKey, `ua:${familiaUA(req)}`, 1);
+    p.hincrby(dimKey, `ref:${origemExterna(req)}`, 1);
+    p.hincrby(dimKey, `path:${pagina(req)}`, 1);
+    p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
+    p.expire(dimKey, RETENCAO_DIM);
     await p.exec();
   } catch (err) {
     console.error("visit counter error:", err?.message ?? err);

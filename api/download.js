@@ -159,6 +159,50 @@ function utmContent(req) {
   return slug(req.query.utm_content, 60) || "(direto)";
 }
 
+const RETENCAO_DIM = 400 * 24 * 60 * 60; // 400 dias para o hash do dia
+
+// "macOS/Safari 17" — separa pessoa de robô com cara de navegador.
+function familiaUA(req) {
+  const ua = String(req.headers["user-agent"] || "");
+  if (!ua) return "(sem user-agent)";
+  const os = /iPhone|iPad|iPod/i.test(ua)
+    ? "iOS"
+    : /Android/i.test(ua)
+      ? "Android"
+      : /Macintosh|Mac OS X/i.test(ua)
+        ? "macOS"
+        : /Windows/i.test(ua)
+          ? "Windows"
+          : /CrOS/i.test(ua)
+            ? "ChromeOS"
+            : /Linux/i.test(ua)
+              ? "Linux"
+              : "outro";
+  const nav = /HeadlessChrome/i.test(ua)
+    ? "HeadlessChrome"
+    : /Edg\//i.test(ua)
+      ? "Edge"
+      : /OPR\/|Opera/i.test(ua)
+        ? "Opera"
+        : /Firefox\//i.test(ua)
+          ? "Firefox"
+          : /Chrome\//i.test(ua)
+            ? "Chrome"
+            : /Safari\//i.test(ua)
+              ? "Safari"
+              : "outro";
+  const v = (ua.match(/(?:Chrome|Firefox|Version|Edg)\/(\d+)/) || [])[1] || "";
+  return `${os}/${nav}${v ? " " + v : ""}`.slice(0, 44);
+}
+
+function origemExterna(req) {
+  return slug(req.query.ref, 80) || "(sem referrer)";
+}
+
+function pagina(req) {
+  return slug(req.query.p, 60) || "/";
+}
+
 export default async function handler(req, res) {
   const file = String(req.query.file || "macos").toLowerCase();
   if (file !== "macos") {
@@ -215,6 +259,13 @@ export default async function handler(req, res) {
     p.sadd("downloads:utms", conta);
     p.sadd(`downloads:uniutm:${conta}`, hash);
     p.expire(`downloads:uniutm:${conta}`, RETENCAO_UNICOS);
+    // dimensões extras — um hash por dia (1 comando por campo)
+    const dimKey = `downloads:x:${day}`;
+    p.hincrby(dimKey, `ua:${familiaUA(req)}`, 1);
+    p.hincrby(dimKey, `ref:${origemExterna(req)}`, 1);
+    p.hincrby(dimKey, `path:${pagina(req)}`, 1);
+    p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
+    p.expire(dimKey, RETENCAO_DIM);
     await p.exec();
   } catch (err) {
     console.error("download origin counter error:", err?.message ?? err);
