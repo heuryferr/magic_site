@@ -197,7 +197,8 @@ img{max-width:100%;display:block}
 .domain-card:hover{transform:translateY(-5px);border-color:rgba(124,140,255,.4);box-shadow:var(--shadow)}
 .domain-card:hover::before{opacity:1}
 .dc-icon{width:52px;height:52px;border-radius:14px;background:var(--grad-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:16px;color:#b986ff}
-.dc-icon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dc-icon img{width:26px;height:26px;display:block}
+.emoji{width:1.1em;height:1.1em;display:inline-block;vertical-align:-0.18em;line-height:1}
 .domain-card h3{font-size:19px;font-weight:700;margin-bottom:8px}
 .domain-card p{color:var(--muted);font-size:15px;margin-bottom:14px}
 .domain-card ul{list-style:none}
