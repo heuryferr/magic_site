@@ -9,6 +9,7 @@
 // Uso no site (links dos botões):
 //     <a href="/api/download?file=macos">Download for macOS</a>
 //     <a href="/api/download?file=windows">Download for Windows</a>
+//     <a href="/api/download?file=linux">Download for Linux</a>
 //
 // O QUE MUDOU (15/09/2026): antes a URL do instalador estava escrita na mão
 // (`FILES.macos = ".../download/v1.0.1/MagicStat-1.0.1.dmg"`), o que exigia
@@ -19,7 +20,7 @@
 //   * ignora draft e pré-release;
 //   * escolhe a MAIOR versão (não "a mais recente");
 //   * exige um asset com extensão de instalador do SO pedido
-//     (macOS: .pkg/.dmg · Windows: .exe/.msi).
+//     (macOS: .pkg/.dmg · Windows: .exe/.msi · Linux: .AppImage/.deb/.rpm).
 //
 // Resultado: lançar passa a ser só gerar o instalador e publicar a Release.
 // Este arquivo nunca mais precisa ser tocado.
@@ -48,6 +49,7 @@ const REPO = "heuryferr/MagicStat-Releases";
 const FILE_KINDS = {
   macos: [".pkg", ".dmg"],
   windows: [".exe", ".msi"],
+  linux: [".appimage", ".deb", ".rpm"],
 };
 
 // Último recurso: se a API do GitHub falhar (rede ou limite de requisições),
@@ -60,6 +62,9 @@ const FALLBACK = {
   windows:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
     "v1.0.1/MagicStat-1.0.1-setup.exe",
+  linux:
+    "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
+    "v1.0.1/MagicStat-1.0.1-x86_64.AppImage",
 };
 
 // Cache em memória, um por sistema (sobrevive entre invocações de uma
