@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/heuryferr/magic_site#readme",
   "dependencies": {
-    "@upstash/redis": "^1.38.3"
+    "@upstash/redis": "^1.38.3",
+    "@vercel/analytics": "^2.0.1"
   }
 }
