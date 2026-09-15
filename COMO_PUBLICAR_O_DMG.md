@@ -105,7 +105,7 @@ const FILES = {
 };
 ```
 
-No dia do lançamento, ligue no Vercel: **`DOWNLOAD_ENABLED=1`**
+O download é liberado direto — não precisa de nenhuma variável extra no Vercel.
 
 ---
 
@@ -129,7 +129,6 @@ Quando existir um Release **mais novo** que a versão instalada, o app:
 - [ ] Release `v1.0.1` no GitHub com o **dmg anexado**
 - [ ] `updates/manifest.json` → `latest_version` + `url` + `sha256` + `size_bytes`
 - [ ] `api/download.js` → mesma URL do dmg
-- [ ] Vercel → `DOWNLOAD_ENABLED=1`
 - [ ] Botões do site apontando para `/api/download?file=macos`
 
 ---

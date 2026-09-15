@@ -15,7 +15,6 @@
 //
 // Env (Vercel → Settings → Environment Variables):
 //   UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN  (já configurados)
-//   DOWNLOAD_ENABLED = "1"  → libera os downloads (sem isso, responde 404)
 // ======================================================================
 
 import { Redis } from "@upstash/redis";
@@ -59,20 +58,7 @@ function visitorHash(req) {
     .slice(0, 32);
 }
 
-// Trava de lançamento: enquanto o app não está pronto, o endpoint fica
-// fechado. Ligue no Vercel com DOWNLOAD_ENABLED=1 quando for publicar.
-const DOWNLOAD_ENABLED = process.env.DOWNLOAD_ENABLED === "1";
-
 export default async function handler(req, res) {
-  if (!DOWNLOAD_ENABLED) {
-    res.setHeader("Cache-Control", "no-store");
-    return res.status(404).json({
-      ok: false,
-      error: "downloads_not_enabled",
-      message: "Downloads are not open yet.",
-    });
-  }
-
   const file = String(req.query.file || "macos").toLowerCase();
   const url = FILES[file];
 

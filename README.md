@@ -75,7 +75,6 @@ Two serverless functions keep a **daily count of downloads**:
 | Variable | Purpose |
 |----------|---------|
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Already set (license server) |
-| `DOWNLOAD_ENABLED` | `1` opens downloads; anything else keeps 404 (pre-launch) |
 | `STATS_TOKEN` | Secret required by `/api/stats` |
 | `DOWNLOAD_IP_SALT` *(optional)* | Salt for the visitor hash (unique counts) |
 | `GITHUB_TOKEN` *(optional)* | Raises the GitHub API rate limit for real download counts |
