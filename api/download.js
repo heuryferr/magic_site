@@ -4,10 +4,11 @@
 // ----------------------------------------------------------------------
 // ⚠️ ESTE ARQUIVO É A VERSÃO PRONTA PARA COLAR EM `magic_site/api/download.js`.
 // Ele é um substituto direto: mantém o CONTADOR (Upstash Redis) e o mesmo
-// contrato `/api/download?file=macos`.
+// contrato `/api/download?file=<macos|windows>`.
 //
-// Uso no site (link do botão):
-//     <a href="/api/download?file=macos">Download</a>
+// Uso no site (links dos botões):
+//     <a href="/api/download?file=macos">Download for macOS</a>
+//     <a href="/api/download?file=windows">Download for Windows</a>
 //
 // O QUE MUDOU (15/09/2026): antes a URL do instalador estava escrita na mão
 // (`FILES.macos = ".../download/v1.0.1/MagicStat-1.0.1.dmg"`), o que exigia
@@ -17,7 +18,8 @@
 //
 //   * ignora draft e pré-release;
 //   * escolhe a MAIOR versão (não "a mais recente");
-//   * exige um asset com extensão de instalador de macOS (.pkg/.dmg).
+//   * exige um asset com extensão de instalador do SO pedido
+//     (macOS: .pkg/.dmg · Windows: .exe/.msi).
 //
 // Resultado: lançar passa a ser só gerar o instalador e publicar a Release.
 // Este arquivo nunca mais precisa ser tocado.
@@ -40,7 +42,13 @@ const redis = new Redis({
 
 // ── Repositório público de distribuição ────────────────────────────────
 const REPO = "heuryferr/MagicStat-Releases";
-const MAC_EXT = [".pkg", ".dmg"];
+
+// Uma entrada por sistema operacional: extensões que identificam o instalador
+// daquele SO na Release. Ao publicar Linux, basta acrescentar a chave.
+const FILE_KINDS = {
+  macos: [".pkg", ".dmg"],
+  windows: [".exe", ".msi"],
+};
 
 // Último recurso: se a API do GitHub falhar (rede ou limite de requisições),
 // o cliente AINDA baixa. Atualize junto com a Release quando lembrar — é a
@@ -49,12 +57,16 @@ const FALLBACK = {
   macos:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
     "v1.0.1/MagicStat-1.0.1.dmg",
+  windows:
+    "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
+    "v1.0.1/MagicStat-1.0.1-setup.exe",
 };
 
-// Cache em memória (sobrevive entre invocações de uma instância "quente"):
-// protege o limite de 60 requisições/hora por IP da API do GitHub.
+// Cache em memória, um por sistema (sobrevive entre invocações de uma
+// instância "quente"): protege o limite de 60 requisições/hora por IP da API
+// do GitHub.
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const cache = { url: "", at: 0 };
+const cache = {};
 
 function parseVersion(tag) {
   const m = String(tag || "").match(/(\d+(?:\.\d+)*)/);
@@ -71,18 +83,20 @@ function isNewer(a, b) {
   return false;
 }
 
-function pickMacAsset(release) {
+function pickAsset(release, exts) {
   const assets = (release?.assets || []).filter(
     (a) =>
       a?.browser_download_url &&
-      MAC_EXT.some((ext) => String(a.name || "").toLowerCase().endsWith(ext))
+      exts.some((ext) => String(a.name || "").toLowerCase().endsWith(ext))
   );
   return assets[0] || null;
 }
 
-async function latestMacosUrl() {
+async function latestUrl(kind) {
+  const exts = FILE_KINDS[kind];
   const now = Date.now();
-  if (cache.url && now - cache.at < CACHE_TTL_MS) return cache.url;
+  const hit = cache[kind];
+  if (hit && hit.url && now - hit.at < CACHE_TTL_MS) return hit.url;
 
   const res = await fetch(
     `https://api.github.com/repos/${REPO}/releases?per_page=20`,
@@ -101,16 +115,15 @@ async function latestMacosUrl() {
   let best = null;
   for (const r of releases) {
     if (!r || r.draft || r.prerelease) continue;
-    const asset = pickMacAsset(r);
+    const asset = pickAsset(r, exts);
     if (!asset) continue;
     if (!best || isNewer(parseVersion(r.tag_name), parseVersion(best.tag))) {
       best = { tag: r.tag_name, url: asset.browser_download_url };
     }
   }
-  if (!best) throw new Error("nenhuma Release com instalador de macOS");
+  if (!best) throw new Error(`nenhuma Release com instalador de ${kind}`);
 
-  cache.url = best.url;
-  cache.at = now;
+  cache[kind] = { url: best.url, at: now };
   return best.url;
 }
 
@@ -205,17 +218,19 @@ function pagina(req) {
 
 export default async function handler(req, res) {
   const file = String(req.query.file || "macos").toLowerCase();
-  if (file !== "macos") {
-    return res
-      .status(404)
-      .json({ ok: false, error: "unknown_file", file, available: ["macos"] });
+  if (!FILE_KINDS[file]) {
+    return res.status(404).json({
+      ok: false,
+      error: "unknown_file",
+      file,
+      available: Object.keys(FILE_KINDS),
+    });
   }
 
-  // ── Qual instalador entregar ─────────────────────────────────────────
-  // (só macOS por enquanto; ao publicar Windows/Linux, resolva aqui também)
+  // ── Qual instalador entregar (macOS / Windows) ───────────────────────
   let url = FALLBACK[file];
   try {
-    url = await latestMacosUrl();
+    url = await latestUrl(file);
   } catch (err) {
     console.error("download: usando FALLBACK ->", err?.message ?? err);
   }
