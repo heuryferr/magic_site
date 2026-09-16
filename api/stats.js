@@ -319,6 +319,52 @@ async function extraWindow(days) {
 }
 
 // ── Quadros extras do relatório HTML ───────────────────────────────────
+
+// ── Clique por país × sistema (índice gravado pelo api/download) ────────
+// O GitHub não diz QUEM nem ONDE baixou; o clique no botão diz — e é ele que
+// leva ao arquivo. Gravado POR DIA (`downloads:ccf:{cc}:{file}:{dia}` e o
+// índice `downloads:ccfs:{dia}`), então dá para somar qualquer período.
+async function ccfWindow(days) {
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+
+  const p = redis.pipeline();
+  dias.forEach((d) => p.smembers(`downloads:ccfs:${d}`));
+  const achados = await p.exec();
+
+  const q = redis.pipeline();
+  const jobs = [];
+  achados.forEach((v, i) => {
+    const dia = dias[i];
+    (Array.isArray(v) ? v : []).forEach((chave) => {
+      const [cc, file] = String(chave).split("|");
+      if (!cc || !FILES.includes(file)) return;
+      q.get(`downloads:ccf:${cc}:${file}:${dia}`);
+      jobs.push({ dia, nome: `${cc}|${file}` });
+    });
+  });
+  const res = jobs.length ? await q.exec() : [];
+
+  const porDia = [];
+  const total = {};
+  res.forEach((v, i) => {
+    const job = jobs[i];
+    if (!job) return;
+    const n = Number(v || 0);
+    if (!n) return;
+    porDia.push({ day: job.dia, name: job.nome, count: n });
+    total[job.nome] = (total[job.nome] || 0) + n;
+  });
+
+  return {
+    ok: true,
+    window_days: days,
+    clicks_ccf: Object.entries(total)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count),
+    clicks_ccf_dias: porDia,
+  };
+}
 function htmlVisits(visits) {
   if (!visits || !visits.ok) return "";
   const linhas = (visits.rows || [])
@@ -358,6 +404,7 @@ ${bloco("Visits by country · account", origin.visits_ccut)}
 ${bloco("Visits by browser / OS", origin.visits_ua)}
 ${bloco("Visits by referrer", origin.visits_ref)}
 ${bloco("Visits by page", origin.visits_path)}
+${bloco("Clicks by country · installer", origin.clicks_ccf)}
 ${bloco("Clicks by browser / OS", origin.clicks_ua)}
 ${bloco("Clicks by country · account", origin.clicks_ccut)}`;
 }
@@ -452,6 +499,12 @@ export default async function handler(req, res) {
       if (origin && origin.ok) origin = { ...origin, ...extra };
     } catch (err) {
       console.error("extra stats error:", err?.message ?? err);
+    }
+    try {
+      const ccf = await ccfWindow(days);
+      if (origin && origin.ok) origin = { ...origin, ...ccf };
+    } catch (err) {
+      console.error("ccf stats error:", err?.message ?? err);
     }
 
     if (req.query.format === "html") {

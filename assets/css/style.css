@@ -69,6 +69,7 @@ img{max-width:100%;display:block}
 .btn-sm{padding:9px 16px;font-size:14px}
 .btn-lg{padding:16px 30px;font-size:17px}
 .btn-os{width:16px;height:16px;flex:0 0 auto;fill:currentColor}
+.btn-dl{padding:9px 14px;font-size:14px}
 
 /* ---------- Hero ---------- */
 .hero{position:relative;padding:150px 24px 40px;overflow:hidden}
@@ -130,6 +131,8 @@ img{max-width:100%;display:block}
 .hero-sub{color:var(--muted);font-size:19px;max-width:520px;margin-bottom:30px}
 .hero-sub strong{color:var(--text)}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+.hero-dl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.dl-label{color:var(--muted);font-size:14px;font-weight:600;margin-right:2px}
 .hero-trust{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
 .hero-trust span{display:flex;align-items:center;gap:6px}
 
@@ -289,6 +292,7 @@ img{max-width:100%;display:block}
 .footer-links a{color:var(--muted);font-size:14px;transition:color .2s}
 .footer-links a:hover{color:var(--text)}
 .footer-copy{color:#5a6288;font-size:13px}
+.footer-copy a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 
 /* ---------- Color palettes ---------- */
 .palettes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:20px}

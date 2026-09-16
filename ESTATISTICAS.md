@@ -31,6 +31,15 @@ sabemos **de qual conta de envio** veio cada visita, clique e venda.
 * **Página** — em qual página do site ela estava.
 * **País × conta** — a leitura combinada: responde "as visitas da Holanda
   vieram do nosso e-mail ou foram diretas?".
+* **País × sistema do clique** — `downloads:ccf:{cc}:{file}:{dia}`: o **país
+  de cada clique** no botão (`US|macos`). O GitHub conta o download, mas **não
+  diz quem nem de onde** baixou — quem dá país ao download é o clique. O
+  `/api/stats` devolve `clicks_ccf` (soma da janela) e `clicks_ccf_dias`
+  (`[{day, name:"US|macos", count}]`, um por dia, para o painel poder somar
+  qualquer período).
+
+  > Atenção: isto é o **clique no botão**, não o download concluído (quem clica
+  > e desiste conta aqui e não conta no GitHub).
 
 ## Chaves no Redis
 
@@ -41,6 +50,8 @@ downloads:uniq:{plataforma}:{dia}          visitantes únicos (hash IP+UA, 120d)
 downloads:cc:{cc}:{dia} / downloads:cc:{cc}          cliques por país / acumulado
 downloads:utm:{conta}:{dia} / downloads:utm:{conta}  cliques por conta / acumulado
 downloads:ccs:{dia} / downloads:utms:{dia}           índices do dia (400d)
+downloads:ccf:{cc}:{file}:{dia}                      cliques por país × sistema
+downloads:ccfs:{dia}                                 índice do dia ("CC|file")
 
 visits:{dia} / visits:total                visitas por dia / acumuladas
 visits:uniq:{dia}                          visitantes únicos do dia (120d)

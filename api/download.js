@@ -221,6 +221,19 @@ function pagina(req) {
   return slug(req.query.p, 60) || "/";
 }
 
+// Requisições claramente automáticas (scanners, monitores, curl): o contador
+// de VISITAS já separa robôs (api/visit.js) — aqui é o mesmo critério. Sem
+// isso, um verificador que segue os três botões da página infla os três
+// arquivos em lockstep (visto em 16/09: +5/+5/+5 com 15 IPs distintos).
+const ROBOT_RE =
+  /bot|crawl|spider|slurp|preview|monitor|uptime|pingdom|curl|wget|python-requests|python-urllib|httpx|axios|node-fetch|go-http|okhttp|headless|phantom|scrapy|facebookexternalhit|whatsapp|telegram|slack|discord|scanner|checker|validator|linkcheck|lighthouse|semrush|ahrefs|dataprovider|masscan|zgrab|nmap/i;
+
+function ehRobo(req) {
+  const ua = String(req.headers["user-agent"] || "");
+  if (!ua) return true;            // sem user-agent nunca é navegador
+  return ROBOT_RE.test(ua);
+}
+
 export default async function handler(req, res) {
   const file = String(req.query.file || "macos").toLowerCase();
   if (!FILE_KINDS[file]) {
@@ -229,6 +242,17 @@ export default async function handler(req, res) {
       error: "unknown_file",
       file,
       available: Object.keys(FILE_KINDS),
+    });
+  }
+
+  // ── Robô: não conta o clique e NÃO redireciona ───────────────────────
+  // (assim o download também não sobe no contador do GitHub)
+  if (ehRobo(req)) {
+    res.setHeader("Cache-Control", "no-store, max-age=0");
+    return res.status(403).json({
+      ok: false,
+      error: "automated_access",
+      hint: "open https://statmagic.vercel.app in a browser to download",
     });
   }
 
@@ -272,6 +296,12 @@ export default async function handler(req, res) {
     p.sadd("downloads:ccs", cc);
     p.sadd(`downloads:unicc:${cc}`, hash);
     p.expire(`downloads:unicc:${cc}`, RETENCAO_UNICOS);
+    // país × sistema (é o que a aba Países usa: o download do GitHub não tem
+    // país, mas o clique no botão tem — e é ele que leva ao arquivo)
+    p.incr(`downloads:ccf:${cc}:${file}:${day}`);
+    p.expire(`downloads:ccf:${cc}:${file}:${day}`, RETENCAO_INDICE);
+    p.sadd(`downloads:ccfs:${day}`, `${cc}|${file}`);
+    p.expire(`downloads:ccfs:${day}`, RETENCAO_INDICE);
     p.incr(`downloads:utm:${conta}:${day}`);
     p.incr(`downloads:utm:${conta}`);
     p.sadd(`downloads:utms:${day}`, conta);
