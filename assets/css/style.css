@@ -289,7 +289,6 @@ img{max-width:100%;display:block}
 .footer-links a{color:var(--muted);font-size:14px;transition:color .2s}
 .footer-links a:hover{color:var(--text)}
 .footer-copy{color:#5a6288;font-size:13px}
-.footer-copy a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 
 /* ---------- Color palettes ---------- */
 .palettes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:20px}
