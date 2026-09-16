@@ -302,7 +302,7 @@
         <div class="chat-head"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span><span class="chat-title"><img class="emoji" src="assets/img/icons/1f5dd.svg" alt="key"> Magic Stat Assistant (Claude via API)</span></div>
         <div class="chat-body">
           <div class="msg msg-user">Explore this data and tell me if there's a difference between the groups.</div>
-          <div class="msg msg-ai">On it. I'll run a one-way ANOVA across the 5 groups, then a Tukey post-hoc. <img class="emoji" src="assets/img/icons/1f4a1.svg" alt="idea"> <code>F(4,495)=21.3, p&lt;.001</code> — significant difference, driven by groups D &amp; A.</div>
+          <div class="msg msg-ai">On it. I'll run a one-way ANOVA across the 5 groups, then a Tukey post-hoc. <img class="emoji" src="assets/img/icons/1f4a1.svg" alt="idea"> <code>F(4,495)=21.3, p&lt;0.001</code> — significant difference, driven by groups D &amp; A.</div>
           <div class="msg msg-user">Great — generate the boxplot with those groups, ready for the paper.</div>
           <div class="msg msg-ai">Done. <img class="emoji" src="assets/img/icons/2705.svg" alt="done"> <em>I opened the box plot, colored by group — publication-ready. Want me to add the significance letters or export it?</em></div>
           <div class="msg msg-user">Yes, add significance letters and export as PNG at 300 DPI.</div>
@@ -334,13 +334,13 @@
       </ul>
     </div>
     <div class="report-strip">
-      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f4ca.svg" alt="table"> ANOVA + post-hoc</span><span>F(4, 495) = 21.3, p &lt; .001, η²p = .147</span></div>
+      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f4ca.svg" alt="table"> ANOVA + post-hoc</span><span>F(4, 495) = 21.3, p &lt; 0.001, η²p = 0.147</span></div>
       <div class="mini-card mini-cld">
         <span>Post-hoc (Tukey)</span>
         <span class="cld-row">Group D: <b>a</b>&nbsp;&nbsp;Group E: <b>a</b>&nbsp;&nbsp;Group A: <b>b</b>&nbsp;&nbsp;Group B: <b>bc</b>&nbsp;&nbsp;Group C: <b>c</b></span>
       </div>
-      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f517.svg" alt="link"> Correlation</span><span>r(498) = .978, 95% CI [.973, .982], p &lt; .001</span></div>
-      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f4c8.svg" alt="trend"> Regression</span><span>β = 6.78, SE = 0.13, p &lt; .001, R² = .956</span></div>
+      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f517.svg" alt="link"> Correlation</span><span>r(498) = 0.978, 95% CI [0.973, 0.982], p &lt; 0.001</span></div>
+      <div class="mini-card mini-tab"><span><img class="emoji" src="assets/img/icons/1f4c8.svg" alt="trend"> Regression</span><span>β = 6.78, SE = 0.13, p &lt; 0.001, R² = 0.956</span></div>
       <div class="mini-card mini-note"><img class="emoji" src="assets/img/icons/2728.svg" alt="sparkles"> "Groups sharing a letter are not significantly different — the report adds the letters automatically."</div>
     </div>
   </div>
