@@ -234,8 +234,55 @@ function ehRobo(req) {
   return ROBOT_RE.test(ua);
 }
 
+// Um clique de VERDADE sai da nossa página: o track.js grava `?p=...` (sempre)
+// e, quando existe, `?ref=...` / `?utm_*=...`. Scanner de link e gateway de
+// e-mail NÃO rodam o JS — chegam sem esses parâmetros e sem Referer nosso. Sem
+// esta checagem, cada scanner segue os 3 botões e infla os 3 arquivos em
+// lockstep (o 6/6/6 de 16/09).
+const SITE_HOST = "statmagic.vercel.app";
+
+function ehCliqueDePagina(req) {
+  if (
+    req.query.p ||
+    req.query.utm_source ||
+    req.query.utm_medium ||
+    req.query.utm_campaign ||
+    req.query.utm_content ||
+    req.query.utm_term ||
+    req.query.ref
+  ) {
+    return true; // o JS do site gravou a origem (ou é humano com link do e-mail)
+  }
+  const ref = String(req.headers["referer"] || "");
+  try {
+    if (new URL(ref).hostname === SITE_HOST) return true; // JS desligado
+  } catch (err) {
+    /* referer inválido: trata como não-vindo-da-página */
+  }
+  return false;
+}
+
+async function _bloquear(req, res, motivo, file) {
+  const day = localDayKey();
+  try {
+    // contabiliza à parte: não é "clique", mas não escondemos o volume
+    await Promise.all([
+      redis.incr(`downloads:bot:${file}:${day}`),
+      redis.incr(`downloads:bot:${file}`),
+    ]);
+  } catch (err) {
+    console.error("download bot counter error:", err?.message ?? err);
+  }
+  res.setHeader("Cache-Control", "no-store, max-age=0");
+  return res.status(403).json({
+    ok: false,
+    error: motivo,
+    hint: "open https://statmagic.vercel.app in a browser to download",
+  });
+}
+
 export default async function handler(req, res) {
-  const file = String(req.query.file || "macos").toLowerCase();
+  const file = String(req.query.file || "").toLowerCase();
   if (!FILE_KINDS[file]) {
     return res.status(404).json({
       ok: false,
@@ -245,18 +292,33 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── Robô: não conta o clique e NÃO redireciona ───────────────────────
-  // (assim o download também não sobe no contador do GitHub)
-  if (ehRobo(req)) {
-    res.setHeader("Cache-Control", "no-store, max-age=0");
-    return res.status(403).json({
-      ok: false,
-      error: "automated_access",
-      hint: "open https://statmagic.vercel.app in a browser to download",
-    });
-  }
+  // ── Robô óbvio (curl, python, bot de UA): 403 antes de contar/redirecionar
+  if (ehRobo(req)) return _bloquear(req, res, "automated_access", file);
 
-  // ── Qual instalador entregar (macOS / Windows) ───────────────────────
+  // ── Não veio da nossa página (scanner de link / gateway de e-mail): não
+  // conta e não redireciona. Humano com JS desligado tem Referer nosso; com JS
+  // ligado tem ?p=...
+  if (!ehCliqueDePagina(req)) return _bloquear(req, res, "not_from_page", file);
+
+  // ── O MESMO visitante pedindo 2+ sistemas em pouco tempo é robô seguindo os
+  // 3 botões (um humano baixa UM instalador). Não redireciona — senão o GitHub
+  // também sobe — e não conta.
+  const hash = visitorHash(req);
+  let ehMulti = false;
+  try {
+    const platSet = `downloads:plat:${hash}`;
+    const multi = await redis.pipeline()
+      .sadd(platSet, file)
+      .scard(platSet)
+      .expire(platSet, 30 * 60) // 30 min: quem troca de SO de verdade demora mais
+      .exec();
+    ehMulti = Number(multi[1] || 0) > 1;
+  } catch (err) {
+    console.error("download multi check error:", err?.message ?? err);
+  }
+  if (ehMulti) return _bloquear(req, res, "multiple_os", file);
+
+  // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   let url = FALLBACK[file];
   try {
     url = await latestUrl(file);
@@ -325,3 +387,5 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
   return res.redirect(302, url);
 }
+
+export { ehRobo, ehCliqueDePagina };

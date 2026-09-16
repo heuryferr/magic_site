@@ -125,10 +125,11 @@ function htmlPage(rows, totals, days, github, visits, origin) {
             `<tr><td>${esc(r.date)}</td>` +
             FILES.map((f) => `<td>${r[f] || 0}</td>`).join("") +
             `<td><b>${r.total || 0}</b></td>` +
-            `<td>${r.unique || 0}</td></tr>`
+            `<td>${r.unique || 0}</td>` +
+            `<td>${r.bots || 0}</td></tr>`
         )
         .join("")
-    : `<tr><td colspan="6">No clicks recorded in this window.</td></tr>`;
+    : `<tr><td colspan="7">No clicks recorded in this window.</td></tr>`;
 
   let gh = "";
   if (github && github.ok) {
@@ -166,9 +167,9 @@ function htmlPage(rows, totals, days, github, visits, origin) {
 <h1>Magic Stat — site clicks (our counter)</h1>
 <p class="sub">Last ${days} day(s) &middot; "unique" = distinct visitors (IP+UA hash), not raw IPs.</p>
 <table>
-<thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th><th>Unique</th></tr></thead>
+<thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th><th>Unique</th><th>Blocked</th></tr></thead>
 <tbody>${body}</tbody>
-<tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>—</td></tr></tfoot>
+<tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
 </table>
 ${gh}
 ${htmlVisits(visits)}
@@ -432,7 +433,7 @@ export default async function handler(req, res) {
     const plan = [];
     for (let i = days - 1; i >= 0; i--) {
       const date = localDayKey(-i);
-      const row = { date, total: 0, unique: 0 };
+      const row = { date, total: 0, unique: 0, bots: 0 };
       FILES.forEach((f) => (row[f] = 0));
       plan.push({ date, row, uniqueKeys: [] });
       FILES.forEach((f) => {
@@ -446,6 +447,12 @@ export default async function handler(req, res) {
     plan.forEach((p) => p.uniqueKeys.forEach((k) => uniqPipe.scard(k)));
     const uniqResults = await uniqPipe.exec();
 
+    // cliques BLOQUEADOS (robô óbvio, sem página, multi-OS) — à parte
+    const botPipe = redis.pipeline();
+    plan.forEach((p) =>
+      FILES.forEach((f) => botPipe.get(`downloads:bot:${f}:${p.date}`)));
+    const botResults = await botPipe.exec();
+
     let idx = 0;
     plan.forEach((p, pi) => {
       FILES.forEach((f) => {
@@ -456,6 +463,8 @@ export default async function handler(req, res) {
       });
       const off = pi * FILES.length;
       p.row.unique = FILES.reduce((acc, _f, fi) => acc + Number(uniqResults[off + fi] || 0), 0);
+      p.row.bots = FILES.reduce(
+        (acc, _f, fi) => acc + Number(botResults[off + fi] || 0), 0);
     });
     const rows = plan.map((p) => p.row);
 
@@ -469,6 +478,11 @@ export default async function handler(req, res) {
       grand += totals[f];
     });
     totals.total = grand;
+    const botTotPipe = redis.pipeline();
+    FILES.forEach((f) => botTotPipe.get(`downloads:bot:${f}`));
+    const botTotRes = await botTotPipe.exec();
+    totals.bots = FILES.reduce(
+      (acc, _f, i) => acc + Number(botTotRes[i] || 0), 0);
 
     // ── 2) GitHub: downloads reais (best-effort, com cache) ─────────────
     let github = null;
