@@ -300,24 +300,6 @@ export default async function handler(req, res) {
   // ligado tem ?p=...
   if (!ehCliqueDePagina(req)) return _bloquear(req, res, "not_from_page", file);
 
-  // ── O MESMO visitante pedindo 2+ sistemas em pouco tempo é robô seguindo os
-  // 3 botões (um humano baixa UM instalador). Não redireciona — senão o GitHub
-  // também sobe — e não conta.
-  const hash = visitorHash(req);
-  let ehMulti = false;
-  try {
-    const platSet = `downloads:plat:${hash}`;
-    const multi = await redis.pipeline()
-      .sadd(platSet, file)
-      .scard(platSet)
-      .expire(platSet, 30 * 60) // 30 min: quem troca de SO de verdade demora mais
-      .exec();
-    ehMulti = Number(multi[1] || 0) > 1;
-  } catch (err) {
-    console.error("download multi check error:", err?.message ?? err);
-  }
-  if (ehMulti) return _bloquear(req, res, "multiple_os", file);
-
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   let url = FALLBACK[file];
   try {
