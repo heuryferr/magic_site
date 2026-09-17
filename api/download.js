@@ -58,13 +58,13 @@ const FILE_KINDS = {
 const FALLBACK = {
   macos:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1.dmg",
+    "v1.0.2/MagicStat-1.0.2-setup.pkg",
   windows:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1-setup.exe",
+    "v1.0.2/MagicStat-1.0.2-setup.exe",
   linux:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1-x86_64.AppImage",
+    "v1.0.2/MagicStat-1.0.2-x86_64.AppImage",
 };
 
 // Cache em memória, um por sistema (sobrevive entre invocações de uma
