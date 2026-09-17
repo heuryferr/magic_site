@@ -20,7 +20,8 @@
 //   * ignora draft e pré-release;
 //   * escolhe a MAIOR versão (não "a mais recente");
 //   * exige um asset com extensão de instalador do SO pedido
-//     (macOS: .pkg/.dmg · Windows: .exe/.msi · Linux: .AppImage/.deb/.rpm).
+//     (macOS: .dmg/.pkg · Windows: .exe/.msi · Linux: .AppImage/.deb/.rpm —
+//      a ORDEM é a preferência: em macOS o .dmg do site ganha do .pkg).
 //
 // Resultado: lançar passa a ser só gerar o instalador e publicar a Release.
 // Este arquivo nunca mais precisa ser tocado.
@@ -46,8 +47,14 @@ const REPO = "heuryferr/MagicStat-Releases";
 
 // Uma entrada por sistema operacional: extensões que identificam o instalador
 // daquele SO na Release. Ao publicar Linux, basta acrescentar a chave.
+// A ORDEM de cada lista é a PREFERÊNCIA (entrega o PRIMEIRO que casar).
+// macOS: ".dmg" PRIMEIRO de propósito — é o download de quem ainda NÃO tem o
+// app (abrir e arrastar para Aplicativos, sem senha de admin). O ".pkg"
+// continua como alternativa: ele também INSTALA do zero (pede a senha do
+// admin) e é o formato que o APP usa para se atualizar sozinho (o updater
+// prefere ".pkg").
 const FILE_KINDS = {
-  macos: [".pkg", ".dmg"],
+  macos: [".dmg", ".pkg"],
   windows: [".exe", ".msi"],
   linux: [".appimage", ".deb", ".rpm"],
 };
@@ -58,13 +65,13 @@ const FILE_KINDS = {
 const FALLBACK = {
   macos:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1.dmg",
+    "v1.0.2/MagicStat-1.0.2.dmg",
   windows:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1-setup.exe",
+    "v1.0.2/MagicStat-1.0.2-setup.exe",
   linux:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.1/MagicStat-1.0.1-x86_64.AppImage",
+    "v1.0.2/MagicStat-1.0.2-x86_64.AppImage",
 };
 
 // Cache em memória, um por sistema (sobrevive entre invocações de uma
@@ -88,13 +95,21 @@ function isNewer(a, b) {
   return false;
 }
 
+// Respeita a ORDEM de `exts` (preferência), NÃO a ordem da API do GitHub —
+// que é ALFABÉTICA e não tem nada a ver com o que queremos entregar. Com o
+// `assets[0]` ingênuo, a release 1.0.2 (com "…-setup.pkg" antes do ".dmg")
+// fez o site entregar o .pkg para quem pediu o download de macOS.
 function pickAsset(release, exts) {
   const assets = (release?.assets || []).filter(
-    (a) =>
-      a?.browser_download_url &&
-      exts.some((ext) => String(a.name || "").toLowerCase().endsWith(ext))
+    (a) => a?.browser_download_url
   );
-  return assets[0] || null;
+  for (const ext of exts) {
+    const hit = assets.find((a) =>
+      String(a.name || "").toLowerCase().endsWith(ext)
+    );
+    if (hit) return hit;
+  }
+  return null;
 }
 
 async function latestUrl(kind) {
