@@ -47,7 +47,10 @@ const REPO = "heuryferr/MagicStat-Releases";
 // Uma entrada por sistema operacional: extensões que identificam o instalador
 // daquele SO na Release. Ao publicar Linux, basta acrescentar a chave.
 const FILE_KINDS = {
-  macos: [".pkg", ".dmg"],
+  // Ordem = preferência: usa o 1º formato que existir na Release.
+  // macOS: .dmg para o site/primeira instalação (instalação mais fluida);
+  // o .pkg é para a atualização feita de dentro do próprio programa.
+  macos: [".dmg", ".pkg"],
   windows: [".exe", ".msi"],
   linux: [".appimage", ".deb", ".rpm"],
 };
@@ -58,7 +61,7 @@ const FILE_KINDS = {
 const FALLBACK = {
   macos:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.2/MagicStat-1.0.2-setup.pkg",
+    "v1.0.2/MagicStat-1.0.2.dmg",
   windows:
     "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
     "v1.0.2/MagicStat-1.0.2-setup.exe",
@@ -89,12 +92,16 @@ function isNewer(a, b) {
 }
 
 function pickAsset(release, exts) {
-  const assets = (release?.assets || []).filter(
-    (a) =>
-      a?.browser_download_url &&
-      exts.some((ext) => String(a.name || "").toLowerCase().endsWith(ext))
-  );
-  return assets[0] || null;
+  // exts vem em ordem de preferência: devolve o 1º asset do formato preferido
+  // que existir (ex.: macOS pega .dmg e só cai no .pkg se não houver .dmg).
+  const assets = (release?.assets || []).filter((a) => a?.browser_download_url);
+  for (const ext of exts) {
+    const hit = assets.find((a) =>
+      String(a.name || "").toLowerCase().endsWith(ext)
+    );
+    if (hit) return hit;
+  }
+  return null;
 }
 
 async function latestUrl(kind) {
