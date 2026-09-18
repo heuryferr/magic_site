@@ -259,7 +259,7 @@ export default async function handler(req, res) {
   if (!gum?.body?.success) {
     // Gumroad respondeu mas negou a chave (inválida / reembolso / chargeback).
     if (purchase.refunded) {
-      if (redis) await redis.del(`licenses:${license_key}`).catch(() => {});
+      await withRedis((r) => r.del(`licenses:${license_key}`)).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "refunded",
@@ -268,7 +268,7 @@ export default async function handler(req, res) {
       });
     }
     if (purchase.chargebacked) {
-      if (redis) await redis.del(`licenses:${license_key}`).catch(() => {});
+      await withRedis((r) => r.del(`licenses:${license_key}`)).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "chargebacked",
