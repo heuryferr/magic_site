@@ -269,6 +269,33 @@ function pagina(req) {
   return slug(req.query.p, 60) || "/";
 }
 
+// Texto de cabeçalho → limpo, mas SEM perder acento/maiúscula: cidade e estado
+// são para LER no relatório, não são chave. Só tira o que poderia estragar HTML.
+function limpaTexto(valor, max = 60) {
+  return String(valor || "")
+    .replace(/[<>&"'`\\]/g, "")
+    .trim()
+    .slice(0, max);
+}
+
+// Estado/cidade do clique (geolocalização do Vercel). O estado vem como código
+// ISO 3166-2 ("SP", "CA"); a cidade pode vir URL-encoded. Cabeçalho ausente
+// (preview/local) → "" e o relatório mostra "—": a gente não inventa.
+function regiao(req) {
+  return limpaTexto(req.headers["x-vercel-ip-country-region"], 8).toUpperCase();
+}
+
+function cidade(req) {
+  const bruto = String(req.headers["x-vercel-ip-city"] || "");
+  let c = bruto;
+  try {
+    c = decodeURIComponent(bruto);
+  } catch (err) {
+    /* '%' inválido no cabeçalho: fica como veio */
+  }
+  return limpaTexto(c, 60);
+}
+
 // Requisições claramente automáticas (scanners, monitores, curl): o contador
 // de VISITAS já separa robôs (api/visit.js) — aqui é o mesmo critério. Sem
 // isso, um verificador que segue os três botões da página infla os três
@@ -438,13 +465,16 @@ export default async function handler(req, res) {
     p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
     p.expire(dimKey, RETENCAO_DIM);
     // LOG das últimas requisições (o dono lê no relatório): hora + arquivo +
-    // país + navegador + conta + referrer. LPUSH + LTRIM = lista limitada.
+    // país/estado/cidade + navegador + conta + referrer. LPUSH + LTRIM = lista
+    // limitada (o app copia para o histórico dele a cada sincronização).
     p.lpush(
       "downloads:log",
       JSON.stringify({
         t: new Date().toISOString(),
         f: file,
         cc,
+        rg: regiao(req),
+        ct: cidade(req),
         ua: familiaUA(req),
         conta,
         ref: origemExterna(req),

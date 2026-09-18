@@ -26,7 +26,9 @@ lemos por um endpoint protegido: `/api/stats?token=STATS_TOKEN`.
 
 O `/api/download` grava também as **últimas 500 requisições** que passaram pelo
 portão, numa lista (`downloads:log`). O relatório mostra, mais recente primeiro:
-**hora (UTC) + arquivo + país + navegador + conta + referrer**. É o que responde
+**hora (UTC) + arquivo + país + estado + cidade + navegador + conta + referrer**.
+(O estado vem de `x-vercel-ip-country-region` como código ISO 3166-2 — `SP`, `CA`;
+a cidade, de `x-vercel-ip-city`, decodificada. Cabeçalho ausente → vazio.) É o que responde
 "quem baixou o quê, quando" — e é o cruzamento que o GitHub não permite fazer:
 
 * o que **aparece** no log **passou pelo site** (clique de verdade);
@@ -87,8 +89,9 @@ downloads:pessoas:{dia} / downloads:pessoas          PESSOAS (1 hash IP+UA por d
 downloads:multi:{file}:{dia} / downloads:multi:{dia}  cliques de quem já levou outro
                                                        sistema (observação, não 403)
 downloads:log           LISTA  (LPUSH + LTRIM, 500)  as últimas requisições que
-                              passaram pelo portão: {t,f,cc,ua,conta,ref} — o log
-                              "quem baixou o quê, quando" do relatório
+                              passaram pelo portão: {t,f,cc,rg,ct,ua,conta,ref} — o
+                              log "quem baixou o quê, de onde e quando" do relatório
+                              (rg = estado ISO 3166-2, ct = cidade)
 
 visits:{dia} / visits:total                visitas por dia / acumuladas
 visits:uniq:{dia}                          visitantes únicos do dia (120d)

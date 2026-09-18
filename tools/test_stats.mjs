@@ -58,6 +58,8 @@ const LISTS = {
       t: "2026-09-18T12:00:00.000Z",
       f: "linux",
       cc: "BR",
+      rg: "SP",
+      ct: "Sao Paulo",
       ua: "Linux/Chrome 153",
       conta: "(direto)",
       ref: "(sem referrer)",
@@ -162,6 +164,11 @@ igual("secao do LOG aparece", html.includes("Last downloads (live log)"), true);
 igual(
   "LOG traz a linha plantada (linux/BR)",
   html.includes("<td>linux</td><td>BR</td>"),
+  true,
+);
+igual(
+  "LOG traz o estado e a cidade do clique (BR/SP/Sao Paulo)",
+  html.includes("<td>SP</td><td>Sao Paulo</td>"),
   true,
 );
 

@@ -164,10 +164,11 @@ async function githubDownloads() {
 }
 
 // ── LOG das últimas requisições de download (gravadas pelo api/download) ─
-// Lista curta com hora + arquivo + país + navegador + conta + referrer. É o que
+// Lista curta com hora + arquivo + país/estado/cidade + navegador + conta +
+// referrer. É o que
 // responde "quem baixou o quê, quando" sem depender do GitHub (que não expõe
 // nada disso). Mais recente primeiro.
-async function logWindow(limit = 200) {
+async function logWindow(limit = 500) {
   const redis = await getRedis();
   const linhas = await redis.lrange("downloads:log", 0, limit - 1);
   const itens = (linhas || [])
@@ -196,6 +197,7 @@ function htmlLog(log) {
       (e) =>
         `<tr><td>${esc(String(e.t || "").replace("T", " ").replace(/\.\d+Z$/, ""))}</td>` +
         `<td>${esc(e.f || "")}</td><td>${esc(e.cc || "")}</td>` +
+        `<td>${esc(e.rg || "")}</td><td>${esc(e.ct || "")}</td>` +
         `<td>${esc(e.ua || "")}</td><td>${esc(e.conta || "")}</td>` +
         `<td>${esc(e.ref || "")}</td></tr>`
     )
@@ -204,8 +206,8 @@ function htmlLog(log) {
 <h1 style="margin-top:42px">Last downloads (live log)</h1>
 <p class="sub">Every request that passed the gate, newest first (last ${(log.itens || []).length}). Times are UTC. <b>Cross-check:</b> what appears here went through <b>our site</b>; what GitHub gains <b>without</b> appearing here did <b>not</b> come from the site (updater/robot/direct link).</p>
 <table>
-<thead><tr><th>Time (UTC)</th><th>File</th><th>Country</th><th>Browser</th><th>Account</th><th>Referrer</th></tr></thead>
-<tbody>${linhas || `<tr><td colspan="6">No downloads logged yet.</td></tr>`}</tbody>
+<thead><tr><th>Time (UTC)</th><th>File</th><th>Country</th><th>State</th><th>City</th><th>Browser</th><th>Account</th><th>Referrer</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="8">No downloads logged yet.</td></tr>`}</tbody>
 </table>`;
 }
 
