@@ -221,6 +221,12 @@ function utmContent(req) {
 
 const RETENCAO_DIM = 400 * 24 * 60 * 60; // 400 dias para o hash do dia
 
+// Log das ÚLTIMAS requisições que passaram pelo portão (o dono vê, no relatório,
+// hora + arquivo + país + navegador + conta + referrer de cada download). Lista
+// limitada: guardamos só as últimas LOG_MAX. Serve para distinguir, sem
+// adivinhação, um clique humano de uma rajada de robô/atualizador.
+const LOG_MAX = 500;
+
 // "macOS/Safari 17" — separa pessoa de robô com cara de navegador.
 function familiaUA(req) {
   const ua = String(req.headers["user-agent"] || "");
@@ -431,6 +437,20 @@ export default async function handler(req, res) {
     p.hincrby(dimKey, `path:${pagina(req)}`, 1);
     p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
     p.expire(dimKey, RETENCAO_DIM);
+    // LOG das últimas requisições (o dono lê no relatório): hora + arquivo +
+    // país + navegador + conta + referrer. LPUSH + LTRIM = lista limitada.
+    p.lpush(
+      "downloads:log",
+      JSON.stringify({
+        t: new Date().toISOString(),
+        f: file,
+        cc,
+        ua: familiaUA(req),
+        conta,
+        ref: origemExterna(req),
+      })
+    );
+    p.ltrim("downloads:log", 0, LOG_MAX - 1);
     await p.exec();
   } catch (err) {
     console.error("download origin counter error:", err?.message ?? err);

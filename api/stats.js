@@ -163,7 +163,53 @@ async function githubDownloads() {
   return data;
 }
 
-function htmlPage(rows, totals, days, github, visits, origin, trials, sales) {
+// ── LOG das últimas requisições de download (gravadas pelo api/download) ─
+// Lista curta com hora + arquivo + país + navegador + conta + referrer. É o que
+// responde "quem baixou o quê, quando" sem depender do GitHub (que não expõe
+// nada disso). Mais recente primeiro.
+async function logWindow(limit = 200) {
+  const redis = await getRedis();
+  const linhas = await redis.lrange("downloads:log", 0, limit - 1);
+  const itens = (linhas || [])
+    .map((s) => {
+      try {
+        return typeof s === "string" ? JSON.parse(s) : s;
+      } catch (err) {
+        return null;
+      }
+    })
+    .filter(Boolean);
+  return { ok: true, itens };
+}
+
+function htmlLog(log) {
+  if (!log || !log.ok) {
+    return [
+      '<h1 style="margin-top:42px">Last downloads (live log)</h1>',
+      '<p class="sub">Unavailable' +
+        (log && log.error ? ": " + esc(log.error) : "") +
+        ".</p>",
+    ].join("");
+  }
+  const linhas = (log.itens || [])
+    .map(
+      (e) =>
+        `<tr><td>${esc(String(e.t || "").replace("T", " ").replace(/\.\d+Z$/, ""))}</td>` +
+        `<td>${esc(e.f || "")}</td><td>${esc(e.cc || "")}</td>` +
+        `<td>${esc(e.ua || "")}</td><td>${esc(e.conta || "")}</td>` +
+        `<td>${esc(e.ref || "")}</td></tr>`
+    )
+    .join("");
+  return `
+<h1 style="margin-top:42px">Last downloads (live log)</h1>
+<p class="sub">Every request that passed the gate, newest first (last ${(log.itens || []).length}). Times are UTC. <b>Cross-check:</b> what appears here went through <b>our site</b>; what GitHub gains <b>without</b> appearing here did <b>not</b> come from the site (updater/robot/direct link).</p>
+<table>
+<thead><tr><th>Time (UTC)</th><th>File</th><th>Country</th><th>Browser</th><th>Account</th><th>Referrer</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="6">No downloads logged yet.</td></tr>`}</tbody>
+</table>`;
+}
+
+function htmlPage(rows, totals, days, github, visits, origin, trials, sales, log) {
   const body = rows.length
     ? rows
         .map(
@@ -219,6 +265,7 @@ function htmlPage(rows, totals, days, github, visits, origin, trials, sales) {
 <tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>${totals.people || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
 </table>
 ${gh}
+${htmlLog(log)}
 ${htmlVisits(visits)}
 ${htmlOrigin(origin)}
 ${htmlTrials(trials)}
@@ -757,11 +804,20 @@ export default async function handler(req, res) {
       console.error("ccf stats error:", err?.message ?? err);
     }
 
+    // ── 5) LOG das últimas requisições de download (best-effort) ────────
+    let log = null;
+    try {
+      log = await logWindow();
+    } catch (err) {
+      console.error("log stats error:", err?.message ?? err);
+      log = { ok: false, error: String(err?.message ?? err) };
+    }
+
     if (req.query.format === "html") {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.setHeader("Cache-Control", "no-store");
       return res.status(200).send(
-        htmlPage(rows, totals, days, github, visits, origin, trials, sales)
+        htmlPage(rows, totals, days, github, visits, origin, trials, sales, log)
       );
     }
 
@@ -780,6 +836,7 @@ export default async function handler(req, res) {
       github,
       trials,
       sales,
+      log,
     });
   } catch (err) {
     console.error("stats error:", err?.message ?? err);

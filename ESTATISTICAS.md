@@ -22,6 +22,20 @@ lemos por um endpoint protegido: `/api/stats?token=STATS_TOKEN`.
 
 > O `download_count` do GitHub **não** serve como "cliques": conta cada busca do arquivo (detonador de e-mail, antivírus que baixa para escanear, atualizador do próprio app) e nunca zera. Para "quantas pessoas clicaram", use **`People`**.
 
+### Últimas requisições ("Last downloads — live log")
+
+O `/api/download` grava também as **últimas 500 requisições** que passaram pelo
+portão, numa lista (`downloads:log`). O relatório mostra, mais recente primeiro:
+**hora (UTC) + arquivo + país + navegador + conta + referrer**. É o que responde
+"quem baixou o quê, quando" — e é o cruzamento que o GitHub não permite fazer:
+
+* o que **aparece** no log **passou pelo site** (clique de verdade);
+* o que o **GitHub ganha sem aparecer** no log **não veio do site** (atualizador
+  do app, robô que já conhece a URL, antivírus).
+
+Onde ler: secção **"Last downloads (live log)"** no relatório HTML, ou
+`log.itens` no JSON.
+
 O `track.js` também repassa os parâmetros de campanha da URL
 (`utm_source`, `utm_content`…) para os links de download e do Gumroad — assim
 sabemos **de qual conta de envio** veio cada visita, clique e venda.
@@ -72,6 +86,9 @@ downloads:pessoas:{dia} / downloads:pessoas          PESSOAS (1 hash IP+UA por d
                                                        quem leva 2+ sistemas conta 1)
 downloads:multi:{file}:{dia} / downloads:multi:{dia}  cliques de quem já levou outro
                                                        sistema (observação, não 403)
+downloads:log           LISTA  (LPUSH + LTRIM, 500)  as últimas requisições que
+                              passaram pelo portão: {t,f,cc,ua,conta,ref} — o log
+                              "quem baixou o quê, quando" do relatório
 
 visits:{dia} / visits:total                visitas por dia / acumuladas
 visits:uniq:{dia}                          visitantes únicos do dia (120d)

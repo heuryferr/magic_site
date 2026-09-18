@@ -51,6 +51,19 @@ const SETS = {
     JSON.stringify({ platform: "linux", country: "PT", license_key: "K1" }),
   ],
 };
+// LISTAS (o LOG das últimas requisições de download, gravado pelo api/download).
+const LISTS = {
+  "downloads:log": [
+    JSON.stringify({
+      t: "2026-09-18T12:00:00.000Z",
+      f: "linux",
+      cc: "BR",
+      ua: "Linux/Chrome 153",
+      conta: "(direto)",
+      ref: "(sem referrer)",
+    }),
+  ],
+};
 
 globalThis.fetch = async () => {
   throw new Error("sem rede no teste");
@@ -66,6 +79,7 @@ globalThis.Redis = class {
   get(k) { this._op(); return Promise.resolve(STRINGS[k] === undefined ? null : String(STRINGS[k])); }
   scard(k) { this._op(); return Promise.resolve((SETS[k] || []).length); }
   smembers(k) { this._op(); return Promise.resolve(SETS[k] || []); }
+  lrange(k) { this._op(); return Promise.resolve(LISTS[k] || []); }
   pipeline() {
     const self = this;
     const jobs = [];
@@ -141,6 +155,13 @@ igual(
   html.includes(
     "<tr><td>" + DIA + "</td><td>5</td><td>0</td><td>1</td><td><b>6</b></td><td>2</td><td>0</td><td>0</td></tr>",
   ),
+  true,
+);
+// O LOG das últimas requisições de download (hora + arquivo + país + navegador).
+igual("secao do LOG aparece", html.includes("Last downloads (live log)"), true);
+igual(
+  "LOG traz a linha plantada (linux/BR)",
+  html.includes("<td>linux</td><td>BR</td>"),
   true,
 );
 

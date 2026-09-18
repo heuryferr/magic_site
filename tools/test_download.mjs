@@ -39,6 +39,8 @@ globalThis.Redis = class {
       incr() { self._op(); globalThis.__contou += 1; return this; },
       hincrby() { self._op(); globalThis.__contou += 1; return this; },
       sadd() { self._op(); globalThis.__contou += 1; return this; },
+      lpush() { self._op(); globalThis.__contou += 1; return this; },
+      ltrim() { self._op(); return this; },
       scard() { self._op(); return this; },
       expire() { self._op(); return this; },
       get() { self._op(); return this; },
