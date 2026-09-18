@@ -52,27 +52,66 @@ const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
 // aconteceu no incidente de 2026-09-18. Sem Redis, a validação continua (só
 // sem a trava de dispositivos e sem analytics).
 //
-// ACEITA OS DOIS NOMES de variável que a Vercel usa, conforme o produto da
-// integração: Upstash Marketplace -> UPSTASH_REDIS_REST_* ; Vercel KV ->
-// KV_REST_API_*. Sem isto o servidor ficava "sem credencial" valendo, mesmo com
-// o banco ligado ao projeto — e quem pagava a conta era o cliente.
+// ACEITA OS DOIS NOMES de variável que a Vercel usa, e testa os dois na ordem
+// (ver withRedis/redisCandidates acima).
 let _redis = null;
 let _redisReason = "ok"; // ok | credential_missing
-function getRedis() {
-  if (_redis) return _redis;
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (!url || !token) {
+
+// CREDENCIAIS CANDIDATAS, em ordem. A Vercel cria KV_REST_API_* quando o banco
+// vem pela KV e UPSTASH_REDIS_REST_* quando vem pelo Marketplace Upstash — e as
+// duas podem coexistir (foi o que aconteceu em 18/09/2026: as UPSTASH_* eram de
+// um banco APAGADO e o servidor insistia nelas).
+function redisCandidates() {
+  const pares = [
+    [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN],
+    [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN],
+  ];
+  const vistos = new Set();
+  return pares.filter(([url, token]) => {
+    if (!url || !token || vistos.has(url)) return false;
+    vistos.add(url);
+    return true;
+  });
+}
+
+/**
+ * Roda `fn(cliente)` no PRIMEIRO candidato que RESPONDER.
+ *
+ * É o que torna o servidor imune a variável velha: credencial de banco apagado
+ * não derruba mais o serviço quando existe outra válida no ambiente. O cliente
+ * que funcionou fica em cache (as chamadas seguintes não repetem o teste).
+ */
+async function withRedis(fn) {
+  if (_redis) return fn(_redis);
+  const cands = redisCandidates();
+  if (!cands.length) {
     _redisReason = "credential_missing";
-    return null;
+    const err = new Error("no redis credentials in the environment");
+    err.code = "credential_missing";
+    throw err;
   }
-  _redis = new Redis({ url, token });
-  return _redis;
+  let lastErr = null;
+  for (const [url, token] of cands) {
+    const client = new Redis({ url, token });
+    try {
+      const out = await fn(client);
+      _redis = client; // este respondeu: é o bom
+      _redisReason = "ok";
+      return out;
+    } catch (err) {
+      lastErr = err;
+      console.error(
+        "Upstash: candidato falhou, tentando o proximo se houver:",
+        err?.message ?? err
+      );
+    }
+  }
+  throw lastErr || new Error("redis unavailable");
 }
 
 // Motivo curto para log/resposta (nunca com valores, host ou token).
-function redisReason(opFailed) {
+function redisReason(opFailed, err) {
+  if (err && err.code === "credential_missing") return "credential_missing";
   return opFailed ? "registry_error" : _redisReason;
 }
 
@@ -147,8 +186,6 @@ function deviceMeta(prev, platform, appVersion) {
 
 async function recordSaleAnalytics(purchase, meta) {
   // meta = { country, platform, app_version, license_key }
-  const redis = getRedis();
-  if (!redis) return; // sem Upstash não há onde gravar: silêncio, não erro
   try {
     const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
     const fields = purchase.custom_fields ?? [];
@@ -165,9 +202,11 @@ async function recordSaleAnalytics(purchase, meta) {
       field: customField(fields, "field"),
     });
     // SADD de registros do dia (para exportar/inspecionar) + contadores.
-    await redis.sadd(`analytics:sales:${day}`, record);
-    await redis.incr(`analytics:sales:${day}:count`);
-    if (country !== "??") await redis.incr(`analytics:countries:${country}`);
+    await withRedis(async (redis) => {
+      await redis.sadd(`analytics:sales:${day}`, record);
+      await redis.incr(`analytics:sales:${day}:count`);
+      if (country !== "??") await redis.incr(`analytics:countries:${country}`);
+    });
   } catch (err) {
     console.error("Analytics record falhou (ignorado):", err?.message ?? err);
   }
@@ -185,7 +224,6 @@ export default async function handler(req, res) {
   if (!GUMROAD_ACCESS_TOKEN) {
     return serverError(res, "GUMROAD_ACCESS_TOKEN não configurado no ambiente.");
   }
-  const redis = getRedis();
 
   const {
     license_key,
@@ -253,56 +291,58 @@ export default async function handler(req, res) {
   const registryKey = `licenses:${license_key}`;
   const metaKey = `licenses:${license_key}:meta`;
   let members = [];
-  let deviceLockApplied = Boolean(redis);
-  let lockReason = deviceLockApplied ? "ok" : redisReason(false);
-  if (!redis) {
-    console.error(
-      "Upstash Redis nao configurado no ambiente (nem UPSTASH_REDIS_REST_*, nem KV_REST_API_*) — licenca liberada SEM a trava de dispositivos."
-    );
-  } else {
+  let deviceLockApplied = true;
+  let lockReason = "ok";
+  {
     try {
-      members = await redis.smembers(registryKey);
-      if (!members.includes(hardware_id)) {
-        if (members.length >= DEVICE_LIMIT) {
-          return json(res, 403, {
-            success: false,
-            error: "device_limit",
-            message: `Esta licença já está ativada em ${DEVICE_LIMIT} dispositivos. Encerre o uso em um deles para liberar esta máquina.`,
-          });
+      const resultado = await withRedis(async (redis) => {
+        let membros = await redis.smembers(registryKey);
+        if (!membros.includes(hardware_id)) {
+          if (membros.length >= DEVICE_LIMIT) return { lim: DEVICE_LIMIT };
+          await redis.sadd(registryKey, hardware_id);
         }
-        await redis.sadd(registryKey, hardware_id);
-      }
-      // Renova o TTL a cada validação: usuário ativo nunca perde o registro.
-      await redis.expire(registryKey, DEVICE_TTL_SECONDS);
-      members = await redis.smembers(registryKey);
-      // Metadados por dispositivo (data/plataforma/versão): é o que deixa a
-      // lista de dispositivos legível para o usuário.
-      let prev = null;
-      try {
-        const meta = (await redis.hgetall(metaKey)) || {};
-        prev = meta[hardware_id] ?? null;
-        if (typeof prev === "string") prev = JSON.parse(prev);
-      } catch (metaErr) {
-        prev = null;
-      }
-      try {
-        await redis.hset(metaKey, {
-          [hardware_id]: JSON.stringify(deviceMeta(prev, platform, app_version)),
+        // Renova o TTL a cada validação: usuário ativo nunca perde o registro.
+        await redis.expire(registryKey, DEVICE_TTL_SECONDS);
+        membros = await redis.smembers(registryKey);
+        // Metadados por dispositivo (data/plataforma/versão): é o que deixa a
+        // lista de dispositivos legível para o usuário.
+        let prev = null;
+        try {
+          const meta = (await redis.hgetall(metaKey)) || {};
+          prev = meta[hardware_id] ?? null;
+          if (typeof prev === "string") prev = JSON.parse(prev);
+        } catch (metaErr) {
+          prev = null;
+        }
+        try {
+          await redis.hset(metaKey, {
+            [hardware_id]: JSON.stringify(deviceMeta(prev, platform, app_version)),
+          });
+          await redis.expire(metaKey, DEVICE_TTL_SECONDS);
+        } catch (metaErr) {
+          console.error(
+            "Metadados do dispositivo nao gravados:",
+            metaErr?.message ?? metaErr
+          );
+        }
+        return { membros };
+      });
+      if (resultado.lim) {
+        // Veredito de NEGÓCIO (o cliente tem 2 máquinas ativas): propaga.
+        return json(res, 403, {
+          success: false,
+          error: "device_limit",
+          message: `Esta licença já está ativada em ${resultado.lim} dispositivos. Encerre o uso em um deles para liberar esta máquina.`,
         });
-        await redis.expire(metaKey, DEVICE_TTL_SECONDS);
-      } catch (metaErr) {
-        console.error(
-          "Metadados do dispositivo nao gravados:",
-          metaErr?.message ?? metaErr
-        );
       }
+      members = resultado.membros || [];
     } catch (err) {
       console.error(
-        "Upstash indisponivel — licenca liberada SEM a trava de dispositivos:",
+        "Registro de dispositivos indisponivel — licenca liberada SEM a trava:",
         err?.message ?? err
       );
       deviceLockApplied = false;
-      lockReason = redisReason(true);
+      lockReason = redisReason(true, err);
       members = [];
     }
   }

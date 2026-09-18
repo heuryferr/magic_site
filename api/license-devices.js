@@ -36,20 +36,48 @@ const GUMROAD_VERIFY_URL = "https://api.gumroad.com/v2/licenses/verify";
 
 const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
 
-// Cliente sob demanda (ver a nota em api/verify-license.js): sem as variáveis
-// do Upstash o construtor estouraria no carregamento do módulo.
+// Cliente sob demanda + CANDIDATOS (ver api/verify-license.js): KV_REST_API_*
+// (banco pela KV) e UPSTASH_REDIS_REST_* (Marketplace) coexistem com facilidade;
+// testamos na ordem e ficamos com a que RESPONDER — variável velha de banco
+// apagado não derruba mais o serviço.
 let _redis = null;
-function getRedis() {
-  if (_redis) return _redis;
-  // Aceita os DOIS nomes que a Vercel usa (Upstash Marketplace ->
-  // UPSTASH_REDIS_REST_*; Vercel KV -> KV_REST_API_*), senão o servidor fica
-  // "sem credencial" mesmo com o banco ligado ao projeto.
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  _redis = new Redis({ url, token });
-  return _redis;
+function redisCandidates() {
+  const pares = [
+    [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN],
+    [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN],
+  ];
+  const vistos = new Set();
+  return pares.filter(([url, token]) => {
+    if (!url || !token || vistos.has(url)) return false;
+    vistos.add(url);
+    return true;
+  });
+}
+
+async function withRedis(fn) {
+  if (_redis) return fn(_redis);
+  const cands = redisCandidates();
+  if (!cands.length) {
+    const err = new Error("no redis credentials in the environment");
+    err.code = "credential_missing";
+    throw err;
+  }
+  let lastErr = null;
+  for (const [url, token] of cands) {
+    const client = new Redis({ url, token });
+    try {
+      const out = await fn(client);
+      _redis = client;
+      return out;
+    } catch (err) {
+      lastErr = err;
+      console.error(
+        "Upstash: candidato falhou, tentando o proximo se houver:",
+        err?.message ?? err
+      );
+    }
+  }
+  throw lastErr || new Error("redis unavailable");
 }
 
 const DEVICE_LIMIT = 2;
@@ -162,29 +190,21 @@ export default async function handler(req, res) {
   // 2) A lista É o registro no Redis: sem ele não há o que mostrar. Aqui a
   //    resposta honesta é 503 (e o app diz que é problema nosso), porque não
   //    existe lista para inventar.
-  const redis = getRedis();
-  if (!redis) {
-    return json(res, 503, {
-      success: false,
-      error: "device_registry_unavailable",
-      reason: "credential_missing",
-      message: "Registro de dispositivos não configurado no ambiente.",
-    });
-  }
-
   const registryKey = `licenses:${license_key}`;
   const metaKey = `licenses:${license_key}:meta`;
   let ids = [];
   let meta = {};
   try {
-    ids = await redis.smembers(registryKey);
-    meta = (await redis.hgetall(metaKey)) || {};
+    await withRedis(async (redis) => {
+      ids = await redis.smembers(registryKey);
+      meta = (await redis.hgetall(metaKey)) || {};
+    });
   } catch (err) {
     console.error("Erro no Upstash Redis:", err?.message ?? err);
     return json(res, 503, {
       success: false,
       error: "device_registry_unavailable",
-      reason: "registry_error",
+      reason: err?.code === "credential_missing" ? "credential_missing" : "registry_error",
       detail: safeDetail(err),
       message: "Falha ao acessar o registro de dispositivos.",
     });
