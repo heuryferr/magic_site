@@ -574,10 +574,64 @@
   .pricing-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;margin-top:18px;font-size:12.5px;color:#a6aed6}
   .pricing-trust span{display:inline-flex;align-items:center;gap:6px}
 
+  /* ---- Promoção: estudantes e jovens pesquisadores ---- */
+  .pricing-promo{
+    position:relative;max-width:640px;margin:34px auto 0;border-radius:22px;padding:1px;
+    background:linear-gradient(160deg,rgba(79,216,200,.7),rgba(124,140,255,.5) 60%,rgba(185,134,255,.5));
+    box-shadow:0 24px 60px -26px rgba(0,0,0,.75);
+  }
+  .pricing-promo-inner{
+    position:relative;border-radius:21px;background:#111637;padding:30px 30px 28px;
+    text-align:center;overflow:hidden;
+  }
+  .pricing-promo-inner::before{
+    content:"";position:absolute;inset:0 0 auto 0;height:150px;pointer-events:none;
+    background:radial-gradient(60% 100% at 50% 0%,rgba(79,216,200,.16),transparent 70%);
+  }
+  .promo-badge{
+    position:relative;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;color:#0b0e1a;
+    background:linear-gradient(100deg,#4fd8c8,#7c8cff);
+    padding:6px 13px;border-radius:999px;margin-bottom:16px;
+  }
+  .promo-title{position:relative;font-size:clamp(20px,2.6vw,26px);font-weight:900;letter-spacing:-.01em;line-height:1.15;color:#eef1ff;margin-bottom:10px}
+  .promo-title .grad{background:linear-gradient(100deg,#7c8cff,#b986ff 65%,#4fd8c8);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .promo-text{position:relative;color:#a6aed6;font-size:15px;line-height:1.55;margin:0 auto 18px;max-width:520px}
+  .promo-text strong{color:#eef1ff}
+  .promo-price-row{position:relative;display:flex;align-items:baseline;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .promo-old{color:#7a83ad;font-size:16px;font-weight:700;text-decoration:line-through}
+  .promo-price{
+    font-size:46px;font-weight:900;letter-spacing:-.03em;line-height:1;
+    background:linear-gradient(100deg,#4fd8c8,#7c8cff 60%,#b986ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .promo-price small{font-size:14px;font-weight:600;color:#a6aed6;-webkit-text-fill-color:#a6aed6;margin-left:6px}
+  .promo-coupon{
+    position:relative;display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+    background:rgba(79,216,200,.10);border:1px dashed rgba(79,216,200,.55);border-radius:14px;
+    padding:12px 18px;margin:0 auto 22px;font-size:14px;color:#eef1ff;
+  }
+  .promo-coupon strong{color:#eef1ff}
+  .promo-coupon code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:19px;font-weight:800;letter-spacing:.12em;
+    color:#4fd8c8;background:rgba(11,14,26,.55);border:1px solid rgba(79,216,200,.45);border-radius:9px;padding:5px 12px;
+  }
+  .promo-cta{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;font-size:16px;font-weight:800;
+    color:#0b0e1a;text-decoration:none;background:linear-gradient(100deg,#4fd8c8,#7c8cff);border-radius:13px;padding:15px 26px;
+    box-shadow:0 14px 34px -12px rgba(79,216,200,.7);transition:transform .15s,box-shadow .2s,filter .2s;
+  }
+  .promo-cta:hover{transform:translateY(-2px);box-shadow:0 18px 42px -14px rgba(79,216,200,.95);filter:brightness(1.06)}
+  .promo-cta:active{transform:translateY(0)}
+  .promo-fine{position:relative;color:#7a83ad;font-size:12.5px;margin:14px 0 0}
+
 
   @media(max-width:520px){
     .pricing-inner{padding:34px 22px}
     .pricing-price{font-size:52px}
+    .pricing-promo-inner{padding:24px 18px 22px}
+    .promo-price{font-size:36px}
+    .promo-coupon code{font-size:16px}
   }
   @media(prefers-reduced-motion:reduce){.pricing-cta{transition:none}}
 </style>
@@ -622,6 +676,21 @@
           <span><img class="emoji" src="assets/img/icons/26a1.svg" alt="instant"> Instant delivery</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="pricing-promo">
+    <div class="pricing-promo-inner">
+      <span class="promo-badge"><img class="emoji" src="assets/img/icons/1f4da.svg" alt=""> Student &amp; early-career offer</span>
+      <h3 class="promo-title">Students &amp; young researchers: <span class="grad">US$ 99 a year</span></h3>
+      <p class="promo-text">Following many requests by email, we've set aside a special batch of <strong>100 annual licenses</strong> for students and early-career researchers — the same full license, every feature, on macOS, Windows and Linux, for one year.</p>
+      <div class="promo-price-row">
+        <span class="promo-old">US$ 990</span>
+        <span class="promo-price">$99<small>USD / year</small></span>
+      </div>
+      <p class="promo-coupon">Type this code in the <strong>coupon box at checkout</strong>: <code>96DGORP</code></p>
+      <a class="promo-cta gumroad-button" href="https://magicstat.gumroad.com/l/hjjfhq">Claim the offer</a>
+      <p class="promo-fine">First 100 licenses &middot; one per person &middot; the discount applies when you enter the code <strong>96DGORP</strong> in the coupon field at checkout.</p>
     </div>
   </div>
 </section>
