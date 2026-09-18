@@ -186,6 +186,19 @@ function deviceMeta(prev, platform, appVersion) {
 
 async function recordSaleAnalytics(purchase, meta) {
   // meta = { country, platform, app_version, license_key }
+  // As SUAS próprias ativações (chave do dono, testes) não são venda: liste as
+  // chaves em OWNER_LICENSE_KEYS (Vercel → Environment Variables), separadas
+  // por vírgula; elas nunca entram na estatística.
+  try {
+    const minhas = String(process.env.OWNER_LICENSE_KEYS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const chave = String(meta?.license_key || purchase?.license_key || "").trim();
+    if (chave && minhas.includes(chave)) return;
+  } catch (err) {
+    /* sem lista configurada: segue normalmente */
+  }
   try {
     const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
     const fields = purchase.custom_fields ?? [];

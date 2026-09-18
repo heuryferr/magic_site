@@ -45,6 +45,10 @@ const SETS = {
   ["analytics:sales:" + DIA]: [
     JSON.stringify({ platform: "macos", country: "BR" }),
     JSON.stringify({ platform: "windows", country: "US" }),
+    // Duas VALIDAÇÕES da MESMA licença (o app revalida de tempos em tempos):
+    // isso não é venda nova — a contagem tem de ser por licença DISTINTA.
+    JSON.stringify({ platform: "linux", country: "PT", license_key: "K1" }),
+    JSON.stringify({ platform: "linux", country: "PT", license_key: "K1" }),
   ],
 };
 
@@ -124,7 +128,10 @@ igual(
   true,
 );
 igual("secao de VENDAS aparece", html.includes("Sales / activations (licensed)"), true);
-igual("total da janela de vendas = 2", html.includes("window total: <b>2</b>"), true);
+igual("total da janela de vendas = 3 (2 sem chave + 1 licenca distinta)",
+  html.includes("window total: <b>3</b>"), true);
+igual("venda: revalidacao da MESMA licenca nao conta 2x (linux 1)",
+  html.includes("<td>linux</td><td>1</td>"), true);
 igual("vendas por plataforma: macos 1", html.includes("<td>macos</td><td>1</td>"), true);
 igual("vendas por pais: BR 1", html.includes("<td>BR</td><td>1</td>"), true);
 igual("secao de cliques ainda esta la", html.includes("site clicks (our counter)"), true);
@@ -157,7 +164,7 @@ igual(
 
 igual("JSON: trials.totals.total = 6", res.body.trials && res.body.trials.totals.total, 6);
 igual("JSON: trials do dia por plataforma (2-1-3)", (res.body.trials.totals.macos || 0) + "-" + (res.body.trials.totals.windows || 0) + "-" + (res.body.trials.totals.linux || 0), "2-1-3");
-igual("JSON: sales.total = 2", res.body.sales && res.body.sales.total, 2);
+igual("JSON: sales.total = 3", res.body.sales && res.body.sales.total, 3);
 
 if (problemas.length) {
   console.error("FALHOU:\n  - " + problemas.join("\n  - "));

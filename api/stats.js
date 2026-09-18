@@ -455,20 +455,20 @@ async function salesWindow(days) {
   const dias = [];
   for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
 
-  const p = redis.pipeline();
-  dias.forEach((d) => p.scard(`analytics:sales:${d}`));
-  const contagens = await p.exec();
-  const rows = dias.map((d, i) => ({ date: d, sales: Number(contagens[i] || 0) }));
-
-  // Detalhe por plataforma/país. O volume é pequeno (uma ativação por compra),
-  // então UM smembers por dia basta.
+  // Detalhe por plataforma/país. O volume é pequeno, então UM smembers por dia
+  // basta. IMPORTANTE: cada registro é uma VALIDAÇÃO de licença, e o mesmo app
+  // revalida de tempos em tempos — isso NÃO é venda nova. Por isso contamos
+  // licenças DISTINTAS (`license_key`), não eventos. Registro sem chave conta
+  // como um (não dá para deduplicar).
   const q = redis.pipeline();
   dias.forEach((d) => q.smembers(`analytics:sales:${d}`));
   const membros = await q.exec();
   const porPlataforma = {};
   const porPais = {};
+  const vistas = new Set();
+  const porDia = dias.map(() => new Set());
   let total = 0;
-  membros.forEach((lista) => {
+  membros.forEach((lista, i) => {
     (Array.isArray(lista) ? lista : []).forEach((bruto) => {
       let reg = null;
       try {
@@ -477,13 +477,20 @@ async function salesWindow(days) {
         reg = null;
       }
       if (!reg || typeof reg !== "object") return;
+      const chave = String(reg.license_key || "").trim();
+      if (chave) {
+        if (vistas.has(chave)) return;   // revalidação: não é venda nova
+        vistas.add(chave);
+      }
       total += 1;
+      porDia[i].add(chave || `sem-chave:${i}:${bruto}`);
       const plat = String(reg.platform || "unknown");
       const pais = String(reg.country || "??");
       porPlataforma[plat] = (porPlataforma[plat] || 0) + 1;
       porPais[pais] = (porPais[pais] || 0) + 1;
     });
   });
+  const rows = dias.map((d, i) => ({ date: d, sales: porDia[i].size }));
   const ordena = (obj) =>
     Object.entries(obj)
       .map(([name, count]) => ({ name, count }))
