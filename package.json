@@ -4,7 +4,7 @@
   "description": "Institutional website for **Magic Stat** — statistical analysis software with publication-quality output, built-in AI and scientific reports ready for your paper.",
   "main": "index.js",
   "scripts": {
-    "test": "node tools/test_ccf.mjs && node tools/test_download.mjs"
+    "test": "node tools/test_ccf.mjs && node tools/test_download.mjs && node tools/test_stats.mjs"
   },
   "repository": {
     "type": "git",

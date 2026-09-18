@@ -40,7 +40,16 @@ class Pipeline {
   hgetall() { return this; }
   async exec() { return this.cmds.map((k) => DB[k] ?? null); }
 }
-globalThis.Redis = class { constructor() {} pipeline() { return new Pipeline(); } };
+// getRedis() (usado por ccfWindow) testa a credencial com uma LEITURA real:
+// o ambiente precisa de um par de credencial (no servidor de verdade são
+// KV_REST_API_* ou UPSTASH_REDIS_REST_*) e o stub precisa responder à sonda.
+process.env.KV_REST_API_URL = "https://banco-de-teste";
+process.env.KV_REST_API_TOKEN = "token-de-teste";
+globalThis.Redis = class {
+  constructor() {}
+  get() { return Promise.resolve(null); }
+  pipeline() { return new Pipeline(); }
+};
 
 let src = fs.readFileSync(ARQ, "utf8");
 if (!/function ccfWindow/.test(src)) {

@@ -21,10 +21,45 @@
 
 import { Redis } from "@upstash/redis";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+// ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
+// A Vercel cria KV_REST_API_* quando o banco vem pela KV e
+// UPSTASH_REDIS_REST_* quando vem pelo Marketplace Upstash — e as duas podem
+// coexistir, com a de banco APAGADO entre elas (foi o incidente de 18/09/2026).
+// Criar o cliente no topo do arquivo com o par fixo UPSTASH_* fazia ESTE
+// relatorio inteiro morrer em silencio. Aqui testamos os candidatos com uma
+// LEITURA REAL e ficamos com o que RESPONDE; o cliente bom fica em cache.
+let _redis = null;
+
+function redisCandidates() {
+  const pares = [
+    [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN],
+    [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN],
+  ];
+  const vistos = new Set();
+  return pares.filter(([url, token]) => {
+    if (!url || !token || vistos.has(url)) return false;
+    vistos.add(url);
+    return true;
+  });
+}
+
+async function getRedis() {
+  if (_redis) return _redis;
+  const cands = redisCandidates();
+  let lastErr = null;
+  for (const [url, token] of cands) {
+    const client = new Redis({ url, token });
+    try {
+      await client.get("magicstat:probe");
+      _redis = client;
+      return client;
+    } catch (err) {
+      lastErr = err;
+      console.error("Upstash: candidato falhou, tentando o proximo:", err?.message ?? err);
+    }
+  }
+  throw lastErr || new Error("no redis credentials in the environment");
+}
 
 const FILES = ["macos", "windows", "linux"];
 const REPORT_TZ_OFFSET_MINUTES = -180; // -180 = UTC-3 (Brasília)
@@ -55,6 +90,7 @@ function classify(name) {
 async function githubDownloads() {
   const cacheKey = `gh:releases:${GITHUB_RELEASES_REPO}`;
   try {
+    const redis = await getRedis();
     const cached = await redis.get(cacheKey);
     if (cached) return typeof cached === "string" ? JSON.parse(cached) : cached;
   } catch (err) {
@@ -110,6 +146,7 @@ async function githubDownloads() {
     fetched_at: new Date().toISOString(),
   };
   try {
+    const redis = await getRedis();
     await redis.set(cacheKey, JSON.stringify(data), { ex: GITHUB_CACHE_SECONDS });
   } catch (err) {
     console.error("gh cache write error:", err?.message ?? err);
@@ -117,7 +154,7 @@ async function githubDownloads() {
   return data;
 }
 
-function htmlPage(rows, totals, days, github, visits, origin) {
+function htmlPage(rows, totals, days, github, visits, origin, trials, sales) {
   const body = rows.length
     ? rows
         .map(
@@ -153,7 +190,7 @@ function htmlPage(rows, totals, days, github, visits, origin) {
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Magic Stat — Downloads</title>
+<title>Magic Stat — Report</title>
 <style>
  body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0b0e1a;color:#eef1ff;margin:0;padding:32px}
  h1{font-size:20px;font-weight:800;margin:0 0 6px}
@@ -174,12 +211,15 @@ function htmlPage(rows, totals, days, github, visits, origin) {
 ${gh}
 ${htmlVisits(visits)}
 ${htmlOrigin(origin)}
+${htmlTrials(trials)}
+${htmlSales(sales)}
 </body></html>`;
 }
 
 
 // ── VISITAS do site (gravadas pelo api/visit) ──────────────────────────
 async function visitsWindow(days) {
+    const redis = await getRedis();
   const dias = [];
   for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
   const p = redis.pipeline();
@@ -211,6 +251,7 @@ async function visitsWindow(days) {
 
 // ── De onde veio: país (x-vercel-ip-country) e conta (utm_content) ─────
 async function origemWindow(days) {
+    const redis = await getRedis();
   const dias = [];
   for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
 
@@ -277,6 +318,7 @@ async function origemWindow(days) {
 
 // ── Dimensões extras (um hash por dia): navegador, origem, página, país×conta
 async function extraWindow(days) {
+    const redis = await getRedis();
   const dias = [];
   for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
   const p = redis.pipeline();
@@ -326,6 +368,7 @@ async function extraWindow(days) {
 // leva ao arquivo. Gravado POR DIA (`downloads:ccf:{cc}:{file}:{dia}` e o
 // índice `downloads:ccfs:{dia}`), então dá para somar qualquer período.
 async function ccfWindow(days) {
+    const redis = await getRedis();
   const dias = [];
   for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
 
@@ -366,6 +409,86 @@ async function ccfWindow(days) {
     clicks_ccf_dias: porDia,
   };
 }
+// ── TRIALS começados (beacon /api/trial-start) ─────────────────────────
+// Uma linha por instalação, quando o trial de 7 dias começa. É ANÔNIMO: sem
+// email, sem IP, sem hardware — só plataforma + versão (ver api/trial-start.js).
+async function trialsWindow(days) {
+  const redis = await getRedis();
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+  const p = redis.pipeline();
+  dias.forEach((d) => {
+    FILES.forEach((f) => p.get(`stats:trial:${d}:${f}`));
+    p.get(`stats:trial:${d}:total`);
+  });
+  const res = await p.exec();
+  const porDia = FILES.length + 1;
+  const rows = dias.map((d, i) => {
+    const base = i * porDia;
+    const row = { date: d };
+    FILES.forEach((f, fi) => (row[f] = Number(res[base + fi] || 0)));
+    row.total = Number(res[base + FILES.length] || 0);
+    return row;
+  });
+  const totals = { total: 0 };
+  FILES.forEach((f) => (totals[f] = 0));
+  rows.forEach((r) => {
+    FILES.forEach((f) => (totals[f] += r[f]));
+    totals.total += r.total;
+  });
+  return { ok: true, window_days: days, rows, totals };
+}
+
+// ── VENDAS/ATIVAÇÕES (analytics:sales:<dia> — SADD de um JSON por ativação) ──
+async function salesWindow(days) {
+  const redis = await getRedis();
+  const dias = [];
+  for (let i = days - 1; i >= 0; i--) dias.push(localDayKey(-i));
+
+  const p = redis.pipeline();
+  dias.forEach((d) => p.scard(`analytics:sales:${d}`));
+  const contagens = await p.exec();
+  const rows = dias.map((d, i) => ({ date: d, sales: Number(contagens[i] || 0) }));
+
+  // Detalhe por plataforma/país. O volume é pequeno (uma ativação por compra),
+  // então UM smembers por dia basta.
+  const q = redis.pipeline();
+  dias.forEach((d) => q.smembers(`analytics:sales:${d}`));
+  const membros = await q.exec();
+  const porPlataforma = {};
+  const porPais = {};
+  let total = 0;
+  membros.forEach((lista) => {
+    (Array.isArray(lista) ? lista : []).forEach((bruto) => {
+      let reg = null;
+      try {
+        reg = typeof bruto === "string" ? JSON.parse(bruto) : bruto;
+      } catch (err) {
+        reg = null;
+      }
+      if (!reg || typeof reg !== "object") return;
+      total += 1;
+      const plat = String(reg.platform || "unknown");
+      const pais = String(reg.country || "??");
+      porPlataforma[plat] = (porPlataforma[plat] || 0) + 1;
+      porPais[pais] = (porPais[pais] || 0) + 1;
+    });
+  });
+  const ordena = (obj) =>
+    Object.entries(obj)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  return {
+    ok: true,
+    window_days: days,
+    rows,
+    window_total: rows.reduce((acc, r) => acc + r.sales, 0),
+    total,
+    by_platform: ordena(porPlataforma),
+    by_country: ordena(porPais),
+  };
+}
+
 function htmlVisits(visits) {
   if (!visits || !visits.ok) return "";
   const linhas = (visits.rows || [])
@@ -410,6 +533,68 @@ ${bloco("Clicks by browser / OS", origin.clicks_ua)}
 ${bloco("Clicks by country · account", origin.clicks_ccut)}`;
 }
 
+function htmlTrials(trials) {
+  if (!trials || !trials.ok) {
+    return [
+      '<h1 style="margin-top:42px">Trials started</h1>',
+      '<p class="sub">Unavailable' +
+        (trials && trials.error ? ": " + esc(trials.error) : "") +
+        ".</p>",
+    ].join("");
+  }
+  const linhas = (trials.rows || [])
+    .filter((r) => r.total)
+    .map(
+      (r) =>
+        `<tr><td>${esc(r.date)}</td>` +
+        FILES.map((f) => `<td>${r[f] || 0}</td>`).join("") +
+        `<td><b>${r.total || 0}</b></td></tr>`
+    )
+    .join("");
+  const t = trials.totals || {};
+  return `
+<h1 style="margin-top:42px">Trials started (7-day trial)</h1>
+<p class="sub">One per installation, pinged by the app when the trial begins (<code>/api/trial-start</code>). Anonymous: no email, no IP.</p>
+<table>
+<thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="${FILES.length + 2}">No trials started in this window.</td></tr>`}</tbody>
+<tfoot><tr><td>Window</td>${FILES.map((f) => `<td>${t[f] || 0}</td>`).join("")}<td>${t.total || 0}</td></tr></tfoot>
+</table>`;
+}
+
+function htmlSales(sales) {
+  if (!sales || !sales.ok) {
+    return [
+      '<h1 style="margin-top:42px">Sales / activations</h1>',
+      '<p class="sub">Unavailable' +
+        (sales && sales.error ? ": " + esc(sales.error) : "") +
+        ".</p>",
+    ].join("");
+  }
+  const linhas = (sales.rows || [])
+    .filter((r) => r.sales)
+    .map((r) => `<tr><td>${esc(r.date)}</td><td>${r.sales || 0}</td></tr>`)
+    .join("");
+  const bloco = (titulo, lista) => {
+    const rows = (lista || [])
+      .map((r) => `<tr><td>${esc(r.name)}</td><td>${r.count || 0}</td></tr>`)
+      .join("");
+    return `<h2 style="font-size:15px;margin:24px 0 6px">${esc(titulo)}</h2>
+<table><thead><tr><th>${esc(titulo)}</th><th>Activations</th></tr></thead>
+<tbody>${rows || `<tr><td colspan="2">No data.</td></tr>`}</tbody></table>`;
+  };
+  return `
+<h1 style="margin-top:42px">Sales / activations (licensed)</h1>
+<p class="sub">A license valid and registered on our server &middot; window total: <b>${sales.window_total || 0}</b>.</p>
+<table>
+<thead><tr><th>Date</th><th>Activations</th></tr></thead>
+<tbody>${linhas || `<tr><td colspan="2">No activations in this window.</td></tr>`}</tbody>
+<tfoot><tr><td>Window</td><td>${sales.window_total || 0}</td></tr></tfoot>
+</table>
+${bloco("By platform", sales.by_platform)}
+${bloco("By country", sales.by_country)}`;
+}
+
 export default async function handler(req, res) {
   const expected = process.env.STATS_TOKEN;
   const token = String(req.query.token || req.headers["x-stats-token"] || "");
@@ -428,6 +613,7 @@ export default async function handler(req, res) {
   const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
 
   try {
+    const redis = await getRedis();
     // ── 1) Nosso contador: cliques (GET) + únicos (SCARD) por dia ───────
     const pipe = redis.pipeline();
     const plan = [];
@@ -514,6 +700,22 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error("extra stats error:", err?.message ?? err);
     }
+
+    // ── 4) Trials iniciados + vendas/ativações (nunca derruba o resto) ──
+    let trials = null;
+    let sales = null;
+    try {
+      trials = await trialsWindow(days);
+    } catch (err) {
+      console.error("trials stats error:", err?.message ?? err);
+      trials = { ok: false, error: String(err?.message ?? err) };
+    }
+    try {
+      sales = await salesWindow(days);
+    } catch (err) {
+      console.error("sales stats error:", err?.message ?? err);
+      sales = { ok: false, error: String(err?.message ?? err) };
+    }
     try {
       const ccf = await ccfWindow(days);
       if (origin && origin.ok) origin = { ...origin, ...ccf };
@@ -525,7 +727,7 @@ export default async function handler(req, res) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.setHeader("Cache-Control", "no-store");
       return res.status(200).send(
-        htmlPage(rows, totals, days, github, visits, origin)
+        htmlPage(rows, totals, days, github, visits, origin, trials, sales)
       );
     }
 
@@ -542,6 +744,8 @@ export default async function handler(req, res) {
       visits,
       origin,
       github,
+      trials,
+      sales,
     });
   } catch (err) {
     console.error("stats error:", err?.message ?? err);

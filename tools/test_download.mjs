@@ -11,15 +11,38 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const RAIZ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const ARQ = path.join(RAIZ, "api", "download.js");
 
+// O getRedis() da rota testa cada credencial com uma LEITURA REAL: o stub
+// reproduz o incidente de 18/09/2026 — a variavel UPSTASH_* aponta para um
+// banco APAGADO (ENOTFOUND) e convive com a KV_REST_API_* (banco NOVO). Se a
+// rota voltar a criar o cliente no topo com o par fixo, ela morre aqui.
+process.env.KV_REST_API_URL = "https://banco-novo-vivo";
+process.env.KV_REST_API_TOKEN = "token-de-teste";
+process.env.UPSTASH_REDIS_REST_URL = "https://banco-apagado";
+process.env.UPSTASH_REDIS_REST_TOKEN = "token-de-teste";
+
+globalThis.__contou = 0;
 globalThis.Redis = class {
-  constructor() {}
-  incr() { return Promise.resolve(1); }
-  sadd() { return Promise.resolve(1); }
-  expire() { return Promise.resolve(1); }
+  constructor(cfg) { this.cfg = cfg || {}; }
+  _op() {
+    if (String(this.cfg.url || "").includes("apagado")) {
+      throw new Error("fetch failed: ENOTFOUND banco-apagado");
+    }
+  }
+  get() { this._op(); return Promise.resolve(null); }
+  incr() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
+  sadd() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
+  expire() { this._op(); return Promise.resolve(1); }
   pipeline() {
-    const p = this;
-    return { sadd() { return this; }, scard() { return this; }, expire() { return this; },
-             exec() { return Promise.resolve([0, 1, 0]); } };
+    const self = this;
+    return {
+      incr() { self._op(); globalThis.__contou += 1; return this; },
+      hincrby() { self._op(); globalThis.__contou += 1; return this; },
+      sadd() { self._op(); globalThis.__contou += 1; return this; },
+      scard() { self._op(); return this; },
+      expire() { self._op(); return this; },
+      get() { self._op(); return this; },
+      exec() { self._op(); return Promise.resolve([0, 1, 0]); },
+    };
   }
 };
 
@@ -78,6 +101,22 @@ igual("curl em macos → 403 automated_access", res.statusCode, 403);
 res = fakeRes();
 await handler({ query: { file: "macos" }, headers: { "user-agent": UA_REAL } }, res);
 igual("sem origem de página → 403 not_from_page", res.statusCode, 403);
+
+// ── credencial: banco VELHO (apagado) + banco NOVO ────────────────────
+// É o incidente real: com a variavel antiga presente, a rota criava o cliente
+// no topo com o par fixo UPSTASH_* e TODA a contagem morria em silencio.
+globalThis.__contou = 0;
+res = fakeRes();
+await handler(
+  { query: { file: "macos" }, headers: { "user-agent": "curl/7.88.1" } },
+  res,
+);
+igual("robô com banco velho + banco novo → 403 (não quebra)", res.statusCode, 403);
+igual(
+  "e a contagem SAI (no banco que responde, não no apagado)",
+  globalThis.__contou > 0,
+  true,
+);
 
 if (problemas.length) {
   console.error("FALHOU:\n  - " + problemas.join("\n  - "));

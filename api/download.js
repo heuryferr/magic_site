@@ -36,10 +36,45 @@
 import { Redis } from "@upstash/redis";
 import { createHash } from "node:crypto";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+// ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
+// A Vercel cria KV_REST_API_* quando o banco vem pela KV e
+// UPSTASH_REDIS_REST_* quando vem pelo Marketplace Upstash — e as duas podem
+// coexistir, com a de banco APAGADO entre elas (foi o incidente de 18/09/2026).
+// Criar o cliente no topo do arquivo com o par fixo UPSTASH_* fazia TODA a
+// contagem morrer em silencio. Aqui testamos os candidatos com uma LEITURA
+// REAL e ficamos com o que RESPONDE; o cliente bom fica em cache.
+let _redis = null;
+
+function redisCandidates() {
+  const pares = [
+    [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN],
+    [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN],
+  ];
+  const vistos = new Set();
+  return pares.filter(([url, token]) => {
+    if (!url || !token || vistos.has(url)) return false;
+    vistos.add(url);
+    return true;
+  });
+}
+
+async function getRedis() {
+  if (_redis) return _redis;
+  const cands = redisCandidates();
+  let lastErr = null;
+  for (const [url, token] of cands) {
+    const client = new Redis({ url, token });
+    try {
+      await client.get("magicstat:probe");
+      _redis = client;
+      return client;
+    } catch (err) {
+      lastErr = err;
+      console.error("Upstash: candidato falhou, tentando o proximo:", err?.message ?? err);
+    }
+  }
+  throw lastErr || new Error("no redis credentials in the environment");
+}
 
 // ── Repositório público de distribuição ────────────────────────────────
 const REPO = "heuryferr/MagicStat-Releases";
@@ -272,6 +307,7 @@ function ehCliqueDePagina(req) {
 async function _bloquear(req, res, motivo, file) {
   const day = localDayKey();
   try {
+    const redis = await getRedis();
     // contabiliza à parte: não é "clique", mas não escondemos o volume
     await Promise.all([
       redis.incr(`downloads:bot:${file}:${day}`),
@@ -317,6 +353,7 @@ export default async function handler(req, res) {
 
   // ── Contabilização (nunca derruba o download) ─────────────────────────
   try {
+    const redis = await getRedis();
     const day = localDayKey();
     await Promise.all([
       redis.incr(`downloads:${file}:${day}`),
@@ -331,6 +368,7 @@ export default async function handler(req, res) {
   // ── De onde veio o clique: país (header do Vercel) + conta (utm_content)
   // Chaves NOVAS (downloads:cc:*, downloads:utm:*) — as de cima não mudam.
   try {
+    const redis = await getRedis();
     const day = localDayKey();
     const cc =
       String(req.headers["x-vercel-ip-country"] || "??")
