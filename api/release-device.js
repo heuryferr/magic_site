@@ -36,8 +36,12 @@ const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
 let _redis = null;
 function getRedis() {
   if (_redis) return _redis;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Aceita os DOIS nomes que a Vercel usa (Upstash Marketplace ->
+  // UPSTASH_REDIS_REST_*; Vercel KV -> KV_REST_API_*), senão o servidor fica
+  // "sem credencial" mesmo com o banco ligado ao projeto.
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
   if (!url || !token) return null;
   _redis = new Redis({ url, token });
   return _redis;
@@ -91,6 +95,7 @@ export default async function handler(req, res) {
     return json(res, 503, {
       success: false,
       error: "device_registry_unavailable",
+      reason: "credential_missing",
       message: "Registro de dispositivos não configurado no ambiente.",
     });
   }
@@ -165,6 +170,7 @@ export default async function handler(req, res) {
     return json(res, 503, {
       success: false,
       error: "device_registry_unavailable",
+      reason: "registry_error",
       message: "Falha ao acessar o registro de dispositivos.",
     });
   }

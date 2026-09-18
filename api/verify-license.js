@@ -51,14 +51,29 @@ const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
 // módulo e a função morreria ANTES de validar qualquer chave — foi o que
 // aconteceu no incidente de 2026-09-18. Sem Redis, a validação continua (só
 // sem a trava de dispositivos e sem analytics).
+//
+// ACEITA OS DOIS NOMES de variável que a Vercel usa, conforme o produto da
+// integração: Upstash Marketplace -> UPSTASH_REDIS_REST_* ; Vercel KV ->
+// KV_REST_API_*. Sem isto o servidor ficava "sem credencial" valendo, mesmo com
+// o banco ligado ao projeto — e quem pagava a conta era o cliente.
 let _redis = null;
+let _redisReason = "ok"; // ok | credential_missing
 function getRedis() {
   if (_redis) return _redis;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  if (!url || !token) {
+    _redisReason = "credential_missing";
+    return null;
+  }
   _redis = new Redis({ url, token });
   return _redis;
+}
+
+// Motivo curto para log/resposta (nunca com valores, host ou token).
+function redisReason(opFailed) {
+  return opFailed ? "registry_error" : _redisReason;
 }
 
 // Nº máximo de dispositivos por chave de licença.
@@ -239,9 +254,10 @@ export default async function handler(req, res) {
   const metaKey = `licenses:${license_key}:meta`;
   let members = [];
   let deviceLockApplied = Boolean(redis);
+  let lockReason = deviceLockApplied ? "ok" : redisReason(false);
   if (!redis) {
     console.error(
-      "Upstash Redis nao configurado no ambiente — licenca liberada SEM a trava de dispositivos."
+      "Upstash Redis nao configurado no ambiente (nem UPSTASH_REDIS_REST_*, nem KV_REST_API_*) — licenca liberada SEM a trava de dispositivos."
     );
   } else {
     try {
@@ -286,6 +302,7 @@ export default async function handler(req, res) {
         err?.message ?? err
       );
       deviceLockApplied = false;
+      lockReason = redisReason(true);
       members = [];
     }
   }
@@ -314,6 +331,7 @@ export default async function handler(req, res) {
     device_count: members.length,
     device_limit: DEVICE_LIMIT,
     device_lock_applied: deviceLockApplied,
+    device_lock_reason: deviceLockApplied ? "ok" : lockReason,
     uses: purchase.uses ?? null,
     purchase: {
       license_key: purchase.license_key || license_key,
