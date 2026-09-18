@@ -331,30 +331,20 @@ export default async function handler(req, res) {
   // ligado tem ?p=...
   if (!ehCliqueDePagina(req)) return _bloquear(req, res, "not_from_page", file);
 
-  // ── Terceira barreira: o MESMO cliente pedindo OUTRO sistema em segundos.
-  // Quem baixa de verdade leva UM instalador (o do SEU sistema) e leva horas
-  // para querer outro; seguidor de links leva os TRÊS um atrás do outro. Se
-  // já pediu outro sistema há pouco, é automação: não redireciona (não chega
-  // ao GitHub) e conta como robô. Janela curta para não atrapalhar quem testa
-  // em duas máquinas.
-  try {
-    const redis = await getRedis();
-    // O vínculo confiável entre os pedidos é o E-MAIL (utm_content): o robô
-    // troca de IP e de User-Agent a cada requisição, mas os três pedidos saem
-    // do MESMO e-mail. Sem utm (visita direta), cai no IP+navegador.
-    const conta = utmContent(req);
-    const marca = conta && conta !== "(direto)"
-      ? `utm:${conta}`
-      : `ip:${visitorHash(req)}`;
-    const janelaKey = `downloads:janela:${marca}`;
-    const jaPediu = await redis.get(janelaKey);
-    if (jaPediu && String(jaPediu) !== file) {
-      return _bloquear(req, res, "multi_os_em_segundos", file);
-    }
-    await redis.set(janelaKey, file, { ex: 900 });
-  } catch (err) {
-    console.error("download multi-os guard error:", err?.message ?? err);
-  }
+  // ── Terceira barreira REMOVIDA (era o 403 `multi_os_em_segundos`).
+  // Ela tirava o instalador de gente de verdade por 15 min, e o vínculo
+  // escolhido (utm_content = a CONTA DE ENVIO do Magic Stat Mail) era o pior
+  // possível: essa conta é a mesma para TODOS os destinatários da campanha,
+  // então o primeiro que baixava macOS/Windows bloqueava o Windows/Linux de
+  // todo mundo que veio do mesmo e-mail. Por IP também doía: duas pessoas
+  // atrás do mesmo NAT com o mesmo navegador viram um hash só.
+  //
+  // O que essa barreira tentava pegar — scanner seguindo os três botões sem
+  // clicar — já é barrado acima por ehCliqueDePagina() (exige `?dl=1`, que só
+  // o track.js grava no clique real). E o sinal "mesmo visitante pedindo
+  // vários sistemas" continua anotado na contabilização abaixo
+  // (downloads:multi:*), que é onde ele importa: não inflar as PESSOAS.
+  // Aqui não se nega mais um clique de página.
 
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   let url = FALLBACK[file];

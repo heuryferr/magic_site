@@ -8,7 +8,7 @@ lemos por um endpoint protegido: `/api/stats?token=STATS_TOKEN`.
 | Rota | O que faz |
 | --- | --- |
 | `GET /api/visit` | Conta a **visita à página** (o `assets/js/track.js` chama ao carregar). |
-| `GET /api/download?file=macos` | Conta o **clique no botão de download** e redireciona para o instalador. Só conta clique que sai da nossa página (track.js grava `?p`/`?ref`/`?utm_*`, ou o Referer aponta para nós); `file` é obrigatório; o mesmo visitante pedindo 2+ sistemas em 30 min é tratado como robô. O que é bloqueado vai para `downloads:bot:*` e recebe **403** (não redireciona — o GitHub não infla). |
+| `GET /api/download?file=macos` | Conta o **clique no botão de download** e redireciona para o instalador. Só conta clique que sai da nossa página (track.js grava `?p`/`?ref`/`?utm_*`/`?dl=1`, ou o Referer aponta para nós); `file` é obrigatório. O que é claramente robô (UA de scanner/monitor, ou requisição sem a marca de clique da página) vai para `downloads:bot:*` e recebe **403** (não redireciona — o GitHub não infla). O mesmo visitante pedindo **vários sistemas** não é bloqueado: é contado à parte (`downloads:multi:*`), para não inflar as **pessoas**. |
 | `GET /api/stats?token=…&days=30` | Devolve o relatório em **JSON** (ou `&format=html` para ler no navegador). |
 
 O `track.js` também repassa os parâmetros de campanha da URL
@@ -52,9 +52,15 @@ downloads:utm:{conta}:{dia} / downloads:utm:{conta}  cliques por conta / acumula
 downloads:ccs:{dia} / downloads:utms:{dia}           índices do dia (400d)
 downloads:ccf:{cc}:{file}:{dia}                      cliques por país × sistema
 downloads:bot:{file}:{dia} / downloads:bot:{file}     cliques BLOQUEADOS
-                                                       (robô óbvio, sem página,
-                                                        multi-OS) — 403, não conta
+                                                       (robô óbvio ou sem marca de
+                                                        clique da página) — 403
 downloads:ccfs:{dia}                                 índice do dia ("CC|file")
+downloads:visto:{hash}:{dia}                          sistemas que o MESMO visitante
+                                                       levou no dia (120d)
+downloads:pessoas:{dia} / downloads:pessoas          PESSOAS (1 hash IP+UA por dia —
+                                                       quem leva 2+ sistemas conta 1)
+downloads:multi:{file}:{dia} / downloads:multi:{dia}  cliques de quem já levou outro
+                                                       sistema (observação, não 403)
 
 visits:{dia} / visits:total                visitas por dia / acumuladas
 visits:uniq:{dia}                          visitantes únicos do dia (120d)
