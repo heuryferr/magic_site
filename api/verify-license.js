@@ -259,7 +259,12 @@ export default async function handler(req, res) {
   if (!gum?.body?.success) {
     // Gumroad respondeu mas negou a chave (inválida / reembolso / chargeback).
     if (purchase.refunded) {
-      await withRedis((r) => r.del(`licenses:${license_key}`)).catch(() => {});
+      // Limpa o CADERNINHO inteiro desta chave: sem vagas e sem metadados
+      // orfaos (senao o registro do dispositivo ficaria pendurado ~1 ano).
+      await withRedis(async (r) => {
+        await r.del(`licenses:${license_key}`);
+        await r.del(`licenses:${license_key}:meta`);
+      }).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "refunded",
@@ -268,7 +273,11 @@ export default async function handler(req, res) {
       });
     }
     if (purchase.chargebacked) {
-      await withRedis((r) => r.del(`licenses:${license_key}`)).catch(() => {});
+      // Mesmo tratamento do reembolso: veredito honesto + caderninho limpo.
+      await withRedis(async (r) => {
+        await r.del(`licenses:${license_key}`);
+        await r.del(`licenses:${license_key}:meta`);
+      }).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "chargebacked",
