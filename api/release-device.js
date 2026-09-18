@@ -53,6 +53,15 @@ const DEVICE_TTL_SECONDS = 370 * 24 * 60 * 60;
 
 const json = (res, status, body) => res.status(status).json(body);
 
+// Detalhe SEGURO do erro do Redis (sem URL/token) — diagnóstico sem logs.
+function safeDetail(err) {
+  const raw = String((err && err.message) || err || "");
+  return raw
+    .replace(/https?:\/\/\S+/gi, "[url]")
+    .replace(/[A-Za-z0-9_\-]{24,}/g, "[token]")
+    .slice(0, 140);
+}
+
 function badRequest(res, message) {
   return json(res, 400, { success: false, error: "bad_request", message });
 }
@@ -171,6 +180,7 @@ export default async function handler(req, res) {
       success: false,
       error: "device_registry_unavailable",
       reason: "registry_error",
+      detail: safeDetail(err),
       message: "Falha ao acessar o registro de dispositivos.",
     });
   }

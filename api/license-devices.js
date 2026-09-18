@@ -57,6 +57,16 @@ const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 
 const json = (res, status, body) => res.status(status).json(body);
 
+// Detalhe SEGURO do erro do Redis, para diagnosticar sem acesso aos logs:
+// remove URLs e tokens antes de devolver (nunca expõe credencial).
+function safeDetail(err) {
+  const raw = String((err && err.message) || err || "");
+  return raw
+    .replace(/https?:\/\/\S+/gi, "[url]")
+    .replace(/[A-Za-z0-9_\-]{24,}/g, "[token]")
+    .slice(0, 140);
+}
+
 async function verifyWithGumroad(licenseKey, productId) {
   const form = new URLSearchParams();
   form.append("access_token", GUMROAD_ACCESS_TOKEN);
@@ -163,6 +173,7 @@ export default async function handler(req, res) {
       success: false,
       error: "device_registry_unavailable",
       reason: "registry_error",
+      detail: safeDetail(err),
       message: "Falha ao acessar o registro de dispositivos.",
     });
   }
