@@ -58,13 +58,25 @@ const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 const json = (res, status, body) => res.status(status).json(body);
 
 // Detalhe SEGURO do erro do Redis, para diagnosticar sem acesso aos logs:
-// remove URLs e tokens antes de devolver (nunca expõe credencial).
+// junta a causa raiz (o fetch do Node esconde o motivo real em err.cause) e
+// MASCARA url, token e host antes de devolver.
 function safeDetail(err) {
-  const raw = String((err && err.message) || err || "");
-  return raw
+  const parts = [];
+  const push = (e) => {
+    if (!e) return;
+    const msg = String((e && e.message) || e || "");
+    const code = String((e && e.code) || "");
+    const txt = (code ? code + " " : "") + msg;
+    if (txt.trim()) parts.push(txt.trim());
+  };
+  push(err);
+  if (err && err.cause) push(err.cause);
+  return parts
+    .join(" | ")
     .replace(/https?:\/\/\S+/gi, "[url]")
     .replace(/[A-Za-z0-9_\-]{24,}/g, "[token]")
-    .slice(0, 140);
+    .replace(/[a-z0-9.\-]*upstash\.io/gi, "[host]")
+    .slice(0, 200);
 }
 
 async function verifyWithGumroad(licenseKey, productId) {
