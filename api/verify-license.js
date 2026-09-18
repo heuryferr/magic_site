@@ -5,15 +5,28 @@
 // Tramo a "trava de 2 máquinas" (Opção C): valida a chave no Gumroad e
 // registra até 2 dispositivos (hardware_id) por chave no Upstash Redis.
 //
+// ➕ INSTRUMENTADO PARA ANALYTICS (ver ANALYTICS.md na raiz do repo):
+//   a cada ativação bem-sucedida, grava em Redis uma linha de CRM com:
+//     - email (vem do Gumroad — é do comprador, ok),
+//     - país derivado do IP da requisição (header x-vercel-ip-country —
+//       a Vercel injeta automaticamente),
+//     - instituição/área: `purchase.custom_fields` do Gumroad (campos
+//       opcionais criados no checkout do produto),
+//     - plataforma/versão do app (enviadas no payload).
+//   Chaves: analytics:sales:<YYYY-MM-DD> (SADD de JSON) + totais simples.
+//   Nada disso altera a validação — é fire-and-forget com try/catch.
+//
 // Envelope de requisição (POST, JSON):
 //   {
 //     "license_key": "...",             // chave do Gumroad (obrigatório)
 //     "hardware_id": "...",             // fingerprint SHA-256 da máquina (obrigat.)
 //     "product_id":  "hjjfhq",          // permalink do produto (opcional)
-//     "increment_uses_count": false     // se toca o contador 'uses' do Gumroad
+//     "increment_uses_count": false,    // se toca o contador 'uses' do Gumroad
+//     "platform": "macos",              // ➕ analytics (opcional)
+//     "app_version": "1.0.0"            // ➕ analytics (opcional)
 //   }
 //
-// Respostas:
+// Respostas: (inalteradas)
 //   200 { success:true,  purchase:{...}, devices:[...], device_count, device_limit }
 //   200 { success:false, error:"invalid_license", message }
 //   200 { success:false, error:"refunded"|"chargebacked", purchase:{...} }
@@ -32,16 +45,28 @@ const GUMROAD_ACCESS_TOKEN = process.env.GUMROAD_ACCESS_TOKEN;
 // Upstash Redis conectado (Vercel Marketplace -> Upstash Redis). As variáveis
 // UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN são criadas automaticamente
 // pela integração.
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+//
+// Cliente SOB DEMANDA: se as variáveis sumirem (ou a integração for
+// desconectada), o construtor do @upstash/redis estouraria no carregamento do
+// módulo e a função morreria ANTES de validar qualquer chave — foi o que
+// aconteceu no incidente de 2026-09-18. Sem Redis, a validação continua (só
+// sem a trava de dispositivos e sem analytics).
+let _redis = null;
+function getRedis() {
+  if (_redis) return _redis;
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  _redis = new Redis({ url, token });
+  return _redis;
+}
 
 // Nº máximo de dispositivos por chave de licença.
 const DEVICE_LIMIT = 2;
 
-// product_id do produto Magic Stat no Gumroad.
-// O Gumroad exige este valor ao validar (devolvido na mensagem de erro da API).
+// product_id interno (NÃO o permalink/slug "hjjfhq"): é o que o Gumroad aceita
+// no campo product_id do verify — conferido na resposta do teste real. (O app
+// sempre manda o product_id dele; isto vale para chamadas sem product_id.)
 const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 
 // TTL do registro de dispositivos: ~1 ano (equivale à licença anual), renovado
@@ -66,7 +91,6 @@ function serverError(res, message) {
 async function verifyWithGumroad(licenseKey, productId, incrementUses) {
   const form = new URLSearchParams();
   form.append("access_token", GUMROAD_ACCESS_TOKEN);
-  // O Gumroad pede o parâmetro 'product_id' com o ID da conta do produto.
   form.append("product_id", productId);
   form.append("license_key", licenseKey);
   if (incrementUses) form.append("increment_uses_count", "true");
@@ -78,6 +102,60 @@ async function verifyWithGumroad(licenseKey, productId, incrementUses) {
   });
   const body = await res.json().catch(() => ({}));
   return { httpStatus: res.status, body };
+}
+
+// ----------------------------------------------------------------------
+// ➕ ANALYTICS — helpers (fire-and-forget; nunca quebram a validação)
+// ----------------------------------------------------------------------
+function customField(customFields, wanted) {
+  // Gumroad devolve purchase.custom_fields como [{name, value}, ...]
+  const arr = Array.isArray(customFields) ? customFields : [];
+  for (const f of arr) {
+    if (f && String(f.name).toLowerCase() === wanted.toLowerCase()) {
+      return String(f.value ?? "").trim();
+    }
+  }
+  return "";
+}
+
+/** Metadados de UM dispositivo (para o usuário se reconhecer na lista). */
+function deviceMeta(prev, platform, appVersion) {
+  const now = new Date().toISOString();
+  const before = prev && typeof prev === "object" ? prev : {};
+  return {
+    first_seen: before.first_seen || now,
+    last_seen: now,
+    platform: platform || before.platform || null,
+    app_version: appVersion || before.app_version || null,
+  };
+}
+
+async function recordSaleAnalytics(purchase, meta) {
+  // meta = { country, platform, app_version, license_key }
+  const redis = getRedis();
+  if (!redis) return; // sem Upstash não há onde gravar: silêncio, não erro
+  try {
+    const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+    const fields = purchase.custom_fields ?? [];
+    const email = purchase.email ?? meta.email ?? "";
+    const country = meta.country || "??";
+    const record = JSON.stringify({
+      ts: new Date().toISOString(),
+      email,
+      country,
+      platform: meta.platform || "unknown",
+      app_version: meta.app_version || "",
+      license_key: purchase.license_key || meta.license_key || "",
+      institution: customField(fields, "institution"),
+      field: customField(fields, "field"),
+    });
+    // SADD de registros do dia (para exportar/inspecionar) + contadores.
+    await redis.sadd(`analytics:sales:${day}`, record);
+    await redis.incr(`analytics:sales:${day}:count`);
+    if (country !== "??") await redis.incr(`analytics:countries:${country}`);
+  } catch (err) {
+    console.error("Analytics record falhou (ignorado):", err?.message ?? err);
+  }
 }
 
 export default async function handler(req, res) {
@@ -92,15 +170,15 @@ export default async function handler(req, res) {
   if (!GUMROAD_ACCESS_TOKEN) {
     return serverError(res, "GUMROAD_ACCESS_TOKEN não configurado no ambiente.");
   }
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return serverError(res, "Upstash Redis não configurado no ambiente.");
-  }
+  const redis = getRedis();
 
   const {
     license_key,
     hardware_id,
     product_id = DEFAULT_PRODUCT_ID,
     increment_uses_count = false,
+    platform = "",
+    app_version = "",
   } = req.body ?? {};
 
   if (!license_key || !hardware_id) {
@@ -128,7 +206,7 @@ export default async function handler(req, res) {
   if (!gum?.body?.success) {
     // Gumroad respondeu mas negou a chave (inválida / reembolso / chargeback).
     if (purchase.refunded) {
-      await redis.del(`licenses:${license_key}`).catch(() => {});
+      if (redis) await redis.del(`licenses:${license_key}`).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "refunded",
@@ -137,7 +215,7 @@ export default async function handler(req, res) {
       });
     }
     if (purchase.chargebacked) {
-      await redis.del(`licenses:${license_key}`).catch(() => {});
+      if (redis) await redis.del(`licenses:${license_key}`).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "chargebacked",
@@ -153,32 +231,81 @@ export default async function handler(req, res) {
   }
 
   // ----------------------------------------------------------------
-  // 2) Trava de dispositivos no Upstash Redis (um conjunto por chave).
+  // 2) Trava de dispositivos no Upstash Redis (DEGRADA, nunca derruba).
+  //    A chave JÁ foi validada pelo Gumroad: falha nossa de infraestrutura
+  //    não pode virar recusa para quem pagou (incidente 2026-09-18).
   // ----------------------------------------------------------------
   const registryKey = `licenses:${license_key}`;
-  let members;
-  try {
-    members = await redis.smembers(registryKey);
-    if (!members.includes(hardware_id)) {
-      if (members.length >= DEVICE_LIMIT) {
-        return json(res, 403, {
-          success: false,
-          error: "device_limit",
-          message: `Esta licença já está ativada em ${DEVICE_LIMIT} dispositivos. Encerre o uso em um deles para liberar esta máquina.`,
-        });
+  const metaKey = `licenses:${license_key}:meta`;
+  let members = [];
+  let deviceLockApplied = Boolean(redis);
+  if (!redis) {
+    console.error(
+      "Upstash Redis nao configurado no ambiente — licenca liberada SEM a trava de dispositivos."
+    );
+  } else {
+    try {
+      members = await redis.smembers(registryKey);
+      if (!members.includes(hardware_id)) {
+        if (members.length >= DEVICE_LIMIT) {
+          return json(res, 403, {
+            success: false,
+            error: "device_limit",
+            message: `Esta licença já está ativada em ${DEVICE_LIMIT} dispositivos. Encerre o uso em um deles para liberar esta máquina.`,
+          });
+        }
+        await redis.sadd(registryKey, hardware_id);
       }
-      await redis.sadd(registryKey, hardware_id);
+      // Renova o TTL a cada validação: usuário ativo nunca perde o registro.
+      await redis.expire(registryKey, DEVICE_TTL_SECONDS);
+      members = await redis.smembers(registryKey);
+      // Metadados por dispositivo (data/plataforma/versão): é o que deixa a
+      // lista de dispositivos legível para o usuário.
+      let prev = null;
+      try {
+        const meta = (await redis.hgetall(metaKey)) || {};
+        prev = meta[hardware_id] ?? null;
+        if (typeof prev === "string") prev = JSON.parse(prev);
+      } catch (metaErr) {
+        prev = null;
+      }
+      try {
+        await redis.hset(metaKey, {
+          [hardware_id]: JSON.stringify(deviceMeta(prev, platform, app_version)),
+        });
+        await redis.expire(metaKey, DEVICE_TTL_SECONDS);
+      } catch (metaErr) {
+        console.error(
+          "Metadados do dispositivo nao gravados:",
+          metaErr?.message ?? metaErr
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Upstash indisponivel — licenca liberada SEM a trava de dispositivos:",
+        err?.message ?? err
+      );
+      deviceLockApplied = false;
+      members = [];
     }
-    // Renova o TTL a cada validação: usuário ativo nunca perde o registro.
-    await redis.expire(registryKey, DEVICE_TTL_SECONDS);
-    members = await redis.smembers(registryKey);
-  } catch (err) {
-    console.error("Erro no Upstash Redis:", err?.message ?? err);
-    return serverError(res, "Falha ao acessar o registro de dispositivos.");
   }
 
   // ----------------------------------------------------------------
-  // 3) Sucesso: devolve o payload no formato que o app desktop espera.
+  // 3) ➕ ANALYTICS: grava país/instituição/plataforma (sem travar).
+  //    País vem do header que a Vercel injeta (x-vercel-ip-country).
+  // ----------------------------------------------------------------
+  const country = String(
+    (req.headers || {})["x-vercel-ip-country"] || ""
+  ).toUpperCase();
+  await recordSaleAnalytics(purchase, {
+    country,
+    platform,
+    app_version,
+    license_key,
+  });
+
+  // ----------------------------------------------------------------
+  // 4) Sucesso: devolve o payload no formato que o app desktop espera.
   // ----------------------------------------------------------------
   return json(res, 200, {
     success: true,
@@ -186,6 +313,7 @@ export default async function handler(req, res) {
     devices: members,
     device_count: members.length,
     device_limit: DEVICE_LIMIT,
+    device_lock_applied: deviceLockApplied,
     uses: purchase.uses ?? null,
     purchase: {
       license_key: purchase.license_key || license_key,

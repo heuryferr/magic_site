@@ -1,27 +1,32 @@
-// api/release-device.js
+// api/license-devices.js
 // ======================================================================
-// Magic Stat — Libera UM dispositivo da chave (self-service).
+// Magic Stat — LISTA os dispositivos registrados numa chave de licença.
 // ----------------------------------------------------------------------
-// Complementa a "trava de 2 máquinas" do /api/verify-license com a opção
-// que faltava: REMOVER este computador do registro da chave. É assim que
-// um usuário real troca de máquina sem ficar preso:
+// Por que existe (pedido do dono, 2026-09-18): a trava de 2 dispositivos só
+// funciona se o cliente tiver como LIBERAR a máquina que não usa mais. Antes
+// existia só "Remove this device" A PARTIR da máquina antiga — quem formatou,
+// perdeu ou vendeu o computador ficava num beco sem saída e precisava de
+// suporte. Agora o app lista os dispositivos (com data de primeiro/último uso
+// e plataforma) e o usuário remove qualquer um deles, de qualquer máquina.
 //
-//   1. Na máquina ANTIGA: Help → About Magic Stat → aba License →
-//      "Remove this device from this license";
-//   2. Na máquina NOVA: ativa a chave normalmente (o slot ficou livre).
-//
-// Segurança: só quem sabe a chave de licença consegue liberar um
-// dispositivo (o Gumroad valida a chave primeiro) — mesmo nível de
-// confiança do registro feito pelo verify-license.
+// Segurança: a chave é validada no Gumroad ANTES de qualquer leitura — só quem
+// sabe a chave vê a lista (mesmo nível de confiança do verify/release).
+// A remoção continua na rota /api/release-device (que aceita qualquer
+// hardware_id da lista).
 //
 // Envelope de requisição (POST, JSON):
-//   { "license_key": "...", "hardware_id": "...",
-//     "product_id":  "rrU3Ea0rVRwxQQoOlEDQbw==" }
+//   {
+//     "license_key": "...",              // obrigatório
+//     "hardware_id": "...",              // opcional: marca qual é ESTE aparelho
+//     "product_id":  "rrU3Ea0rVRwxQQoOlEDQbw=="  // opcional
+//   }
 //
 // Respostas:
-//   200 { success:true, devices:[...], device_count, device_limit }
-//   200 { success:false, error:"invalid_license"|"refunded"|..., message }
+//   200 { success:true, devices:[{id, first_seen, last_seen, platform,
+//         app_version, current}], device_count, device_limit }
+//   200 { success:false, error:"invalid_license"|"refunded"|"chargebacked", message }
 //   400 { success:false, error:"bad_request", message }
+//   503 { success:false, error:"device_registry_unavailable", message }
 //   500 { success:false, error:"server_error", message }
 // ======================================================================
 
@@ -45,17 +50,8 @@ function getRedis() {
 
 const DEVICE_LIMIT = 2;
 const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
-const DEVICE_TTL_SECONDS = 370 * 24 * 60 * 60;
 
 const json = (res, status, body) => res.status(status).json(body);
-
-function badRequest(res, message) {
-  return json(res, 400, { success: false, error: "bad_request", message });
-}
-
-function serverError(res, message) {
-  return json(res, 500, { success: false, error: "server_error", message });
-}
 
 async function verifyWithGumroad(licenseKey, productId) {
   const form = new URLSearchParams();
@@ -81,43 +77,40 @@ export default async function handler(req, res) {
   }
 
   if (!GUMROAD_ACCESS_TOKEN) {
-    return serverError(res, "GUMROAD_ACCESS_TOKEN não configurado no ambiente.");
-  }
-
-  const redis = getRedis();
-  if (!redis) {
-    // Sem registro de dispositivos não há slot para liberar: honestidade (é
-    // problema NOSSO; a licença em si continua valendo).
-    return json(res, 503, {
+    return json(res, 500, {
       success: false,
-      error: "device_registry_unavailable",
-      message: "Registro de dispositivos não configurado no ambiente.",
+      error: "server_error",
+      message: "GUMROAD_ACCESS_TOKEN não configurado no ambiente.",
     });
   }
 
-  const { license_key, hardware_id, product_id = DEFAULT_PRODUCT_ID } =
+  const { license_key, hardware_id = null, product_id = DEFAULT_PRODUCT_ID } =
     req.body ?? {};
 
-  if (!license_key || !hardware_id) {
-    return badRequest(res, "license_key e hardware_id são obrigatórios.");
-  }
-  if (typeof license_key !== "string" || typeof hardware_id !== "string") {
-    return badRequest(res, "license_key e hardware_id devem ser strings.");
+  if (!license_key || typeof license_key !== "string") {
+    return json(res, 400, {
+      success: false,
+      error: "bad_request",
+      message: "license_key é obrigatório.",
+    });
   }
 
-  // 1) Só o dono da chave libera: valida no Gumroad (sem incrementar uses).
+  // 1) Só o dono da chave vê a lista.
   let gum;
   try {
     gum = await verifyWithGumroad(license_key, product_id);
   } catch (err) {
     console.error("Erro ao chamar o Gumroad:", err?.message ?? err);
-    return serverError(res, "Falha ao contatar o Gumroad.");
+    return json(res, 500, {
+      success: false,
+      error: "server_error",
+      message: "Falha ao contatar o Gumroad.",
+    });
   }
 
   const purchase = gum?.body?.purchase ?? {};
   if (!gum?.body?.success) {
     if (purchase.refunded) {
-      await redis.del(`licenses:${license_key}`).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "refunded",
@@ -126,7 +119,6 @@ export default async function handler(req, res) {
       });
     }
     if (purchase.chargebacked) {
-      await redis.del(`licenses:${license_key}`).catch(() => {});
       return json(res, 200, {
         success: false,
         error: "chargebacked",
@@ -141,25 +133,25 @@ export default async function handler(req, res) {
     });
   }
 
-  // 2) Remove ESTE hardware_id do conjunto da chave (idempotente: se o
-  //    dispositivo não estava registrado, nada muda — só confirma).
+  // 2) A lista É o registro no Redis: sem ele não há o que mostrar. Aqui a
+  //    resposta honesta é 503 (e o app diz que é problema nosso), porque não
+  //    existe lista para inventar.
+  const redis = getRedis();
+  if (!redis) {
+    return json(res, 503, {
+      success: false,
+      error: "device_registry_unavailable",
+      message: "Registro de dispositivos não configurado no ambiente.",
+    });
+  }
+
   const registryKey = `licenses:${license_key}`;
   const metaKey = `licenses:${license_key}:meta`;
-  let members;
+  let ids = [];
+  let meta = {};
   try {
-    await redis.srem(registryKey, hardware_id);
-    // Some com os metadados do dispositivo liberado (a lista não pode mostrar
-    // uma máquina que já não ocupa slot).
-    await redis.hdel(metaKey, hardware_id).catch(() => {});
-    members = await redis.smembers(registryKey);
-    if (members.length > 0) {
-      // Renova o TTL para as máquinas que continuam ativas.
-      await redis.expire(registryKey, DEVICE_TTL_SECONDS);
-    } else {
-      // Nenhum dispositivo restante: apaga o registro da chave.
-      await redis.del(registryKey).catch(() => {});
-      await redis.del(metaKey).catch(() => {});
-    }
+    ids = await redis.smembers(registryKey);
+    meta = (await redis.hgetall(metaKey)) || {};
   } catch (err) {
     console.error("Erro no Upstash Redis:", err?.message ?? err);
     return json(res, 503, {
@@ -169,11 +161,34 @@ export default async function handler(req, res) {
     });
   }
 
+  const devices = (ids || []).map((id) => {
+    let info = meta[id] ?? null;
+    if (typeof info === "string") {
+      try {
+        info = JSON.parse(info);
+      } catch (_) {
+        info = null;
+      }
+    }
+    const data = info && typeof info === "object" ? info : {};
+    return {
+      id,
+      first_seen: data.first_seen ?? null,
+      last_seen: data.last_seen ?? null,
+      platform: data.platform ?? null,
+      app_version: data.app_version ?? null,
+      current: hardware_id ? id === hardware_id : false,
+    };
+  });
+
+  // Mais recente primeiro: é assim que o usuário reconhece o computador que
+  // está usando agora e o que ficou para trás.
+  devices.sort((a, b) => String(b.last_seen || "").localeCompare(String(a.last_seen || "")));
+
   return json(res, 200, {
     success: true,
-    message: "Dispositivo liberado. Reative a licença na máquina nova.",
-    devices: members,
-    device_count: members.length,
+    devices,
+    device_count: devices.length,
     device_limit: DEVICE_LIMIT,
   });
 }
