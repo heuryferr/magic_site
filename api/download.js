@@ -352,15 +352,38 @@ export default async function handler(req, res) {
   }
 
   // ── Contabilização (nunca derruba o download) ─────────────────────────
+  //
+  // Duas réguas, de propósito:
+  //   • downloads:{file}:{day}  = REQUISIÇÕES (o que o GitHub enxerga);
+  //   • downloads:pessoas:{day} = PESSOAS (1 hash IP+UA por dia).
+  // Um visitante que leva macOS E Windows E Linux no mesmo dia não é três
+  // pessoas: é uma, e o padrão é de máquina — vai para downloads:multi:* em
+  // vez de inflar as pessoas. Sem isto, 12 visitantes automáticos levando os
+  // três instaladores apareciam como "36 únicos" (12/12/12).
   try {
     const redis = await getRedis();
     const day = localDayKey();
-    await Promise.all([
-      redis.incr(`downloads:${file}:${day}`),
-      redis.incr(`downloads:${file}:total`),
-      redis.sadd(`downloads:uniq:${file}:${day}`, visitorHash(req)),
-      redis.expire(`downloads:uniq:${file}:${day}`, 120 * 24 * 60 * 60),
-    ]);
+    const hash = visitorHash(req);
+    const vistoKey = `downloads:visto:${hash}:${day}`;
+    const jaLevou = await redis.smembers(vistoKey);
+    const outroSistema = Array.isArray(jaLevou)
+      && jaLevou.some((f) => f && f !== file);
+    const p = redis.pipeline();
+    p.incr(`downloads:${file}:${day}`);
+    p.incr(`downloads:${file}:total`);
+    p.sadd(`downloads:uniq:${file}:${day}`, hash);
+    p.expire(`downloads:uniq:${file}:${day}`, RETENCAO_UNICOS);
+    p.sadd(vistoKey, file);
+    p.expire(vistoKey, RETENCAO_UNICOS);
+    if (outroSistema) {
+      p.incr(`downloads:multi:${file}:${day}`);
+      p.incr(`downloads:multi:${day}`);
+    } else {
+      p.sadd(`downloads:pessoas:${day}`, hash);
+      p.expire(`downloads:pessoas:${day}`, RETENCAO_UNICOS);
+      p.sadd("downloads:pessoas", hash);
+    }
+    await p.exec();
   } catch (err) {
     console.error("download counter error:", err?.message ?? err);
   }

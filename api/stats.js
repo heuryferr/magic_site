@@ -633,7 +633,7 @@ export default async function handler(req, res) {
     const plan = [];
     for (let i = days - 1; i >= 0; i--) {
       const date = localDayKey(-i);
-      const row = { date, total: 0, unique: 0, bots: 0 };
+      const row = { date, total: 0, unique: 0, bots: 0, people: 0, multi: 0 };
       FILES.forEach((f) => (row[f] = 0));
       plan.push({ date, row, uniqueKeys: [] });
       FILES.forEach((f) => {
@@ -653,6 +653,14 @@ export default async function handler(req, res) {
       FILES.forEach((f) => botPipe.get(`downloads:bot:${f}:${p.date}`)));
     const botResults = await botPipe.exec();
 
+    // PESSOAS (1 hash por dia) e multi-OS (máquina) — réguas à parte
+    const pessPipe = redis.pipeline();
+    plan.forEach((p) => {
+      pessPipe.scard(`downloads:pessoas:${p.date}`);
+      pessPipe.get(`downloads:multi:${p.date}`);
+    });
+    const pessResults = await pessPipe.exec();
+
     let idx = 0;
     plan.forEach((p, pi) => {
       FILES.forEach((f) => {
@@ -665,6 +673,8 @@ export default async function handler(req, res) {
       p.row.unique = FILES.reduce((acc, _f, fi) => acc + Number(uniqResults[off + fi] || 0), 0);
       p.row.bots = FILES.reduce(
         (acc, _f, fi) => acc + Number(botResults[off + fi] || 0), 0);
+      p.row.people = Number(pessResults[pi * 2] || 0);
+      p.row.multi = Number(pessResults[pi * 2 + 1] || 0);
     });
     const rows = plan.map((p) => p.row);
 
@@ -683,6 +693,8 @@ export default async function handler(req, res) {
     const botTotRes = await botTotPipe.exec();
     totals.bots = FILES.reduce(
       (acc, _f, i) => acc + Number(botTotRes[i] || 0), 0);
+    // PESSOAS distintas desde sempre (1 hash por pessoa, sem recorte de dia)
+    totals.people = Number((await redis.scard("downloads:pessoas")) || 0);
 
     // ── 2) GitHub: downloads reais (best-effort, com cache) ─────────────
     let github = null;
