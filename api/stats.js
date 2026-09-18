@@ -681,6 +681,27 @@ export default async function handler(req, res) {
     }
   }
 
+  // ── Modo LEVE: só o log das últimas requisições ─────────────────────
+  // O painel do dono chama isto de poucos em poucos segundos para o histórico
+  // ficar AO VIVO. Custa UMA leitura no Redis (LRANGE), em vez do relatório
+  // inteiro — que agrega cliques, únicos, pessoas, visitas, origem, trials,
+  // vendas e GitHub (dezenas de comandos). Sem isso, para o painel ficar ao
+  // vivo ele teria que arrastar o relatório todo a cada poll.
+  if (String(req.query.only || "") === "log") {
+    const n = Math.min(Math.max(parseInt(req.query.n, 10) || 60, 1), 500);
+    try {
+      const log = await logWindow(n);
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ ok: true, log });
+    } catch (err) {
+      return res.status(500).json({
+        ok: false,
+        error: "server_error",
+        message: String(err?.message ?? err),
+      });
+    }
+  }
+
   const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
 
   try {

@@ -194,6 +194,17 @@ igual("JSON: trials.totals.total = 6", res.body.trials && res.body.trials.totals
 igual("JSON: trials do dia por plataforma (2-1-3)", (res.body.trials.totals.macos || 0) + "-" + (res.body.trials.totals.windows || 0) + "-" + (res.body.trials.totals.linux || 0), "2-1-3");
 igual("JSON: sales.total = 3", res.body.sales && res.body.sales.total, 3);
 
+// MODO LEVE (`only=log`): o painel do dono puxa só o log, de poucos em poucos
+// segundos, sem recalcular o relatório inteiro.
+const resLeve = fakeRes();
+await handler(
+  { query: { token: "token-de-teste", only: "log", n: "1" }, headers: {} },
+  resLeve,
+);
+igual("only=log devolve o log", Boolean(resLeve.body.log && resLeve.body.log.ok), true);
+igual("only=log respeita o n pedido", (resLeve.body.log.itens || []).length, 1);
+igual("only=log não arrasta o relatório inteiro", resLeve.body.clicks === undefined, true);
+
 if (problemas.length) {
   console.error("FALHOU:\n  - " + problemas.join("\n  - "));
   process.exit(1);
