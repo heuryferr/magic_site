@@ -284,24 +284,12 @@ function ehRobo(req) {
 const SITE_HOST = "statmagic.vercel.app";
 
 function ehCliqueDePagina(req) {
-  if (
-    req.query.p ||
-    req.query.utm_source ||
-    req.query.utm_medium ||
-    req.query.utm_campaign ||
-    req.query.utm_content ||
-    req.query.utm_term ||
-    req.query.ref
-  ) {
-    return true; // o JS do site gravou a origem (ou é humano com link do e-mail)
-  }
-  const ref = String(req.headers["referer"] || "");
-  try {
-    if (new URL(ref).hostname === SITE_HOST) return true; // JS desligado
-  } catch (err) {
-    /* referer inválido: trata como não-vindo-da-página */
-  }
-  return false;
+  // Só o CLIQUE de gente passa. O track.js grava `dl=1` no href no PRÓPRIO
+  // evento de clique; robô/scanner que apenas SEGUE o href do botão (sem
+  // clicar — é o caso dos detonadores de link dos e-mails) chega sem a marca
+  // e é barrado. Era ele que baixava os TRÊS instaladores e inflava os três
+  // arquivos em lockstep (4/4/4 · 74/74/74 · 82/82/82 de 16–18/09).
+  return String(req.query.dl || "") === "1";
 }
 
 async function _bloquear(req, res, motivo, file) {
@@ -342,6 +330,24 @@ export default async function handler(req, res) {
   // conta e não redireciona. Humano com JS desligado tem Referer nosso; com JS
   // ligado tem ?p=...
   if (!ehCliqueDePagina(req)) return _bloquear(req, res, "not_from_page", file);
+
+  // ── Terceira barreira: o MESMO cliente pedindo OUTRO sistema em segundos.
+  // Quem baixa de verdade leva UM instalador (o do SEU sistema) e leva horas
+  // para querer outro; seguidor de links leva os TRÊS um atrás do outro. Se
+  // já pediu outro sistema há pouco, é automação: não redireciona (não chega
+  // ao GitHub) e conta como robô. Janela curta para não atrapalhar quem testa
+  // em duas máquinas.
+  try {
+    const redis = await getRedis();
+    const janelaKey = `downloads:janela:${visitorHash(req)}`;
+    const jaPediu = await redis.get(janelaKey);
+    if (jaPediu && String(jaPediu) !== file) {
+      return _bloquear(req, res, "multi_os_em_segundos", file);
+    }
+    await redis.set(janelaKey, file, { ex: 900 });
+  } catch (err) {
+    console.error("download multi-os guard error:", err?.message ?? err);
+  }
 
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   let url = FALLBACK[file];

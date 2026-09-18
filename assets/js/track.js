@@ -51,7 +51,23 @@
 
     var qs = params.toString();
 
-    // 3) leva a atribuição para os botões (download e Gumroad)
+    // 3) marca o CLIQUE de gente nos botões de download. Só quem CLICA recebe
+    // `dl=1`; robô que apenas segue o href do botão chega sem a marca e o
+    // /api/download recusa. É o que separa a pessoa do seguidor de links que
+    // baixava os três instaladores e inflava os três arquivos em lockstep.
+    document.addEventListener("click", function (ev) {
+      try {
+        var alvo = ev.target;
+        var a = alvo && alvo.closest
+          ? alvo.closest('a[href^="/api/download"]') : null;
+        if (!a) return;
+        var u = new URL(a.getAttribute("href"), location.origin);
+        u.searchParams.set("dl", "1");
+        a.setAttribute("href", u.pathname + "?" + u.searchParams.toString());
+      } catch (e) { /* link intacto */ }
+    }, true);
+
+    // 3b) leva a atribuição para os botões (download e Gumroad)
     if (qs) {
       document.querySelectorAll('a[href^="/api/download"]').forEach(function (a) {
         try {

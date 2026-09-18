@@ -29,6 +29,7 @@ globalThis.Redis = class {
     }
   }
   get() { this._op(); return Promise.resolve(null); }
+  set() { this._op(); return Promise.resolve("OK"); }
   incr() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
   sadd() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
   expire() { this._op(); return Promise.resolve(1); }
@@ -73,13 +74,12 @@ igual("sem user-agent é robô", ehRobo({ headers: {} }), true);
 igual("googlebot é robô", ehRobo({ headers: { "user-agent": "Googlebot/2.1" } }), true);
 igual("navegador de verdade NÃO é robô", ehRobo({ headers: { "user-agent": UA_REAL } }), false);
 
-// ── veio da nossa página?
-igual("com ?p= veio da página", ehCliqueDePagina({ query: { p: "/" }, headers: {} }), true);
-igual("com ?utm_content veio da página", ehCliqueDePagina({ query: { utm_content: "heuryferr@gmail.com" }, headers: {} }), true);
-igual("com ?ref (mail) veio da página", ehCliqueDePagina({ query: { ref: "mail.google.com" }, headers: {} }), true);
-igual("Referer nosso (JS desligado)", ehCliqueDePagina({ query: {}, headers: { referer: "https://statmagic.vercel.app/" } }), true);
-igual("Referer estranho NÃO conta", ehCliqueDePagina({ query: {}, headers: { referer: "https://evil.com" } }), false);
-igual("scanner (sem nada) NÃO conta", ehCliqueDePagina({ query: {}, headers: {} }), false);
+// ── é CLIQUE de gente? (o track.js só põe `dl=1` no evento de CLIQUE)
+igual("CLIQUE de gente (dl=1) passa", ehCliqueDePagina({ query: { dl: "1", p: "/" }, headers: {} }), true);
+igual("seguidor de link com ?p= (sem clique) NÃO passa", ehCliqueDePagina({ query: { p: "/" }, headers: {} }), false);
+igual("seguidor com ?utm_content (sem clique) NÃO passa", ehCliqueDePagina({ query: { utm_content: "heuryferr@gmail.com" }, headers: {} }), false);
+igual("Referer nosso sem clique NÃO passa", ehCliqueDePagina({ query: {}, headers: { referer: "https://statmagic.vercel.app/" } }), false);
+igual("scanner (sem nada) NÃO passa", ehCliqueDePagina({ query: {}, headers: {} }), false);
 
 // ── handler de verdade (caminhos que não tocam o GitHub)
 const fakeRes = () => {
