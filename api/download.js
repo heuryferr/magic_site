@@ -339,7 +339,14 @@ export default async function handler(req, res) {
   // em duas máquinas.
   try {
     const redis = await getRedis();
-    const janelaKey = `downloads:janela:${visitorHash(req)}`;
+    // O vínculo confiável entre os pedidos é o E-MAIL (utm_content): o robô
+    // troca de IP e de User-Agent a cada requisição, mas os três pedidos saem
+    // do MESMO e-mail. Sem utm (visita direta), cai no IP+navegador.
+    const conta = utmContent(req);
+    const marca = conta && conta !== "(direto)"
+      ? `utm:${conta}`
+      : `ip:${visitorHash(req)}`;
+    const janelaKey = `downloads:janela:${marca}`;
     const jaPediu = await redis.get(janelaKey);
     if (jaPediu && String(jaPediu) !== file) {
       return _bloquear(req, res, "multi_os_em_segundos", file);
