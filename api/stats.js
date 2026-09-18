@@ -69,6 +69,15 @@ const GITHUB_RELEASES_REPO =
   process.env.GITHUB_RELEASES_REPO || "heuryferr/MagicStat-Releases";
 const GITHUB_CACHE_SECONDS = 300; // 5 min de cache (protege o rate limit)
 
+// ── Link privado do dono (segunda porta) ───────────────────────────────
+// O Vercel NÃO permite reler um segredo já salvo: se o STATS_TOKEN for
+// esquecido, o relatório fica inacessível (foi o que aconteceu). Esta porta
+// aceita o link de baixo — o segredo É a própria URL, como o "qualquer um com
+// o link" do Google Docs. NÃO COMPARTILHE: quem tem o link vê as contagens.
+// Aqui só há número agregado (cliques/visitas/trials/vendas) e as SUAS contas
+// de disparo — nunca e-mail de comprador, chave ou dado de cliente.
+const LINK_TOKEN = "ms-aeb509acecfb305a6173a871";
+
 function localDayKey(offsetDays = 0) {
   const now = Date.now() + REPORT_TZ_OFFSET_MINUTES * 60 * 1000;
   const d = new Date(now + offsetDays * 24 * 60 * 60 * 1000);
@@ -599,15 +608,20 @@ export default async function handler(req, res) {
   const expected = process.env.STATS_TOKEN;
   const token = String(req.query.token || req.headers["x-stats-token"] || "");
 
-  if (!expected) {
-    return res.status(500).json({
-      ok: false,
-      error: "stats_token_not_configured",
-      message: "Set STATS_TOKEN in Vercel → Environment Variables.",
-    });
-  }
-  if (token !== expected) {
-    return res.status(401).json({ ok: false, error: "unauthorized" });
+  // O link privado do dono vale sempre (porta de emergência); o token do
+  // Vercel continua valendo como antes.
+  const viaLink = Boolean(token) && token === LINK_TOKEN;
+  if (!viaLink) {
+    if (!expected) {
+      return res.status(500).json({
+        ok: false,
+        error: "stats_token_not_configured",
+        message: "Set STATS_TOKEN in Vercel → Environment Variables.",
+      });
+    }
+    if (token !== expected) {
+      return res.status(401).json({ ok: false, error: "unauthorized" });
+    }
   }
 
   const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);

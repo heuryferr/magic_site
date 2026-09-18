@@ -132,6 +132,20 @@ igual("secao de cliques ainda esta la", html.includes("site clicks (our counter)
 res = fakeRes();
 await handler({ query: { token: "token-de-teste", days: "1" }, headers: {} }, res);
 // O total agregado vive em trials.totals (mesma forma de visits.totals).
+// o link privado do dono (segunda porta) também abre
+const resLink = fakeRes();
+await handler(
+  { query: { token: "ms-aeb509acecfb305a6173a871", days: "1", format: "html" }, headers: {} },
+  resLink,
+);
+igual("o LINK privado do dono abre o relatorio", resLink.statusCode, 200);
+igual(
+  "e traz as secoes novas",
+  String(resLink.body || "").includes("Trials started (7-day trial)") &&
+    String(resLink.body || "").includes("Sales / activations (licensed)"),
+  true,
+);
+
 igual("JSON: trials.totals.total = 6", res.body.trials && res.body.trials.totals.total, 6);
 igual("JSON: trials do dia por plataforma (2-1-3)", (res.body.trials.totals.macos || 0) + "-" + (res.body.trials.totals.windows || 0) + "-" + (res.body.trials.totals.linux || 0), "2-1-3");
 igual("JSON: sales.total = 2", res.body.sales && res.body.sales.total, 2);

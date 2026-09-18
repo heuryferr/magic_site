@@ -138,5 +138,9 @@ Quando existir um Release **mais novo** que a versão instalada, o app:
 Depois de lançar, veja a contabilidade (cliques do site + downloads reais do GitHub):
 
 ```
-https://statmagic.vercel.app/api/stats?token=SEU_TOKEN&format=html
+https://statmagic.vercel.app/api/stats?token=ms-aeb509acecfb305a6173a871&format=html
+
+> Esse e o SEU link (o segredo e a propria URL). Nao compartilhe.
+> Se um dia quiser trocar, gere outro em `api/stats.js` (const LINK_TOKEN).
+> (O link generico `?token=SEU_TOKEN` NAO funciona: e so um exemplo.)
 ```
