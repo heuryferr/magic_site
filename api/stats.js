@@ -171,11 +171,12 @@ function htmlPage(rows, totals, days, github, visits, origin, trials, sales) {
             `<tr><td>${esc(r.date)}</td>` +
             FILES.map((f) => `<td>${r[f] || 0}</td>`).join("") +
             `<td><b>${r.total || 0}</b></td>` +
-            `<td>${r.unique || 0}</td>` +
+            `<td>${r.people || 0}</td>` +
+            `<td>${r.multi || 0}</td>` +
             `<td>${r.bots || 0}</td></tr>`
         )
         .join("")
-    : `<tr><td colspan="7">No clicks recorded in this window.</td></tr>`;
+    : `<tr><td colspan="8">No clicks recorded in this window.</td></tr>`;
 
   let gh = "";
   if (github && github.ok) {
@@ -211,11 +212,11 @@ function htmlPage(rows, totals, days, github, visits, origin, trials, sales) {
  tfoot td{border-top:1px solid rgba(124,140,255,.5);font-weight:800;color:#fff}
 </style></head><body>
 <h1>Magic Stat — site clicks (our counter)</h1>
-<p class="sub">Last ${days} day(s) &middot; "unique" = distinct visitors (IP+UA hash), not raw IPs.</p>
+<p class="sub">Last ${days} day(s). <b>People</b> = distinct visitors who clicked a download button (1 per IP+UA hash) — <b>this is the real number</b>. <b>Total</b> counts every click, and e-mail link scanners ("detonators") hit all three buttons, so it runs high. <b>Multi-OS</b> = clicks from a visitor who had already taken another OS — that lockstep is why the counts move "3 in 3". <b>Blocked</b> = requests rejected as robots (they never reached GitHub).</p>
 <table>
-<thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th><th>Unique</th><th>Blocked</th></tr></thead>
+<thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th><th>People</th><th>Multi-OS</th><th>Blocked</th></tr></thead>
 <tbody>${body}</tbody>
-<tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
+<tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>${totals.people || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
 </table>
 ${gh}
 ${htmlVisits(visits)}

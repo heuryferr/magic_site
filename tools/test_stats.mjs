@@ -40,6 +40,7 @@ const STRINGS = {
 };
 const SETS = {
   ["downloads:uniq:macos:" + DIA]: ["h1"],
+  ["downloads:pessoas:" + DIA]: ["h1", "h2"],
   ["visits:uniq:" + DIA]: ["a", "b"],
   ["analytics:sales:" + DIA]: [
     JSON.stringify({ platform: "macos", country: "BR" }),
@@ -127,6 +128,14 @@ igual("total da janela de vendas = 2", html.includes("window total: <b>2</b>"), 
 igual("vendas por plataforma: macos 1", html.includes("<td>macos</td><td>1</td>"), true);
 igual("vendas por pais: BR 1", html.includes("<td>BR</td><td>1</td>"), true);
 igual("secao de cliques ainda esta la", html.includes("site clicks (our counter)"), true);
+// A coluna que o dono quer: PESSOAS distintas (2), e nao os 6 cliques brutos.
+igual(
+  "coluna People = 2 (pessoas distintas), com Total 6 e Multi-OS 0",
+  html.includes(
+    "<tr><td>" + DIA + "</td><td>5</td><td>0</td><td>1</td><td><b>6</b></td><td>2</td><td>0</td><td>0</td></tr>",
+  ),
+  true,
+);
 
 // JSON
 res = fakeRes();

@@ -11,6 +11,17 @@ lemos por um endpoint protegido: `/api/stats?token=STATS_TOKEN`.
 | `GET /api/download?file=macos` | Conta o **clique no botão de download** e redireciona para o instalador. Só conta clique que sai da nossa página (track.js grava `?p`/`?ref`/`?utm_*`/`?dl=1`, ou o Referer aponta para nós); `file` é obrigatório. O que é claramente robô (UA de scanner/monitor, ou requisição sem a marca de clique da página) vai para `downloads:bot:*` e recebe **403** (não redireciona — o GitHub não infla). O mesmo visitante pedindo **vários sistemas** não é bloqueado: é contado à parte (`downloads:multi:*`), para não inflar as **pessoas**. |
 | `GET /api/stats?token=…&days=30` | Devolve o relatório em **JSON** (ou `&format=html` para ler no navegador). |
 
+### Lendo a 1ª tabela do relatório ("site clicks — our counter")
+
+| Coluna | O que é |
+| --- | --- |
+| `macos`/`windows`/`linux` e `Total` | **Todo** clique no botão daquele sistema (e a soma). Inclui o *detonador* de link do e-mail, que segue os **três** botões → é por isso que os números "sobem de 3 em 3". Não é gente. |
+| **`People`** | **Visitantes distintos que clicaram** (1 por hash IP+UA) — **este é o número real**. Também em `clicks.totals.people` no JSON. |
+| `Multi-OS` | Cliques de quem já tinha levado outro sistema (o lockstep do detonador / de quem testa os três). |
+| `Blocked` | Requisições recusadas como robô (UA de scanner ou sem a marca de clique) — **não chegam ao GitHub**. |
+
+> O `download_count` do GitHub **não** serve como "cliques": conta cada busca do arquivo (detonador de e-mail, antivírus que baixa para escanear, atualizador do próprio app) e nunca zera. Para "quantas pessoas clicaram", use **`People`**.
+
 O `track.js` também repassa os parâmetros de campanha da URL
 (`utm_source`, `utm_content`…) para os links de download e do Gumroad — assim
 sabemos **de qual conta de envio** veio cada visita, clique e venda.
