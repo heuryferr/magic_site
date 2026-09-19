@@ -91,18 +91,17 @@ const FILE_KINDS = {
 };
 
 // Último recurso: se a API do GitHub falhar (rede ou limite de requisições),
-// o cliente AINDA baixa. Atualize junto com a Release quando lembrar — é a
-// última versão conhecida boa.
+// o cliente AINDA baixa. TEM DE APONTAR PARA ARTEFATOS QUE EXISTEM: até 18/09
+// isto apontava para a v1.0.2, cuja Release está SEM assets — os 3 links davam
+// 404 e quem clicasse em "Download" durante uma falha da API recebia uma página
+// 404 do GitHub (foi o "não consigo baixar" relatado por e-mail).
+// Ao publicar uma Release nova, atualize aqui JUNTO — com os nomes EXATOS dos
+// assets daquela Release (ex.: o macOS da v1.0.6 é .pkg, não .dmg).
+const FALLBACK_VERSION = "v1.0.6";
 const FALLBACK = {
-  macos:
-    "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.2/MagicStat-1.0.2.dmg",
-  windows:
-    "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.2/MagicStat-1.0.2-setup.exe",
-  linux:
-    "https://github.com/heuryferr/MagicStat-Releases/releases/download/" +
-    "v1.0.2/MagicStat-1.0.2-x86_64.AppImage",
+  macos: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.pkg`,
+  windows: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.exe`,
+  linux: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-1.0.6-x86_64.AppImage`,
 };
 
 // Cache em memória, um por sistema (sobrevive entre invocações de uma

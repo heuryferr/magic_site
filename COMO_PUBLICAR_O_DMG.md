@@ -97,15 +97,32 @@ A URL continua idêntica e nada mais precisa mudar. 👍
 
 ### 2) O site — `api/download.js`
 
-Confirme a URL do macOS (é o que o contador usa):
+O site NÃO guarda a URL do instalador: ele descobre a Release mais nova pela API
+ do GitHub a cada clique. Só existe UMA URL escrita à mão — a **rede de
+segurança** usada quando a API do GitHub falha (limite de requisições/rede):
 
 ```js
-const FILES = {
-  macos: "https://github.com/heuryferr/MagicStat-Releases/releases/download/v1.0.1/MagicStat-1.0.1.dmg",
+const FALLBACK_VERSION = "v1.0.6";
+const FALLBACK = {
+  macos:   `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.pkg`,
+  windows: `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.exe`,
+  linux:   `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-x86_64.AppImage`,
 };
 ```
 
+👉 **Ao publicar uma Release nova, atualize o `FALLBACK_VERSION` e os nomes dos
+3 arquivos JUNTO** — com os nomes EXATOS dos assets daquela Release. Sem isso,
+quando a API do GitHub falhar o visitante recebe um **404 do GitHub** no lugar do
+instalador (foi exatamente o "não consigo baixar" de 18/09: o fallback apontava
+para a `v1.0.2`, que está sem assets anexados).
+
+> ⚠️ Os nomes mudam de Release para Release: na `v1.0.6` o macOS é `.pkg`, não
+> `.dmg`. Copie os nomes da página do Release, não do padrão antigo.
+
 O download é liberado direto — não precisa de nenhuma variável extra no Vercel.
+
+> 💡 Opcional: definir `GITHUB_TOKEN` no Vercel aumenta o limite da API do GitHub
+> (de 60/hora por IP para 5000/hora) e torna o fallback quase nunca necessário.
 
 ---
 
@@ -128,7 +145,7 @@ Quando existir um Release **mais novo** que a versão instalada, o app:
 - [ ] `.dmg` gerado no Mac (assinado)
 - [ ] Release `v1.0.1` no GitHub com o **dmg anexado**
 - [ ] `updates/manifest.json` → `latest_version` + `url` + `sha256` + `size_bytes`
-- [ ] `api/download.js` → mesma URL do dmg
+- [ ] `api/download.js` → `FALLBACK_VERSION` + os 3 nomes de arquivo iguais aos da Release (com `.pkg`/`.exe`/`.AppImage` certos)
 - [ ] Botões do site apontando para `/api/download?file=macos`
 
 ---
