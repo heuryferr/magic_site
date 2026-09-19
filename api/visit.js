@@ -1,41 +1,15 @@
 // api/visit.js
 // ======================================================================
-// Magic Stat — contador de VISITAS (page views) do site.
+// Magic Stat — beacon de VISITA da página (api/visit).
 // ----------------------------------------------------------------------
-// Complementa o `api/download` (que conta o CLIQUE no botão): aqui contamos a
-// VISITA à página, para separar "abriu o site" de "clicou em baixar".
+// O `assets/js/track.js` chama isto ao carregar a página. Aqui NÃO contamos
+// nada no Redis: o Upstash ficou RESERVADO para a licença (2 máquinas por
+// chave). Este endpoint só responde 204 (aceite) e sai.
 //
-// Chaves NOVAS no Upstash Redis (nada existente é sobrescrito):
+// As contagens de download/visita saíram do Redis de propósito — a de download
+// é do GitHub Releases, que o painel lê direto.
 //
-//   visits:{dia}                     INCR  -> visitas por dia
-//   visits:total                     INCR  -> acumulado
-//   visits:uniq:{dia}                SET   -> visitantes únicos (hash IP+UA)
-//   visits:cc:{cc}:{dia}             INCR  -> visitas por PAÍS e dia
-//   visits:cc:{cc}                   INCR  -> acumulado por país
-//   visits:ccs:{dia} / visits:ccs    SET   -> índice de países do dia / geral
-//   visits:unicc:{cc}                SET   -> únicos por país
-//   visits:utm:{conta}:{dia}         INCR  -> visitas por CONTA (utm_content)
-//   visits:utm:{conta}               INCR  -> acumulado por conta
-//   visits:utms:{dia} / visits:utms  SET   -> índice de contas do dia / geral
-//   visits:uniutm:{conta}            SET   -> únicos por conta
-//   visits:x:{dia}                   HASH  -> dimensões extras do dia, campo:
-//                                            "ua:<SO/navegador>",
-//                                            "ref:<site de origem>",
-//                                            "path:<página>",
-//                                            "ccut:<país>|<conta>"
-//                                            (um hash por dia = 1 comando
-//                                            para gravar e 1 para ler tudo)
-//
-// O país vem do header `x-vercel-ip-country` (o Vercel entrega em qualquer
-// plano). A conta vem do `utm_content` que o Magic Stat Mail coloca no link.
-// O `ref` e o `path` chegam do `assets/js/track.js` (o referrer de uma
-// requisição de beacon seria a própria página, não de onde a pessoa veio).
-//
-// PRIVACIDADE: nunca guardamos o IP — só um hash irreversível de IP +
-// user-agent (mesmo esquema do download.js), dentro de SETs com expiração.
-// Nada de dado pessoal: só contagens por país/navegador/origem/página.
-//
-// Best-effort: se o Redis falhar, o site segue funcionando do mesmo jeito.
+// Best-effort: nunca derruba o carregamento da página.
 // ======================================================================
 
 import { Redis } from "@upstash/redis";
