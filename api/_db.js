@@ -14,7 +14,7 @@
 
 //: Fuso usado para definir o "dia" (o mesmo -180 = UTC-3 do site antigo).
 const TZ_MIN = 180;
-const DIA = `(ts - interval '${TZ_MIN} minutes')::date`;
+const DIA = `to_char((ts - interval '${TZ_MIN} minutes')::date, 'YYYY-MM-DD')`;
 
 let _pool = null;
 let _schemaOk = false;
