@@ -10,7 +10,6 @@
 //   visits:{dia}                     INCR  -> visitas por dia
 //   visits:total                     INCR  -> acumulado
 //   visits:uniq:{dia}                SET   -> visitantes únicos (hash IP+UA)
-//   visits:bots:{dia}                INCR  -> requisições de robô (separadas)
 //   visits:cc:{cc}:{dia}             INCR  -> visitas por PAÍS e dia
 //   visits:cc:{cc}                   INCR  -> acumulado por país
 //   visits:ccs:{dia} / visits:ccs    SET   -> índice de países do dia / geral
@@ -166,15 +165,7 @@ function pagina(req) {
   return slug(req.query.p, 60) || "/";
 }
 
-// Requisições claramente automáticas (scanners, monitores, curl): atrapalham a
-// leitura por país, então vão para uma chave separada (visits:bots:{dia}).
-function pareceRobo(req) {
-  const ua = String(req.headers["user-agent"] || "");
-  if (!ua || ua.length < 12) return true;
-  return /bot|crawl|spider|slurp|preview|monitor|uptime|pingdom|curl|wget|python-requests|python-urllib|httpx|axios|node-fetch|go-http|okhttp|headless|phantom|scrapy|facebookexternalhit|whatsapp|telegram|slack|discord/i.test(
-    ua
-  );
-}
+// Sem separação de robô: TODA visita conta como visita.
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
@@ -182,10 +173,6 @@ export default async function handler(req, res) {
   try {
     const redis = await getRedis();
     const day = localDayKey();
-    if (pareceRobo(req)) {
-      await redis.incr(`visits:bots:${day}`);
-      return res.status(204).end();
-    }
 
     const cc =
       String(req.headers["x-vercel-ip-country"] || "??")

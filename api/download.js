@@ -306,52 +306,10 @@ function cidade(req) {
   return limpaTexto(c, 60);
 }
 
-// Requisições claramente automáticas (scanners, monitores, curl): o contador
-// de VISITAS já separa robôs (api/visit.js) — aqui é o mesmo critério. Sem
-// isso, um verificador que segue os três botões da página infla os três
-// arquivos em lockstep (visto em 16/09: +5/+5/+5 com 15 IPs distintos).
-const ROBOT_RE =
-  /bot|crawl|spider|slurp|preview|monitor|uptime|pingdom|curl|wget|python-requests|python-urllib|httpx|axios|node-fetch|go-http|okhttp|headless|phantom|scrapy|facebookexternalhit|whatsapp|telegram|slack|discord|scanner|checker|validator|linkcheck|lighthouse|semrush|ahrefs|dataprovider|masscan|zgrab|nmap/i;
-
-function ehRobo(req) {
-  const ua = String(req.headers["user-agent"] || "");
-  if (!ua) return true;            // sem user-agent nunca é navegador
-  return ROBOT_RE.test(ua);
-}
-
-// Um clique de VERDADE sai da nossa página: o track.js grava `?p=...` (sempre)
-// e, quando existe, `?ref=...` / `?utm_*=...`. Scanner de link e gateway de
-// e-mail NÃO rodam o JS — chegam sem esses parâmetros e sem Referer nosso. Sem
-// esta checagem, cada scanner segue os 3 botões e infla os 3 arquivos em
-// lockstep (o 6/6/6 de 16/09).
-const SITE_HOST = "statmagic.vercel.app";
-
-function ehCliqueDePagina(req) {
-  // Só o CLIQUE de gente passa. O track.js grava `dl=1` no href no PRÓPRIO
-  // evento de clique; robô/scanner que apenas SEGUE o href do botão (sem
-  // clicar — é o caso dos detonadores de link dos e-mails) chega sem a marca
-  // e é barrado. Era ele que baixava os TRÊS instaladores e inflava os três
-  // arquivos em lockstep (4/4/4 · 74/74/74 · 82/82/82 de 16–18/09).
-  return String(req.query.dl || "") === "1";
-}
-
-// Conta À PARTE a requisição que não parece um clique de página — robô/scanner
-// ou navegador sem o track.js (JS desligado). NÃO nega o download: serve só
-// para a régua de "pessoas/cliques" não inflar. `motivo` fica no nome da chave
-// para o dono ver, no Redis, POR QUE aquilo foi classificado como automático.
-async function _contaAutomatico(req, file, motivo) {
-  const day = localDayKey();
-  try {
-    const redis = await getRedis();
-    await Promise.all([
-      redis.incr(`downloads:bot:${file}:${day}`),
-      redis.incr(`downloads:bot:${file}`),
-      redis.incr(`downloads:bot:${motivo}:${file}:${day}`),
-    ]);
-  } catch (err) {
-    console.error("download bot counter error:", err?.message ?? err);
-  }
-}
+// Aqui NÃO existe classificação, contador separado nem bloqueio. Robô, curl,
+// scanner de e-mail, link direto e navegador com JS desligado contam EXATAMENTE
+// como um clique de gente. O gate que existia aqui — e que barrava quem
+// clicava de verdade — foi removido de vez.
 
 export default async function handler(req, res) {
   const file = String(req.query.file || "").toLowerCase();
@@ -364,39 +322,9 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── CLASSIFICAÇÃO (não bloqueia mais ninguém) ─────────────────────────
-  // Antes, robô/curl e requisição sem `?dl=1` levavam 403. Isso barrava também
-  // GENTE DE VERDADE quando o track.js não rodava (JS desligado, bloqueador de
-  // anúncio, proxy do campus, cache): a pessoa clicava em "Download" e não
-  // baixava. Agora NINGUÉM é bloqueado — o instalador sai SEMPRE, para gente e
-  // para robô. A classificação abaixo só decide em QUAL contador a requisição
-  // entra, para a régua de "pessoas/cliques" não inflar com robô/scanner.
-  const robo = ehRobo(req);
-  const dePagina = !robo && ehCliqueDePagina(req);
-
-  // Não parece clique de página: conta à parte e ENTREGA IGUAL (antes: 403).
-  // Quanto mais download, melhor — inclusive de robô.
-  if (!dePagina) {
-    await _contaAutomatico(req, file,
-                           robo ? "automated_access" : "not_from_page");
-    res.setHeader("Cache-Control", "no-store, max-age=0");
-    return res.redirect(302, await resolveUrl(file));
-  }
-
-  // ── Terceira barreira REMOVIDA (era o 403 `multi_os_em_segundos`).
-  // Ela tirava o instalador de gente de verdade por 15 min, e o vínculo
-  // escolhido (utm_content = a CONTA DE ENVIO do Magic Stat Mail) era o pior
-  // possível: essa conta é a mesma para TODOS os destinatários da campanha,
-  // então o primeiro que baixava macOS/Windows bloqueava o Windows/Linux de
-  // todo mundo que veio do mesmo e-mail. Por IP também doía: duas pessoas
-  // atrás do mesmo NAT com o mesmo navegador viram um hash só.
-  //
-  // O que essa barreira tentava pegar — scanner seguindo os três botões sem
-  // clicar — já é barrado acima por ehCliqueDePagina() (exige `?dl=1`, que só
-  // o track.js grava no clique real). E o sinal "mesmo visitante pedindo
-  // vários sistemas" continua anotado na contabilização abaixo
-  // (downloads:multi:*), que é onde ele importa: não inflar as PESSOAS.
-  // Aqui não se nega mais um clique de página.
+  // Sem classificação e sem barreira: TODO acesso recebe o instalador e entra
+  // na contagem igual (o `downloads:multi:*` abaixo segue só como sinal de
+  // "mesmo visitante pedindo vários sistemas" — não bloqueia nada).
 
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   const url = await resolveUrl(file);
@@ -504,5 +432,3 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
   return res.redirect(302, url);
 }
-
-export { ehRobo, ehCliqueDePagina };
