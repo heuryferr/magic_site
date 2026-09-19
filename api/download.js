@@ -174,6 +174,17 @@ async function latestUrl(kind) {
   return best.url;
 }
 
+// Resolve o instalador da versão mais nova; se a API do GitHub falhar (rede ou
+// limite), cai no FALLBACK — o download nunca quebra por causa disso.
+async function resolveUrl(file) {
+  try {
+    return await latestUrl(file);
+  } catch (err) {
+    console.error("download: usando FALLBACK ->", err?.message ?? err);
+    return FALLBACK[file];
+  }
+}
+
 // Minutos de deslocamento do fuso para definir o "dia" da contabilidade.
 // -180 = UTC-3 (horário de Brasília).
 const REPORT_TZ_OFFSET_MINUTES = -180;
@@ -325,24 +336,22 @@ function ehCliqueDePagina(req) {
   return String(req.query.dl || "") === "1";
 }
 
-async function _bloquear(req, res, motivo, file) {
+// Conta À PARTE a requisição que não parece um clique de página — robô/scanner
+// ou navegador sem o track.js (JS desligado). NÃO nega o download: serve só
+// para a régua de "pessoas/cliques" não inflar. `motivo` fica no nome da chave
+// para o dono ver, no Redis, POR QUE aquilo foi classificado como automático.
+async function _contaAutomatico(req, file, motivo) {
   const day = localDayKey();
   try {
     const redis = await getRedis();
-    // contabiliza à parte: não é "clique", mas não escondemos o volume
     await Promise.all([
       redis.incr(`downloads:bot:${file}:${day}`),
       redis.incr(`downloads:bot:${file}`),
+      redis.incr(`downloads:bot:${motivo}:${file}:${day}`),
     ]);
   } catch (err) {
     console.error("download bot counter error:", err?.message ?? err);
   }
-  res.setHeader("Cache-Control", "no-store, max-age=0");
-  return res.status(403).json({
-    ok: false,
-    error: motivo,
-    hint: "open https://statmagic.vercel.app in a browser to download",
-  });
 }
 
 export default async function handler(req, res) {
@@ -356,13 +365,24 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── Robô óbvio (curl, python, bot de UA): 403 antes de contar/redirecionar
-  if (ehRobo(req)) return _bloquear(req, res, "automated_access", file);
+  // ── CLASSIFICAÇÃO (não bloqueia mais ninguém) ─────────────────────────
+  // Antes, robô/curl e requisição sem `?dl=1` levavam 403. Isso barrava também
+  // GENTE DE VERDADE quando o track.js não rodava (JS desligado, bloqueador de
+  // anúncio, proxy do campus, cache): a pessoa clicava em "Download" e não
+  // baixava. Agora NINGUÉM é bloqueado — o instalador sai SEMPRE, para gente e
+  // para robô. A classificação abaixo só decide em QUAL contador a requisição
+  // entra, para a régua de "pessoas/cliques" não inflar com robô/scanner.
+  const robo = ehRobo(req);
+  const dePagina = !robo && ehCliqueDePagina(req);
 
-  // ── Não veio da nossa página (scanner de link / gateway de e-mail): não
-  // conta e não redireciona. Humano com JS desligado tem Referer nosso; com JS
-  // ligado tem ?p=...
-  if (!ehCliqueDePagina(req)) return _bloquear(req, res, "not_from_page", file);
+  // Não parece clique de página: conta à parte e ENTREGA IGUAL (antes: 403).
+  // Quanto mais download, melhor — inclusive de robô.
+  if (!dePagina) {
+    await _contaAutomatico(req, file,
+                           robo ? "automated_access" : "not_from_page");
+    res.setHeader("Cache-Control", "no-store, max-age=0");
+    return res.redirect(302, await resolveUrl(file));
+  }
 
   // ── Terceira barreira REMOVIDA (era o 403 `multi_os_em_segundos`).
   // Ela tirava o instalador de gente de verdade por 15 min, e o vínculo
@@ -380,12 +400,7 @@ export default async function handler(req, res) {
   // Aqui não se nega mais um clique de página.
 
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
-  let url = FALLBACK[file];
-  try {
-    url = await latestUrl(file);
-  } catch (err) {
-    console.error("download: usando FALLBACK ->", err?.message ?? err);
-  }
+  const url = await resolveUrl(file);
 
   // ── Contabilização (nunca derruba o download) ─────────────────────────
   //

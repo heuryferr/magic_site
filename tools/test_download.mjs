@@ -1,9 +1,9 @@
 // Teste do gate de /api/download (api/download.js) com Redis FALSO.
 //
-// Por quê: o 6/6/6 (macOS/Windows/Linux em lockstep) era um scanner seguindo os
-// 3 botões. Este teste prende a solução: sem `file` não conta como macOS; sem
-// vir da nossa página (sem `p`/utm/ref e sem Referer nosso) não conta; e os
-// robôs óbvios continuam bloqueados. Um clique de VERDADE passa.
+// Por quê: o gate CLASSIFICA a requisição (clique de página × robô/scanner) para
+// a estatística não inflar — mas NÃO bloqueia mais ninguém: gente e robô levam o
+// instalador do mesmo jeito. Este teste prende as duas coisas: a classificação
+// continua certa E nenhuma requisição recebe 403 (todas redirecionam).
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -20,6 +20,9 @@ process.env.KV_REST_API_TOKEN = "token-de-teste";
 process.env.UPSTASH_REDIS_REST_URL = "https://banco-apagado";
 process.env.UPSTASH_REDIS_REST_TOKEN = "token-de-teste";
 
+// Sem rede no teste: a resolução do instalador cai no FALLBACK (download.js).
+globalThis.fetch = () => Promise.reject(new Error("offline (teste)"));
+
 globalThis.__contou = 0;
 globalThis.Redis = class {
   constructor(cfg) { this.cfg = cfg || {}; }
@@ -32,6 +35,7 @@ globalThis.Redis = class {
   set() { this._op(); return Promise.resolve("OK"); }
   incr() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
   sadd() { this._op(); globalThis.__contou += 1; return Promise.resolve(1); }
+  smembers() { this._op(); return Promise.resolve([]); }
   expire() { this._op(); return Promise.resolve(1); }
   pipeline() {
     const self = this;
@@ -70,7 +74,7 @@ const igual = (nome, obtido, esperado) => {
   if (obtido !== esperado) problemas.push(`${nome}: veio ${obtido}, esperava ${esperado}`);
 };
 
-// ── robô óbvio
+// ── classificação: robô óbvio (não bloqueia, só classifica)
 igual("curl é robô", ehRobo({ headers: { "user-agent": "curl/7.88.1" } }), true);
 igual("sem user-agent é robô", ehRobo({ headers: {} }), true);
 igual("googlebot é robô", ehRobo({ headers: { "user-agent": "Googlebot/2.1" } }), true);
@@ -83,12 +87,13 @@ igual("seguidor com ?utm_content (sem clique) NÃO passa", ehCliqueDePagina({ qu
 igual("Referer nosso sem clique NÃO passa", ehCliqueDePagina({ query: {}, headers: { referer: "https://statmagic.vercel.app/" } }), false);
 igual("scanner (sem nada) NÃO passa", ehCliqueDePagina({ query: {}, headers: {} }), false);
 
-// ── handler de verdade (caminhos que não tocam o GitHub)
+// ── handler de verdade: NADA é bloqueado; o que muda é a contagem
 const fakeRes = () => {
-  const r = { statusCode: 0, body: null };
+  const r = { statusCode: 0, body: null, location: "" };
   r.setHeader = () => {};
   r.status = (c) => ({ json: (o) => { r.statusCode = c; r.body = o; return r; },
                         send: (o) => { r.statusCode = c; r.body = o; return r; } });
+  r.redirect = (c, url) => { r.statusCode = c; r.location = url; return r; };
   return r;
 };
 
@@ -98,22 +103,25 @@ igual("sem file → 404 (não vira macOS)", res.statusCode, 404);
 
 res = fakeRes();
 await handler({ query: { file: "macos" }, headers: { "user-agent": "curl/7.88.1" } }, res);
-igual("curl em macos → 403 automated_access", res.statusCode, 403);
+igual("curl em macos NÃO é bloqueado (302)", res.statusCode, 302);
+igual("e leva ao instalador (FALLBACK offline)", /MagicStat/.test(res.location), true);
 
 res = fakeRes();
 await handler({ query: { file: "macos" }, headers: { "user-agent": UA_REAL } }, res);
-igual("sem origem de página → 403 not_from_page", res.statusCode, 403);
+igual("sem origem de página NÃO é bloqueado (302)", res.statusCode, 302);
+
+res = fakeRes();
+await handler({ query: { file: "windows", dl: "1", p: "/" }, headers: { "user-agent": UA_REAL } }, res);
+igual("CLIQUE de gente também baixa (302)", res.statusCode, 302);
 
 // ── credencial: banco VELHO (apagado) + banco NOVO ────────────────────
-// É o incidente real: com a variavel antiga presente, a rota criava o cliente
-// no topo com o par fixo UPSTASH_* e TODA a contagem morria em silencio.
 globalThis.__contou = 0;
 res = fakeRes();
 await handler(
   { query: { file: "macos" }, headers: { "user-agent": "curl/7.88.1" } },
   res,
 );
-igual("robô com banco velho + banco novo → 403 (não quebra)", res.statusCode, 403);
+igual("robô com banco velho + banco novo → 302 (não quebra)", res.statusCode, 302);
 igual(
   "e a contagem SAI (no banco que responde, não no apagado)",
   globalThis.__contou > 0,
@@ -124,4 +132,4 @@ if (problemas.length) {
   console.error("FALHOU:\n  - " + problemas.join("\n  - "));
   process.exit(1);
 }
-console.log("ok: gate do download (file obrigatório + robô + só-clique-de-página)");
+console.log("ok: gate do download (file obrigatório + classifica robô/clique + NUNCA bloqueia)");
