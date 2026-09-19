@@ -69,6 +69,23 @@ const GITHUB_RELEASES_REPO =
   process.env.GITHUB_RELEASES_REPO || "heuryferr/MagicStat-Releases";
 const GITHUB_CACHE_SECONDS = 300; // 5 min de cache (protege o rate limit)
 
+// ── Cache das agregações (por instância "quente") ──────────────────────
+// As janelas abaixo varrem o Redis DIA A DIA (um GET por país/arquivo/conta),
+// o que dá centenas de COMANDOS por chamada — e o Upstash cobra por comando.
+// Como elas mudam devagar, 90 s de cache derruba o consumo sem perder frescor.
+// O log ao vivo (only=log) NÃO passa por aqui: ele tem de ser fresco.
+const WINDOW_CACHE_MS = 90 * 1000;
+const windowCache = new Map();
+
+async function cachedWindow(chave, fn) {
+  const agora = Date.now();
+  const hit = windowCache.get(chave);
+  if (hit && agora - hit.at < WINDOW_CACHE_MS) return hit.val;
+  const val = await fn();
+  windowCache.set(chave, { val, at: agora });
+  return val;
+}
+
 // ── Link privado do dono (segunda porta) ───────────────────────────────
 // O Vercel NÃO permite reler um segredo já salvo: se o STATS_TOKEN for
 // esquecido, o relatório fica inacessível (foi o que aconteceu). Esta porta
@@ -787,19 +804,19 @@ export default async function handler(req, res) {
     let visits = null;
     let origin = null;
     try {
-      visits = await visitsWindow(days);
+      visits = await cachedWindow(`visits:${days}`, () => visitsWindow(days));
     } catch (err) {
       console.error("visits stats error:", err?.message ?? err);
       visits = { ok: false, error: String(err?.message ?? err) };
     }
     try {
-      origin = await origemWindow(days);
+      origin = await cachedWindow(`origin:${days}`, () => origemWindow(days));
     } catch (err) {
       console.error("origin stats error:", err?.message ?? err);
       origin = { ok: false, error: String(err?.message ?? err) };
     }
     try {
-      const extra = await extraWindow(days);
+      const extra = await cachedWindow(`extra:${days}`, () => extraWindow(days));
       if (origin && origin.ok) origin = { ...origin, ...extra };
     } catch (err) {
       console.error("extra stats error:", err?.message ?? err);
@@ -809,19 +826,19 @@ export default async function handler(req, res) {
     let trials = null;
     let sales = null;
     try {
-      trials = await trialsWindow(days);
+      trials = await cachedWindow(`trials:${days}`, () => trialsWindow(days));
     } catch (err) {
       console.error("trials stats error:", err?.message ?? err);
       trials = { ok: false, error: String(err?.message ?? err) };
     }
     try {
-      sales = await salesWindow(days);
+      sales = await cachedWindow(`sales:${days}`, () => salesWindow(days));
     } catch (err) {
       console.error("sales stats error:", err?.message ?? err);
       sales = { ok: false, error: String(err?.message ?? err) };
     }
     try {
-      const ccf = await ccfWindow(days);
+      const ccf = await cachedWindow(`ccf:${days}`, () => ccfWindow(days));
       if (origin && origin.ok) origin = { ...origin, ...ccf };
     } catch (err) {
       console.error("ccf stats error:", err?.message ?? err);
