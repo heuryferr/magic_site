@@ -322,111 +322,14 @@ export default async function handler(req, res) {
     });
   }
 
-  // Sem classificação e sem barreira: TODO acesso recebe o instalador e entra
-  // na contagem igual (o `downloads:multi:*` abaixo segue só como sinal de
-  // "mesmo visitante pedindo vários sistemas" — não bloqueia nada).
+  // Sem classificação, sem barreira e SEM contagem no Redis. O Upstash ficou
+  // RESERVADO para a licença (2 máquinas por chave); o download aqui é só
+  // entrega. Quem conta instalador baixado é o GitHub Releases.
 
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   const url = await resolveUrl(file);
 
-  // ── Contabilização (nunca derruba o download) ─────────────────────────
-  //
-  // Duas réguas, de propósito:
-  //   • downloads:{file}:{day}  = REQUISIÇÕES (o que o GitHub enxerga);
-  //   • downloads:pessoas:{day} = PESSOAS (1 hash IP+UA por dia).
-  // Um visitante que leva macOS E Windows E Linux no mesmo dia não é três
-  // pessoas: é uma, e o padrão é de máquina — vai para downloads:multi:* em
-  // vez de inflar as pessoas. Sem isto, 12 visitantes automáticos levando os
-  // três instaladores apareciam como "36 únicos" (12/12/12).
-  try {
-    const redis = await getRedis();
-    const day = localDayKey();
-    const hash = visitorHash(req);
-    const vistoKey = `downloads:visto:${hash}:${day}`;
-    const jaLevou = await redis.smembers(vistoKey);
-    const outroSistema = Array.isArray(jaLevou)
-      && jaLevou.some((f) => f && f !== file);
-    const p = redis.pipeline();
-    p.incr(`downloads:${file}:${day}`);
-    p.incr(`downloads:${file}:total`);
-    p.sadd(`downloads:uniq:${file}:${day}`, hash);
-    p.expire(`downloads:uniq:${file}:${day}`, RETENCAO_UNICOS);
-    p.sadd(vistoKey, file);
-    p.expire(vistoKey, RETENCAO_UNICOS);
-    if (outroSistema) {
-      p.incr(`downloads:multi:${file}:${day}`);
-      p.incr(`downloads:multi:${day}`);
-    } else {
-      p.sadd(`downloads:pessoas:${day}`, hash);
-      p.expire(`downloads:pessoas:${day}`, RETENCAO_UNICOS);
-      p.sadd("downloads:pessoas", hash);
-    }
-    await p.exec();
-  } catch (err) {
-    console.error("download counter error:", err?.message ?? err);
-  }
-
-  // ── De onde veio o clique: país (header do Vercel) + conta (utm_content)
-  // Chaves NOVAS (downloads:cc:*, downloads:utm:*) — as de cima não mudam.
-  try {
-    const redis = await getRedis();
-    const day = localDayKey();
-    const cc =
-      String(req.headers["x-vercel-ip-country"] || "??")
-        .toUpperCase()
-        .replace(/[^A-Z]/g, "")
-        .slice(0, 2) || "??";
-    const conta = utmContent(req);
-    const hash = visitorHash(req);
-    const p = redis.pipeline();
-    p.incr(`downloads:cc:${cc}:${day}`);
-    p.incr(`downloads:cc:${cc}`);
-    p.sadd(`downloads:ccs:${day}`, cc);
-    p.expire(`downloads:ccs:${day}`, RETENCAO_INDICE);
-    p.sadd("downloads:ccs", cc);
-    p.sadd(`downloads:unicc:${cc}`, hash);
-    p.expire(`downloads:unicc:${cc}`, RETENCAO_UNICOS);
-    // país × sistema (é o que a aba Países usa: o download do GitHub não tem
-    // país, mas o clique no botão tem — e é ele que leva ao arquivo)
-    p.incr(`downloads:ccf:${cc}:${file}:${day}`);
-    p.expire(`downloads:ccf:${cc}:${file}:${day}`, RETENCAO_INDICE);
-    p.sadd(`downloads:ccfs:${day}`, `${cc}|${file}`);
-    p.expire(`downloads:ccfs:${day}`, RETENCAO_INDICE);
-    p.incr(`downloads:utm:${conta}:${day}`);
-    p.incr(`downloads:utm:${conta}`);
-    p.sadd(`downloads:utms:${day}`, conta);
-    p.expire(`downloads:utms:${day}`, RETENCAO_INDICE);
-    p.sadd("downloads:utms", conta);
-    p.sadd(`downloads:uniutm:${conta}`, hash);
-    p.expire(`downloads:uniutm:${conta}`, RETENCAO_UNICOS);
-    // dimensões extras — um hash por dia (1 comando por campo)
-    const dimKey = `downloads:x:${day}`;
-    p.hincrby(dimKey, `ua:${familiaUA(req)}`, 1);
-    p.hincrby(dimKey, `ref:${origemExterna(req)}`, 1);
-    p.hincrby(dimKey, `path:${pagina(req)}`, 1);
-    p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
-    p.expire(dimKey, RETENCAO_DIM);
-    // LOG das últimas requisições (o dono lê no relatório): hora + arquivo +
-    // país/estado/cidade + navegador + conta + referrer. LPUSH + LTRIM = lista
-    // limitada (o app copia para o histórico dele a cada sincronização).
-    p.lpush(
-      "downloads:log",
-      JSON.stringify({
-        t: new Date().toISOString(),
-        f: file,
-        cc,
-        rg: regiao(req),
-        ct: cidade(req),
-        ua: familiaUA(req),
-        conta,
-        ref: origemExterna(req),
-      })
-    );
-    p.ltrim("downloads:log", 0, LOG_MAX - 1);
-    await p.exec();
-  } catch (err) {
-    console.error("download origin counter error:", err?.message ?? err);
-  }
+  // (nenhum comando Redis nesta rota — ver comentário acima)
 
   // ── Redireciona para o instalador real ────────────────────────────────
   res.setHeader("Cache-Control", "no-store, max-age=0");

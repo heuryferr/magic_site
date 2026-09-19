@@ -168,53 +168,8 @@ function pagina(req) {
 // Sem separação de robô: TODA visita conta como visita.
 
 export default async function handler(req, res) {
+  // A visita NÃO é contada no Redis: o Upstash ficou RESERVADO para a licença
+  // (2 máquinas por chave). Aqui só respondemos ao beacon do track.js.
   res.setHeader("Cache-Control", "no-store, max-age=0");
-
-  try {
-    const redis = await getRedis();
-    const day = localDayKey();
-
-    const cc =
-      String(req.headers["x-vercel-ip-country"] || "??")
-        .toUpperCase()
-        .replace(/[^A-Z]/g, "")
-        .slice(0, 2) || "??";
-    const hash = visitorHash(req);
-    const conta = utmContent(req);
-
-    const p = redis.pipeline();
-    // totais do dia / acumulado
-    p.incr(`visits:${day}`);
-    p.incr("visits:total");
-    p.sadd(`visits:uniq:${day}`, hash);
-    p.expire(`visits:uniq:${day}`, RETENCAO_UNICOS);
-    // por país
-    p.incr(`visits:cc:${cc}:${day}`);
-    p.incr(`visits:cc:${cc}`);
-    p.sadd(`visits:ccs:${day}`, cc);
-    p.expire(`visits:ccs:${day}`, RETENCAO_INDICE);
-    p.sadd("visits:ccs", cc);
-    p.sadd(`visits:unicc:${cc}`, hash);
-    p.expire(`visits:unicc:${cc}`, RETENCAO_UNICOS);
-    // por conta (utm_content)
-    p.incr(`visits:utm:${conta}:${day}`);
-    p.incr(`visits:utm:${conta}`);
-    p.sadd(`visits:utms:${day}`, conta);
-    p.expire(`visits:utms:${day}`, RETENCAO_INDICE);
-    p.sadd("visits:utms", conta);
-    p.sadd(`visits:uniutm:${conta}`, hash);
-    p.expire(`visits:uniutm:${conta}`, RETENCAO_UNICOS);
-    // dimensões extras — um hash por dia (1 comando por campo, 1 para ler)
-    const dimKey = `visits:x:${day}`;
-    p.hincrby(dimKey, `ua:${familiaUA(req)}`, 1);
-    p.hincrby(dimKey, `ref:${origemExterna(req)}`, 1);
-    p.hincrby(dimKey, `path:${pagina(req)}`, 1);
-    p.hincrby(dimKey, `ccut:${cc}|${conta}`, 1);
-    p.expire(dimKey, RETENCAO_DIM);
-    await p.exec();
-  } catch (err) {
-    console.error("visit counter error:", err?.message ?? err);
-  }
-
   return res.status(204).end();
 }
