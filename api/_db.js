@@ -70,6 +70,20 @@ async function ensureSchema(db) {
   await db.query("ALTER TABLE visits ADD COLUMN IF NOT EXISTS path text");
   await db.query("ALTER TABLE visits ADD COLUMN IF NOT EXISTS uhash text");
   await db.query("CREATE INDEX IF NOT EXISTS visits_ts_idx ON visits (ts DESC)");
+  // TRIALS (beacon /api/trial-start): 1 linha por INSTALACAO (o indice unico
+  // em install_id e o dedupe — a mesma instalacao conta uma vez).
+  await db.query(`CREATE TABLE IF NOT EXISTS trials (
+    id bigserial PRIMARY KEY,
+    ts timestamptz NOT NULL DEFAULT now(),
+    install_id text NOT NULL, platform text)`);
+  await db.query(
+    "CREATE UNIQUE INDEX IF NOT EXISTS trials_install_idx ON trials (install_id)");
+  // VENDAS/licencas ativadas (registro do verify-license).
+  await db.query(`CREATE TABLE IF NOT EXISTS sales (
+    id bigserial PRIMARY KEY,
+    ts timestamptz NOT NULL DEFAULT now(),
+    license_key text, platform text, country text, email text)`);
+  await db.query("CREATE INDEX IF NOT EXISTS sales_ts_idx ON sales (ts DESC)");
   _schemaOk = true;
 }
 
@@ -103,6 +117,41 @@ async function _insere(tabela, dados) {
 
 export function registrarClique(dados) { return _insere("clicks", dados); }
 export function registrarVisita(dados) { return _insere("visits", dados); }
+
+// Trial: devolve "novo", "duplicado" ou null (sem banco / falha).
+export async function registrarTrial(dados) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const r = await db.query(
+      `INSERT INTO trials (install_id, platform) VALUES ($1,$2)
+         ON CONFLICT (install_id) DO NOTHING`,
+      [dados.install_id || "", dados.platform || ""]);
+    return r.rowCount > 0 ? "novo" : "duplicado";
+  } catch (err) {
+    console.error("trial insert error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// Venda / licenca ativada. Best-effort (nunca lanca).
+export async function registrarVenda(dados) {
+  try {
+    const db = await getPool();
+    if (!db) return false;
+    await ensureSchema(db);
+    await db.query(
+      `INSERT INTO sales (license_key, platform, country, email)
+       VALUES ($1,$2,$3,$4)`,
+      [dados.license_key || "", dados.platform || "", dados.country || "??",
+       dados.email || ""]);
+    return true;
+  } catch (err) {
+    console.error("sale insert error:", err?.message ?? err);
+    return false;
+  }
+}
 
 // ── Leitura: LOG das últimas requisições (mesmo formato do Redis antigo) ─
 export async function ultimosCliques(n = 500) {
@@ -217,9 +266,53 @@ export async function agregados(days = 30) {
 
   const lista = (rows) => rows.map((r) => ({ name: r.name, count: num(r.n) }));
 
+  // 6) TRIALS iniciados e VENDAS/licencas ativadas (o fim do funil).
+  const tri = await q(
+    `SELECT ${DIA} AS dia, count(*) AS total,
+            count(*) FILTER (WHERE platform='macos') AS macos,
+            count(*) FILTER (WHERE platform='windows') AS windows,
+            count(*) FILTER (WHERE platform='linux') AS linux
+       FROM trials WHERE ts >= now() - ($1)::interval
+      GROUP BY 1 ORDER BY 1`);
+  const trialsRows = tri.map((r) => ({
+    date: String(r.dia).slice(0, 10), total: num(r.total), macos: num(r.macos),
+    windows: num(r.windows), linux: num(r.linux),
+  }));
+  const trialsTotais = { total: 0, macos: 0, windows: 0, linux: 0 };
+  trialsRows.forEach((r) => {
+    trialsTotais.total += r.total;
+    trialsTotais.macos += r.macos;
+    trialsTotais.windows += r.windows;
+    trialsTotais.linux += r.linux;
+  });
+  // VENDAS: licencas DISTINTAS (a mesma chave revalidando nao e venda nova),
+  // atribuidas ao dia em que apareceram pela primeira vez.
+  const vdia = await q(
+    `SELECT dia, count(*) AS sales FROM (
+       SELECT license_key, min(${DIA}) AS dia FROM sales
+        WHERE ts >= now() - ($1)::interval AND license_key <> ''
+        GROUP BY license_key) x
+      GROUP BY 1 ORDER BY 1`);
+  const vplat = await q(
+    `SELECT platform AS name, count(DISTINCT license_key) AS n FROM sales
+      WHERE ts >= now() - ($1)::interval AND license_key <> ''
+      GROUP BY 1 ORDER BY 2 DESC LIMIT 20`);
+  const vpais = await q(
+    `SELECT country AS name, count(DISTINCT license_key) AS n FROM sales
+      WHERE ts >= now() - ($1)::interval AND license_key <> ''
+      GROUP BY 1 ORDER BY 2 DESC LIMIT 20`);
+  const vendasRows = vdia.map((r) => ({
+    date: String(r.dia).slice(0, 10), sales: num(r.sales),
+  }));
+  const vendasTotal = vendasRows.reduce((a, r) => a + r.sales, 0);
+
   return {
     clicks: { rows: clkRows },
     visits: { rows: visRows },
+    trials: { ok: true, window_days: n, rows: trialsRows,
+              totals: trialsTotais },
+    sales: { ok: true, window_days: n, rows: vendasRows, total: vendasTotal,
+             by_platform: lista(vplat), by_country: lista(vpais) },
     origin: {
       ok: true,
       clicks_country: lista(clkCc),

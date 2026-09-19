@@ -37,6 +37,7 @@
 // ======================================================================
 
 import { Redis } from "@upstash/redis";
+import { registrarTrial } from "./_db.js";
 
 // Cliente SOB DEMANDA + CANDIDATOS (ver api/verify-license.js): a Vercel cria
 // KV_REST_API_* quando o banco vem pela KV e UPSTASH_REDIS_REST_* quando vem
@@ -140,48 +141,20 @@ export default async function handler(req, res) {
     });
   }
 
-  // Dedupe: cada instalação conta UMA vez (SETNX).
-  const dedupeKey = `stats:trial:install:${install_id}`;
-  let firstTime;
-  try {
-    firstTime = await withRedis(async (redis) => {
-      const set = await redis.set(dedupeKey, "1", {
-        nx: true,
-        ex: INSTALL_TTL_SECONDS,
-      });
-      return set === "OK";
-    });
-  } catch (err) {
-    console.error("Registro do beacon de trial indisponivel:", err?.message ?? err);
-    // Falha NOSSA, declarada como tal (o app ignora; isto é para diagnóstico).
+  // Registro no POSTGRES — o Redis ficou reservado à licença. O dedupe é o
+  // índice único em `install_id`: a MESMA instalação conta UMA vez.
+  const resultado = await registrarTrial({ install_id, platform });
+  if (resultado === null) {
+    // Sem banco configurado (ou falha): declarado como indisponível.
     return json(res, 503, {
       success: false,
       error: "trial_registry_unavailable",
-      reason: err?.code === "credential_missing" ? "credential_missing" : "registry_error",
-      detail: safeDetail(err),
+      reason: "registry_error",
       message: "Falha ao acessar o registro de trials.",
     });
   }
-  if (!firstTime) {
+  if (resultado === "duplicado") {
     return json(res, 200, { success: true, duplicate: true });
   }
-
-  // Contador diário por plataforma (e um total por dia).
-  const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
-  const keys = [
-    `stats:trial:${day}:${platform}`,
-    `stats:trial:${day}:total`,
-  ];
-  try {
-    await withRedis(async (redis) => {
-      await redis.incr(keys[0]);
-      await redis.incr(keys[1]);
-    });
-  } catch (err) {
-    console.error("Erro ao incrementar contadores:", err?.message ?? err);
-    // Já registramos o dedupe — melhor devolver sucesso do que o app achar
-    // que falhou e tentar de novo (a contagem pode ser corrigida depois).
-  }
-
   return json(res, 200, { success: true });
 }

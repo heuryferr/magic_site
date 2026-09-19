@@ -36,6 +36,7 @@
 // ======================================================================
 
 import { Redis } from "@upstash/redis";
+import { registrarVenda } from "./_db.js";
 
 const GUMROAD_VERIFY_URL = "https://api.gumroad.com/v2/licenses/verify";
 
@@ -204,21 +205,12 @@ async function recordSaleAnalytics(purchase, meta) {
     const fields = purchase.custom_fields ?? [];
     const email = purchase.email ?? meta.email ?? "";
     const country = meta.country || "??";
-    const record = JSON.stringify({
-      ts: new Date().toISOString(),
-      email,
-      country,
-      platform: meta.platform || "unknown",
-      app_version: meta.app_version || "",
+    // Venda registrada no POSTGRES (o Redis ficou reservado à licença).
+    await registrarVenda({
       license_key: purchase.license_key || meta.license_key || "",
-      institution: customField(fields, "institution"),
-      field: customField(fields, "field"),
-    });
-    // SADD de registros do dia (para exportar/inspecionar) + contadores.
-    await withRedis(async (redis) => {
-      await redis.sadd(`analytics:sales:${day}`, record);
-      await redis.incr(`analytics:sales:${day}:count`);
-      if (country !== "??") await redis.incr(`analytics:countries:${country}`);
+      platform: meta.platform || "unknown",
+      country,
+      email,
     });
   } catch (err) {
     console.error("Analytics record falhou (ignorado):", err?.message ?? err);
