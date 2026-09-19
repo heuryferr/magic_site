@@ -19,8 +19,8 @@
 //     GITHUB_RELEASES_REPO → padrão "heuryferr/MagicStat-Releases"
 // ======================================================================
 
-import { Redis } from "@upstash/redis";
-import { ultimosCliques, agregados } from "./_db.js";
+
+import { ultimosCliques } from "./_db.js";
 
 // ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
 // A Vercel cria KV_REST_API_* quando o banco vem pela KV e
@@ -714,25 +714,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // MODO AGREGADO: contadores de clique/visita lidos do POSTGRES (o Redis
-  // ficou só para a licença). Devolve a MESMA forma que o app já consumia.
-  if (String(req.query.only || "") === "agg") {
-    const n = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
-    try {
-      const dados = await agregados(n);
-      res.setHeader("Cache-Control", "no-store");
-      if (!dados) {
-        return res.status(200).json(
-          { ok: false, error: "sem DATABASE_URL (agregados no Postgres)" });
-      }
-      return res.status(200).json({ ok: true, days: n, ...dados });
-    } catch (err) {
-      return res.status(500).json({
-        ok: false, error: "server_error", message: String(err?.message ?? err),
-      });
-    }
-  }
-
   const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
 
   try {
@@ -897,3 +878,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: "server_error", message: String(err?.message ?? err) });
   }
 }
+
+export { ccfWindow };

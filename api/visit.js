@@ -14,6 +14,7 @@
 
 import { Redis } from "@upstash/redis";
 import { createHash } from "node:crypto";
+import { registrarVisita } from "./_db.js";
 
 // ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
 // A Vercel cria KV_REST_API_* quando o banco vem pela KV e
@@ -142,8 +143,23 @@ function pagina(req) {
 // Sem separação de robô: TODA visita conta como visita.
 
 export default async function handler(req, res) {
-  // A visita NÃO é contada no Redis: o Upstash ficou RESERVADO para a licença
-  // (2 máquinas por chave). Aqui só respondemos ao beacon do track.js.
   res.setHeader("Cache-Control", "no-store, max-age=0");
+  // A visita vai para o POSTGRES (o Redis ficou reservado à licença). É
+  // best-effort: `registrarVisita` nunca lança — o beacon nunca atrapalha.
+  try {
+    await registrarVisita({
+      cc: String(req.headers["x-vercel-ip-country"] || "??")
+        .toUpperCase()
+        .replace(/[^A-Z]/g, "")
+        .slice(0, 2) || "??",
+      ua: familiaUA(req),
+      conta: utmContent(req),
+      ref: origemExterna(req),
+      path: pagina(req),
+      uhash: visitorHash(req),
+    });
+  } catch (err) {
+    console.error("visit insert error:", err?.message ?? err);
+  }
   return res.status(204).end();
 }

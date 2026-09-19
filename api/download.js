@@ -345,6 +345,8 @@ export default async function handler(req, res) {
     ua: familiaUA(req),
     conta: utmContent(req),
     ref: origemExterna(req),
+    path: pagina(req),
+    uhash: visitorHash(req),
   });
 
   // ── Redireciona para o instalador real ────────────────────────────────
