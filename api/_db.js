@@ -79,13 +79,21 @@ async function _insere(tabela, dados) {
     const db = await getPool();
     if (!db) return false;
     await ensureSchema(db);
+    // A tabela `visits` NÃO tem a coluna `file` (só o clique tem) — por isso a
+    // lista de colunas é montada por tabela.
+    const colunas = ["cc", "region", "city", "ua", "conta", "ref", "path",
+                     "uhash"];
+    const valores = [dados.cc || "", dados.region || "", dados.city || "",
+                     dados.ua || "", dados.conta || "", dados.ref || "",
+                     dados.path || "/", dados.uhash || ""];
+    if (tabela === "clicks") {
+      colunas.push("file");
+      valores.push(dados.file || "");
+    }
+    const marcadores = colunas.map((_c, i) => `$${i + 1}`).join(",");
     await db.query(
-      `INSERT INTO ${tabela} (cc, region, city, ua, conta, ref, path, uhash,
-                              ${tabela === "clicks" ? "file" : "file"})
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-      [dados.cc || "", dados.region || "", dados.city || "", dados.ua || "",
-       dados.conta || "", dados.ref || "", dados.path || "/",
-       dados.uhash || "", dados.file || ""]);
+      `INSERT INTO ${tabela} (${colunas.join(",")}) VALUES (${marcadores})`,
+      valores);
     return true;
   } catch (err) {
     console.error(`${tabela} insert error:`, err?.message ?? err);
