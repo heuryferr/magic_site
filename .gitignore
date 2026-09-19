@@ -10,3 +10,6 @@ Thumbs.db
 
 # Node / dependências
 node_modules/
+
+# temporarios dos testes (nao versionar)
+api/_tmp_*.mjs
