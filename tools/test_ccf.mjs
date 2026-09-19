@@ -58,7 +58,7 @@ if (!/function ccfWindow/.test(src)) {
 }
 src = src.replace(/^import \{ Redis \} from "@upstash\/redis";$/m, "");
 src += "\nexport { ccfWindow };\n";
-const tmp = path.join("/tmp", `stats_test_${process.pid}.mjs`);
+const tmp = path.join(RAIZ, "api", `_tmp_stats_ccf_${process.pid}.mjs`);
 fs.writeFileSync(tmp, src);
 
 const { ccfWindow } = await import(pathToFileURL(tmp).href);

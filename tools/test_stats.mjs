@@ -102,11 +102,29 @@ globalThis.Redis = class {
 
 let src = fs.readFileSync(ARQ, "utf8");
 src = src.replace(/^import \{ Redis \} from "@upstash\/redis";$/m, "");
-const tmp = path.join("/tmp", "stats_test_" + process.pid + ".mjs");
+const tmp = path.join(RAIZ, "api", "_tmp_stats_test_" + process.pid + ".mjs");
 fs.writeFileSync(tmp, src);
 const mod = await import(pathToFileURL(tmp).href);
 fs.unlinkSync(tmp);
 const handler = mod.default;
+
+// O LOG de cliques agora vive no POSTGRES (o Redis ficou só para a licença).
+// Injetamos um pool falso com uma linha plantada, no formato que o banco
+// devolve (colunas) — o _db.js converte para {t,f,cc,rg,ct,ua,conta,ref}.
+const _db = await import(pathToFileURL(path.join(RAIZ, "api", "_db.js")).href);
+const LINHAS_DB = [{
+  ts: new Date("2026-09-18T12:00:00.000Z"),
+  file: "linux", cc: "BR", region: "SP", city: "Sao Paulo",
+  ua: "Linux/Chrome 153", conta: "(direto)", ref: "(sem referrer)",
+}];
+_db._usarPool({
+  query: async (sql, params) => {
+    if (/select/i.test(String(sql))) {
+      return { rows: LINHAS_DB.slice(0, Number((params && params[0]) || 500)) };
+    }
+    return { rows: [] };
+  },
+});
 
 function fakeRes() {
   const r = { statusCode: 0, body: null, headers: {} };

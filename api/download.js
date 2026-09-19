@@ -35,6 +35,7 @@
 
 import { Redis } from "@upstash/redis";
 import { createHash } from "node:crypto";
+import { registrarClique } from "./_db.js";
 
 // ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
 // A Vercel cria KV_REST_API_* quando o banco vem pela KV e
@@ -329,7 +330,22 @@ export default async function handler(req, res) {
   // ── Qual instalador entregar (macOS / Windows / Linux) ───────────────
   const url = await resolveUrl(file);
 
-  // (nenhum comando Redis nesta rota — ver comentário acima)
+  // ── Log do clique no Postgres (Neon) — best-effort ────────────────────
+  // O Upstash ficou reservado para a licença; o log de cliques (cidade, nave-
+  // gador, remetente) vive no banco. Se o banco faltar ou falhar, o download
+  // segue igual (`registrarClique` nunca lança).
+  await registrarClique({
+    file,
+    cc: String(req.headers["x-vercel-ip-country"] || "??")
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, 2) || "??",
+    region: regiao(req),
+    city: cidade(req),
+    ua: familiaUA(req),
+    conta: utmContent(req),
+    ref: origemExterna(req),
+  });
 
   // ── Redireciona para o instalador real ────────────────────────────────
   res.setHeader("Cache-Control", "no-store, max-age=0");

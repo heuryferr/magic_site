@@ -45,7 +45,7 @@ if (/ehRobo|ehCliqueDePagina|pareceRobo/.test(src)) {
   process.exit(1);
 }
 src = src.replace(/^import \{ Redis \} from "@upstash\/redis";$/m, "");
-const tmp = path.join("/tmp", `download_test_${process.pid}.mjs`);
+const tmp = path.join(RAIZ, "api", `_tmp_download_test_${process.pid}.mjs`);
 fs.writeFileSync(tmp, src);
 const mod = await import(pathToFileURL(tmp).href);
 fs.unlinkSync(tmp);

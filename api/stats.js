@@ -20,6 +20,7 @@
 // ======================================================================
 
 import { Redis } from "@upstash/redis";
+import { ultimosCliques } from "./_db.js";
 
 // ── Redis: cliente SOB DEMANDA + CANDIDATOS ────────────────────────────
 // A Vercel cria KV_REST_API_* quando o banco vem pela KV e
@@ -186,17 +187,11 @@ async function githubDownloads() {
 // responde "quem baixou o quê, quando" sem depender do GitHub (que não expõe
 // nada disso). Mais recente primeiro.
 async function logWindow(limit = 500) {
-  const redis = await getRedis();
-  const linhas = await redis.lrange("downloads:log", 0, limit - 1);
-  const itens = (linhas || [])
-    .map((s) => {
-      try {
-        return typeof s === "string" ? JSON.parse(s) : s;
-      } catch (err) {
-        return null;
-      }
-    })
-    .filter(Boolean);
+  // Agora vem do Postgres (Neon): o Redis ficou só para a licença.
+  const itens = await ultimosCliques(limit);
+  if (itens === null) {
+    return { ok: false, error: "log no Postgres nao configurado (DATABASE_URL)" };
+  }
   return { ok: true, itens };
 }
 
