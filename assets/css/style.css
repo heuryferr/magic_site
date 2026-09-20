@@ -147,6 +147,25 @@ img{max-width:100%;display:block}
 .hero-offer s{color:var(--muted);font-weight:600}
 .hero-offer .hero-offer-cta{color:var(--accent3);font-weight:800;white-space:nowrap}
 
+/* ---------- Prova social (depoimentos reais, recebidos por e-mail) ---------- */
+.quotes{padding:58px 24px 10px}
+.quotes-inner{max-width:980px;margin:0 auto;text-align:center}
+.quotes-title{
+  display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--accent3);
+  background:linear-gradient(100deg,rgba(79,216,200,.12),rgba(124,140,255,.1));
+  border:1px solid rgba(79,216,200,.35);border-radius:999px;padding:6px 14px;margin-bottom:20px;
+}
+.quotes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;text-align:left}
+.quote-card{
+  margin:0;border-radius:16px;padding:22px 24px;
+  background:linear-gradient(180deg,rgba(124,140,255,.09),rgba(79,216,200,.05));
+  border:1px solid var(--line);
+}
+.quote-card p{margin:0;font-size:16px;line-height:1.55;color:var(--text)}
+.quote-card .q-mark{color:var(--accent3);font-weight:800}
+.quotes-note{margin-top:16px;font-size:12.5px;color:var(--muted)}
+
 /* Showcase / AI demo carousel — uma cena por vez (display toggle) */
 .hero-stage{position:relative}
 .showcase-frame{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:#0a0d19}
