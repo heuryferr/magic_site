@@ -150,6 +150,8 @@ img{max-width:100%;display:block}
   border:1px solid var(--line);
 }
 .quote-card p{margin:0;font-size:16px;line-height:1.55;color:var(--text)}
+.quote-card.quote-feature{grid-column:1/-1;background:linear-gradient(100deg,rgba(124,140,255,.12),rgba(79,216,200,.07))}
+.quote-card.quote-feature p{font-size:17.5px}
 .quote-card .q-mark{color:var(--accent3);font-weight:800}
 .quotes-note{margin-top:16px;font-size:12.5px;color:var(--muted)}
 
