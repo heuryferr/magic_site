@@ -132,20 +132,6 @@ img{max-width:100%;display:block}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
 .hero-trust{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
 .hero-trust span{display:flex;align-items:center;gap:6px}
-/* Pílula da oferta de lançamento (leva ao card da promo, em #pricing) */
-.hero-offer{
-  display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;
-  margin:0 0 26px;padding:10px 16px;border-radius:12px;
-  font-size:14px;color:var(--text);line-height:1.35;
-  background:linear-gradient(100deg,rgba(79,216,200,.14),rgba(124,140,255,.14));
-  border:1px solid rgba(79,216,200,.45);
-  box-shadow:0 8px 20px -18px rgba(0,0,0,.85);
-  transition:transform .15s,border-color .2s;
-}
-.hero-offer:hover{transform:translateY(-1px);border-color:rgba(79,216,200,.85)}
-.hero-offer strong{color:var(--accent3)}
-.hero-offer s{color:var(--muted);font-weight:600}
-.hero-offer .hero-offer-cta{color:var(--accent3);font-weight:800;white-space:nowrap}
 
 /* ---------- Prova social (depoimentos reais, recebidos por e-mail) ---------- */
 .quotes{padding:58px 24px 10px}
