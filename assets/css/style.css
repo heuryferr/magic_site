@@ -155,6 +155,14 @@ img{max-width:100%;display:block}
 .quote-card .q-mark{color:var(--accent3);font-weight:800}
 .quotes-note{margin-top:16px;font-size:12.5px;color:var(--muted)}
 
+/* ---------- In action (vídeo incorporado) ---------- */
+.video-wrap{max-width:980px;margin:0 auto}
+.video-frame{
+  position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;
+  border:1px solid var(--line);background:#0a0d19;box-shadow:var(--shadow);
+}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
 /* Showcase / AI demo carousel — uma cena por vez (display toggle) */
 .hero-stage{position:relative}
 .showcase-frame{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:#0a0d19}
