@@ -102,11 +102,11 @@ O site NÃO guarda a URL do instalador: ele descobre a Release mais nova pela AP
 segurança** usada quando a API do GitHub falha (limite de requisições/rede):
 
 ```js
-const FALLBACK_VERSION = "v1.0.6";
+const FALLBACK_VERSION = "v2.0.0";
 const FALLBACK = {
-  macos:   `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.pkg`,
-  windows: `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-setup.exe`,
-  linux:   `.../download/${FALLBACK_VERSION}/MagicStat-1.0.6-x86_64.AppImage`,
+  macos:   `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.pkg`,
+  windows: `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.exe`,
+  linux:   `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-x86_64.AppImage`,
 };
 ```
 
@@ -116,7 +116,7 @@ quando a API do GitHub falhar o visitante recebe um **404 do GitHub** no lugar d
 instalador (foi exatamente o "não consigo baixar" de 18/09: o fallback apontava
 para a `v1.0.2`, que está sem assets anexados).
 
-> ⚠️ Os nomes mudam de Release para Release: na `v1.0.6` o macOS é `.pkg`, não
+> ⚠️ Os nomes mudam de Release para Release: na `v2.0.0` o macOS é `.pkg`, não
 > `.dmg`. Copie os nomes da página do Release, não do padrão antigo.
 
 O download é liberado direto — não precisa de nenhuma variável extra no Vercel.
