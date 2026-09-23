@@ -481,7 +481,7 @@ async function ccfWindow(days) {
   };
 }
 // ── TRIALS começados (beacon /api/trial-start) ─────────────────────────
-// Uma linha por instalação, quando o trial de 7 dias começa. É ANÔNIMO: sem
+// Uma linha por instalação, quando o trial de 48 horas começa. É ANÔNIMO: sem
 // email, sem IP, sem hardware — só plataforma + versão (ver api/trial-start.js).
 async function trialsWindow(days) {
   const redis = await getRedis();
@@ -631,7 +631,7 @@ function htmlTrials(trials) {
     .join("");
   const t = trials.totals || {};
   return `
-<h1 style="margin-top:42px">Trials started (7-day trial)</h1>
+<h1 style="margin-top:42px">Trials started (48-hour trial)</h1>
 <p class="sub">One per installation, pinged by the app when the trial begins (<code>/api/trial-start</code>). Anonymous: no email, no IP.</p>
 <table>
 <thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th></tr></thead>

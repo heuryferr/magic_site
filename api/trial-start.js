@@ -1,6 +1,6 @@
 // api/trial-start.js
 // ======================================================================
-// Magic Stat — Beacon ANÔNIMO de início do trial (7 dias).
+// Magic Stat — Beacon ANÔNIMO de início do trial (48 horas).
 // ----------------------------------------------------------------------
 // O app desktop envia UM ping por instalação quando o trial começa:
 //
@@ -10,7 +10,7 @@
 //     "platform":   "macos",              // macos | windows | linux
 //     "os_release": "23.4.0",             // opcional
 //     "app_version": "1.0.0",
-//     "days_left": 7
+//     "days_left": 2
 //   }
 //
 // Respostas:
