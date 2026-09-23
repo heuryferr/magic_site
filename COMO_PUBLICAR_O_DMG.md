@@ -102,11 +102,11 @@ O site NÃO guarda a URL do instalador: ele descobre a Release mais nova pela AP
 segurança** usada quando a API do GitHub falha (limite de requisições/rede):
 
 ```js
-const FALLBACK_VERSION = "v2.0.0";
+const FALLBACK_VERSION = "v4.5.1";
 const FALLBACK = {
-  macos:   `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.pkg`,
-  windows: `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.exe`,
-  linux:   `.../download/${FALLBACK_VERSION}/MagicStat-2.0.0-x86_64.AppImage`,
+  macos:   `.../download/${FALLBACK_VERSION}/MagicStat-4.5.1-setup.pkg`,
+  windows: `.../download/${FALLBACK_VERSION}/MagicStat-4.5.1-setup.exe`,
+  linux:   `.../download/${FALLBACK_VERSION}/MagicStat-4.5.1-x86_64.AppImage`,
 };
 ```
 

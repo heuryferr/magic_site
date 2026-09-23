@@ -98,11 +98,11 @@ const FILE_KINDS = {
 // 404 do GitHub (foi o "não consigo baixar" relatado por e-mail).
 // Ao publicar uma Release nova, atualize aqui JUNTO — com os nomes EXATOS dos
 // assets daquela Release (ex.: o macOS da v2.0.0 é .pkg, não .dmg).
-const FALLBACK_VERSION = "v2.0.0";
+const FALLBACK_VERSION = "v4.5.1";
 const FALLBACK = {
-  macos: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.pkg`,
-  windows: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-2.0.0-setup.exe`,
-  linux: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-2.0.0-x86_64.AppImage`,
+  macos: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-4.5.1-setup.pkg`,
+  windows: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-4.5.1-setup.exe`,
+  linux: `https://github.com/heuryferr/MagicStat-Releases/releases/download/${FALLBACK_VERSION}/MagicStat-4.5.1-x86_64.AppImage`,
 };
 
 // Cache em memória, um por sistema (sobrevive entre invocações de uma
