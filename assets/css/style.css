@@ -94,6 +94,12 @@ img{max-width:100%;display:block}
 .hero-logo{width:210px;height:210px;border-radius:44px;box-shadow:0 32px 90px -26px rgba(124,140,255,1);border:1px solid var(--line);flex-shrink:0}
 .hero-tagline{display:flex;flex-direction:column;gap:8px;justify-content:center}
 .tag-big{font-size:70px;font-weight:900;letter-spacing:-.03em;line-height:.95}
+.tag-ver{
+  display:inline-block;vertical-align:super;margin-left:12px;
+  font-size:15px;font-weight:800;letter-spacing:.04em;
+  color:var(--accent2);background:var(--grad-soft);
+  border:1px solid rgba(185,134,255,.32);border-radius:8px;padding:3px 10px;
+}
 .tagline{font-size:27px;font-weight:700;letter-spacing:.05em;color:var(--muted);display:flex;gap:8px;align-items:center;margin-top:4px;white-space:nowrap;flex-wrap:nowrap}
 .tagline .tl-word{
   background:linear-gradient(100deg,#7c8cff 20%,#b986ff 40%,#4fd8c8 55%,#7c8cff 80%);
