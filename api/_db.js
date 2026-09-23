@@ -84,6 +84,18 @@ async function ensureSchema(db) {
     ts timestamptz NOT NULL DEFAULT now(),
     license_key text, platform text, country text, email text)`);
   await db.query("CREATE INDEX IF NOT EXISTS sales_ts_idx ON sales (ts DESC)");
+  // AVISO DE ATUALIZACAO MOSTRADO (beacon /api/update-notice): 1 linha por
+  // (INSTALACAO, VERSAO OFERECIDA). O indice unico e o dedupe: a insistencia
+  // de ~15 min do dialogo nao infla o numero.
+  await db.query(`CREATE TABLE IF NOT EXISTS update_notices (
+    id bigserial PRIMARY KEY,
+    ts timestamptz NOT NULL DEFAULT now(),
+    install_id text NOT NULL,
+    offered_version text NOT NULL,
+    from_version text, platform text, kind text)`);
+  await db.query(
+    "CREATE UNIQUE INDEX IF NOT EXISTS update_notices_unique_idx ON update_notices (install_id, offered_version)");
+  await db.query("CREATE INDEX IF NOT EXISTS update_notices_ts_idx ON update_notices (ts DESC)");
   _schemaOk = true;
 }
 
@@ -333,4 +345,67 @@ export async function agregados(days = 30) {
       visits_ccut: lista(visCcut),
     },
   };
+}
+
+// ── Aviso de atualizacao MOSTRADO (beacon /api/update-notice) ──────────
+// Devolve "novo", "duplicado" ou null (sem banco / falha). Nunca lanca.
+export async function registrarAviso(dados) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const r = await db.query(
+      `INSERT INTO update_notices
+         (install_id, offered_version, from_version, platform, kind)
+         VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (install_id, offered_version) DO NOTHING`,
+      [dados.install_id || "", dados.offered_version || "",
+       dados.from_version || "", dados.platform || "",
+       dados.kind || "available"]);
+    return r.rowCount > 0 ? "novo" : "duplicado";
+  } catch (err) {
+    console.error("update_notice insert error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// Contagem dos avisos por versao oferecida, com quebra por plataforma e pela
+// versao de ORIGEM ("quem esta atras"). null quando nao ha banco.
+export async function contagemAvisos() {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const totais = await db.query(
+      `SELECT offered_version,
+              count(*)::int AS total,
+              count(*) FILTER (WHERE platform = 'macos')::int   AS macos,
+              count(*) FILTER (WHERE platform = 'windows')::int AS windows,
+              count(*) FILTER (WHERE platform = 'linux')::int   AS linux
+         FROM update_notices
+        GROUP BY offered_version
+        ORDER BY offered_version DESC`);
+    const origens = await db.query(
+      `SELECT offered_version, COALESCE(NULLIF(from_version, ''), '?') AS from_version,
+              count(*)::int AS n
+         FROM update_notices
+        GROUP BY offered_version, from_version`);
+    const porVersao = {};
+    for (const r of origens.rows) {
+      const alvo = (porVersao[r.offered_version] =
+        porVersao[r.offered_version] || {});
+      alvo[r.from_version] = r.n;
+    }
+    return totais.rows.map((r) => ({
+      offered_version: r.offered_version,
+      total: r.total,
+      macos: r.macos,
+      windows: r.windows,
+      linux: r.linux,
+      from: porVersao[r.offered_version] || {},
+    }));
+  } catch (err) {
+    console.error("update_notice read error:", err?.message ?? err);
+    return null;
+  }
 }
