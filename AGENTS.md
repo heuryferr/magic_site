@@ -23,6 +23,14 @@ tráfego — mas só consegue cachear o que o Vercel serve com um tipo MIME "de 
    confirme que nenhum arquivo antigo/sem extensão ficou para trás.
 4. **Não mexa** na Cache Rule do Cloudflare para `/assets/`
    (Cache Rules → Edge TTL + Browser TTL = 1 mês). Ela é o que mantém o custo baixo.
+5. **Ao alterar `assets/css/style.css` ou `assets/js/*.js`, suba o `?v=N` na URL
+   no `index.html`** (ex.: `style.css?v=2` → `style.css?v=3`).
+   - O cache de 1 mês congela o arquivo **pela URL**; o HTML é dinâmico (aparece
+     na hora), mas o CSS/JS com a mesma URL **não atualiza** e a mudança some.
+   - Sintoma clássico: você edita o CSS, o HTML muda e o estilo continua o velho
+     (ex.: um bloco novo aparece desalinhado à esquerda, sem estilo).
+   - Arquivos **novos/renomeados** (ex.: imagem que ganhou `.png`) já têm URL nova,
+     então não precisam disso.
 
 ### Como verificar (faça isso depois de mexer em assets)
 
