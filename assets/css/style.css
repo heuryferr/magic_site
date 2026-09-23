@@ -132,7 +132,7 @@ img{max-width:100%;display:block}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
 .hero-trust{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
 .hero-trust span{display:flex;align-items:center;gap:6px}
-.hero-note{margin:22px 0 0;max-width:480px;font-size:13.5px;line-height:1.55;color:var(--muted);font-style:italic}
+.hero-note{margin:40px auto 0;max-width:620px;text-align:center;font-size:14.5px;line-height:1.6;color:var(--muted);font-style:italic}
 
 /* ---------- Prova social (depoimentos reais, recebidos por e-mail) ---------- */
 .quotes{padding:58px 24px 10px}
