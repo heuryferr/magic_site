@@ -231,4 +231,19 @@
       else if (e.key === 'ArrowLeft') prevLb();
     });
   }
+
+  // ---- Video: "lite embed" — só carrega o YouTube quando a pessoa clica ----
+  var videoPoster = document.getElementById('videoPoster');
+  if (videoPoster) {
+    videoPoster.addEventListener('click', function () {
+      var frame = document.getElementById('videoFrame');
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/c-15COOt3Fo?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&autoplay=1';
+      iframe.title = 'Magic Stat — in action';
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      iframe.setAttribute('allowfullscreen', '');
+      if (frame) { frame.innerHTML = ''; frame.appendChild(iframe); }
+    });
+  }
 })();

@@ -6,7 +6,7 @@
 <title>Magic Stat — The ultimate statistical suite for macOS, Windows &amp; Linux</title>
 <meta name="description" content="Magic Stat — the ultimate statistical suite for macOS, Windows and Linux. Publication-quality output, built-in AI, SEM/PLS and scientific reports ready for your paper.">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=7">
+<link rel="stylesheet" href="assets/css/style.css?v=8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -165,13 +165,11 @@
   </div>
   <div class="video-wrap container">
     <p class="video-cta"><span class="video-cta-play">▶</span> Watch the 1-minute demo</p>
-    <div class="video-frame">
-      <iframe src="https://www.youtube-nocookie.com/embed/c-15COOt3Fo?rel=0&amp;modestbranding=1&amp;playsinline=1&amp;iv_load_policy=3"
-              title="Magic Stat &mdash; in action"
-              loading="lazy"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen></iframe>
+    <div class="video-frame" id="videoFrame">
+      <button class="video-poster" id="videoPoster" type="button" aria-label="Play the 1-minute demo">
+        <img src="assets/img/video-poster.jpg" alt="Magic Stat &mdash; in action (video preview)" loading="lazy" decoding="async">
+        <span class="video-play" aria-hidden="true">▶</span>
+      </button>
     </div>
   </div>
 </section>
@@ -752,7 +750,7 @@
   </div>
 </div>
 
-<script src="assets/js/main.js?v=2"></script>
+<script src="assets/js/main.js?v=3"></script>
 <script src="assets/js/track.js?v=2"></script>
 </body>
 </html>
