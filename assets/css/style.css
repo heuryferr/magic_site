@@ -176,6 +176,10 @@ img{max-width:100%;display:block}
   border:1px solid var(--line);background:#0a0d19;box-shadow:var(--shadow);
 }
 .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-cta{margin:0 0 18px;text-align:center;font-size:16px;font-weight:800;color:var(--accent2)}
+.video-cta-play{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:50%;background:var(--grad);color:#0b0e1a;font-size:11px;padding-left:2px;
+  margin-right:9px;vertical-align:-6px}
 
 /* Showcase / AI demo carousel — uma cena por vez (display toggle) */
 .hero-stage{position:relative}
