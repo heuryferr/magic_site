@@ -236,6 +236,10 @@
   var videoPoster = document.getElementById('videoPoster');
   if (videoPoster) {
     videoPoster.addEventListener('click', function () {
+      try {
+        if (navigator.sendBeacon) navigator.sendBeacon('/api/visit?ev=video-play');
+        else if (window.fetch) fetch('/api/visit?ev=video-play', { keepalive: true, cache: 'no-store' })['catch'](function () {});
+      } catch (e) { /* o play nunca depende da estatística */ }
       var frame = document.getElementById('videoFrame');
       var iframe = document.createElement('iframe');
       iframe.src = 'https://www.youtube-nocookie.com/embed/c-15COOt3Fo?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&autoplay=1';

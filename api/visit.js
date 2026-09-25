@@ -137,6 +137,10 @@ function origemExterna(req) {
 }
 
 function pagina(req) {
+  // Evento (ex.: play do vídeo) chega em ?ev= e vira o "path" `event:<nome>`,
+  // para o relatório separar "quantos deram play" das visitas de página.
+  const ev = slug(req.query.ev, 40);
+  if (ev) return `event:${ev}`;
   return slug(req.query.p, 60) || "/";
 }
 

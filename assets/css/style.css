@@ -175,6 +175,7 @@ img{max-width:100%;display:block}
   display:flex;align-items:center;justify-content:center;font-size:30px;padding-left:6px;
   box-shadow:0 14px 44px -10px rgba(124,140,255,.95);transition:transform .15s}
 .video-poster:hover .video-play{transform:translate(-50%,-50%) scale(1.08)}
+.video-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:26px}
 
 /* Showcase / AI demo carousel — uma cena por vez (display toggle) */
 .hero-stage{position:relative}
