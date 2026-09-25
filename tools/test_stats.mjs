@@ -1,11 +1,10 @@
-// Teste do RELATORIO (/api/stats) com Redis FALSO e numeros feitos A MAO.
+// Teste do RELATORIO (/api/stats) com numeros feitos A MAO.
 //
 // Por que existe: o relatorio e a unica janela do dono para os numeros
-// (cliques, visitas, trials, vendas) e ficou MESES quebrado em silencio — o
-// cliente Redis era criado no topo do arquivo com o par de credencial APAGADO.
-// Aqui o banco falso reproduz exatamente o incidente (KV_REST_API_* vivo +
-// UPSTASH_REDIS_REST_* apontando para banco apagado), os valores sao plantados
-// a mao e a conta e conferida no HTML/JSON.
+// (cliques, visitas, trials, vendas). A fonte passou do Redis (Upstash) para
+// o POSTGRES (Neon) — o Redis foi aposentado. Aqui injetamos um pool falso
+// (api/_db.js → _usarPool) que responde SQL plantado a mao, e conferimos a
+// conta no HTML/JSON.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -22,82 +21,16 @@ process.env.UPSTASH_REDIS_REST_TOKEN = "token-de-teste";
 // Fuso do relatorio (-180 min = UTC-3), o MESMO usado em stats.js.
 const DIA = new Date(Date.now() - 180 * 60 * 1000).toISOString().slice(0, 10);
 
-// ── numeros plantados A MAO ────────────────────────────────────────────
-const STRINGS = {
-  ["stats:trial:" + DIA + ":macos"]: 2,
-  ["stats:trial:" + DIA + ":windows"]: 1,
-  ["stats:trial:" + DIA + ":linux"]: 3,
-  ["stats:trial:" + DIA + ":total"]: 6,
-  ["downloads:macos:" + DIA]: 5,
-  ["downloads:windows:" + DIA]: 0,
-  ["downloads:linux:" + DIA]: 1,
-  ["downloads:macos:total"]: 5,
-  ["downloads:windows:total"]: 0,
-  ["downloads:linux:total"]: 1,
-  ["visits:" + DIA]: 9,
-  ["visits:bots:" + DIA]: 1,
-  "visits:total": 100,
-};
-const SETS = {
-  ["downloads:uniq:macos:" + DIA]: ["h1"],
-  ["downloads:pessoas:" + DIA]: ["h1", "h2"],
-  ["visits:uniq:" + DIA]: ["a", "b"],
-  ["analytics:sales:" + DIA]: [
-    JSON.stringify({ platform: "macos", country: "BR" }),
-    JSON.stringify({ platform: "windows", country: "US" }),
-    // Duas VALIDAÇÕES da MESMA licença (o app revalida de tempos em tempos):
-    // isso não é venda nova — a contagem tem de ser por licença DISTINTA.
-    JSON.stringify({ platform: "linux", country: "PT", license_key: "K1" }),
-    JSON.stringify({ platform: "linux", country: "PT", license_key: "K1" }),
-  ],
-};
-// LISTAS (o LOG das últimas requisições de download, gravado pelo api/download).
-const LISTS = {
-  "downloads:log": [
-    JSON.stringify({
-      t: "2026-09-18T12:00:00.000Z",
-      f: "linux",
-      cc: "BR",
-      rg: "SP",
-      ct: "Sao Paulo",
-      ua: "Linux/Chrome 153",
-      conta: "(direto)",
-      ref: "(sem referrer)",
-    }),
-  ],
-};
-
 globalThis.fetch = async () => {
   throw new Error("sem rede no teste");
 };
 
+// Redis minimo: o stats.js só usa Redis para o CACHE do GitHub (best-effort);
+// a contabilidade agora vem do Postgres (pool falso injetado abaixo).
 globalThis.Redis = class {
   constructor(cfg) { this.cfg = cfg || {}; }
-  _op() {
-    if (String(this.cfg.url || "").includes("apagado")) {
-      throw new Error("fetch failed: ENOTFOUND banco-apagado");
-    }
-  }
-  get(k) { this._op(); return Promise.resolve(STRINGS[k] === undefined ? null : String(STRINGS[k])); }
-  scard(k) { this._op(); return Promise.resolve((SETS[k] || []).length); }
-  smembers(k) { this._op(); return Promise.resolve(SETS[k] || []); }
-  lrange(k) { this._op(); return Promise.resolve(LISTS[k] || []); }
-  pipeline() {
-    const self = this;
-    const jobs = [];
-    const api = {
-      get(k) { self._op(); jobs.push(() => (STRINGS[k] === undefined ? null : String(STRINGS[k]))); return api; },
-      scard(k) { self._op(); jobs.push(() => (SETS[k] || []).length); return api; },
-      smembers(k) { self._op(); jobs.push(() => SETS[k] || []); return api; },
-      hgetall() { self._op(); jobs.push(() => ({})); return api; },
-      incr() { self._op(); jobs.push(() => 1); return api; },
-      hincrby() { self._op(); jobs.push(() => 1); return api; },
-      sadd() { self._op(); jobs.push(() => 1); return api; },
-      expire() { self._op(); jobs.push(() => 1); return api; },
-      exec() { self._op(); return Promise.resolve(jobs.map((f) => f())); },
-    };
-    return api;
-  }
+  async get() { return null; }
+  async set() { return "OK"; }
 };
 
 let src = fs.readFileSync(ARQ, "utf8");
@@ -108,9 +41,8 @@ const mod = await import(pathToFileURL(tmp).href);
 fs.unlinkSync(tmp);
 const handler = mod.default;
 
-// O LOG de cliques agora vive no POSTGRES (o Redis ficou só para a licença).
-// Injetamos um pool falso com uma linha plantada, no formato que o banco
-// devolve (colunas) — o _db.js converte para {t,f,cc,rg,ct,ua,conta,ref}.
+// Injetamos um pool falso (SQL-aware) no api/_db.js: ele responde a cada
+// consulta dos agregados com numeros plantados a mao.
 const _db = await import(pathToFileURL(path.join(RAIZ, "api", "_db.js")).href);
 const LINHAS_DB = [{
   ts: new Date("2026-09-18T12:00:00.000Z"),
@@ -118,10 +50,16 @@ const LINHAS_DB = [{
   ua: "Linux/Chrome 153", conta: "(direto)", ref: "(sem referrer)",
 }];
 _db._usarPool({
-  query: async (sql, params) => {
-    if (/select/i.test(String(sql))) {
-      return { rows: LINHAS_DB.slice(0, Number((params && params[0]) || 500)) };
-    }
+  query: async (sql) => {
+    const s = String(sql);
+    if (/CREATE TABLE|ALTER TABLE|CREATE INDEX/i.test(s)) return { rows: [] };
+    if (/SELECT ts, file, cc, region, city, ua, conta, ref/i.test(s)) return { rows: LINHAS_DB };
+    if (/FROM trials/i.test(s)) return { rows: [{ dia: DIA, total: 6, macos: 2, windows: 1, linux: 3 }] };
+    if (/FROM sales/i.test(s) && /min\(/i.test(s)) return { rows: [{ dia: DIA, sales: 3 }] };
+    if (/platform AS name/i.test(s)) return { rows: [{ name: "macos", n: 1 }, { name: "linux", n: 1 }] };
+    if (/country AS name/i.test(s)) return { rows: [{ name: "BR", n: 1 }, { name: "PT", n: 1 }] };
+    if (/FROM clicks/i.test(s) && /AS total/i.test(s)) return { rows: [{ dia: DIA, total: 6, uniq: 2, macos: 5, windows: 0, linux: 1 }] };
+    if (/FROM visits/i.test(s) && /AS views/i.test(s)) return { rows: [{ dia: DIA, views: 9, uniq: 2 }] };
     return { rows: [] };
   },
 });

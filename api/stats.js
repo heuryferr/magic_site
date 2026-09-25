@@ -276,7 +276,7 @@ function htmlPage(rows, totals, days, github, visits, origin, trials, sales, log
 <table>
 <thead><tr><th>Date</th>${FILES.map((f) => `<th>${esc(f)}</th>`).join("")}<th>Total</th><th>People</th><th>Multi-OS</th><th>Automated</th></tr></thead>
 <tbody>${body}</tbody>
-<tfoot><tr><td>All time</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>${totals.people || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
+<tfoot><tr><td>Window</td>${FILES.map((f) => `<td>${totals[f] || 0}</td>`).join("")}<td>${totals.total || 0}</td><td>${totals.people || 0}</td><td>—</td><td>${totals.bots || 0}</td></tr></tfoot>
 </table>
 ${gh}
 ${htmlLog(log)}
@@ -736,74 +736,23 @@ export default async function handler(req, res) {
   const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
 
   try {
-    const redis = await getRedis();
-    // ── 1) Nosso contador: cliques (GET) + únicos (SCARD) por dia ───────
-    const pipe = redis.pipeline();
-    const plan = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const date = localDayKey(-i);
-      const row = { date, total: 0, unique: 0, bots: 0, people: 0, multi: 0 };
-      FILES.forEach((f) => (row[f] = 0));
-      plan.push({ date, row, uniqueKeys: [] });
-      FILES.forEach((f) => {
-        pipe.get(`downloads:${f}:${date}`);
-        plan[plan.length - 1].uniqueKeys.push(`downloads:uniq:${f}:${date}`);
+    // ── Fonte: Postgres (Neon). O Redis (Upstash) antigo foi aposentado; a
+    // contabilidade de cliques/visitas/trials/vendas agora vive no Postgres.
+    const agg = (await agregados(days)) || null;
+    if (!agg) {
+      return res.status(200).json({
+        ok: false,
+        error: "sem DATABASE_URL (agregados no Postgres)",
       });
     }
-    const results = await pipe.exec();
-
-    const uniqPipe = redis.pipeline();
-    plan.forEach((p) => p.uniqueKeys.forEach((k) => uniqPipe.scard(k)));
-    const uniqResults = await uniqPipe.exec();
-
-    // cliques BLOQUEADOS (robô óbvio, sem página, multi-OS) — à parte
-    const botPipe = redis.pipeline();
-    plan.forEach((p) =>
-      FILES.forEach((f) => botPipe.get(`downloads:bot:${f}:${p.date}`)));
-    const botResults = await botPipe.exec();
-
-    // PESSOAS (1 hash por dia) e multi-OS (máquina) — réguas à parte
-    const pessPipe = redis.pipeline();
-    plan.forEach((p) => {
-      pessPipe.scard(`downloads:pessoas:${p.date}`);
-      pessPipe.get(`downloads:multi:${p.date}`);
+    const rows = (agg.clicks && agg.clicks.rows) || [];
+    const totals = { people: 0, bots: 0, total: 0 };
+    FILES.forEach((f) => (totals[f] = 0));
+    rows.forEach((r) => {
+      FILES.forEach((f) => (totals[f] += Number(r[f] || 0)));
+      totals.total += Number(r.total || 0);
+      totals.bots += Number(r.bots || 0);
     });
-    const pessResults = await pessPipe.exec();
-
-    let idx = 0;
-    plan.forEach((p, pi) => {
-      FILES.forEach((f) => {
-        const v = Number(results[idx] || 0);
-        idx += 1;
-        p.row[f] = v;
-        p.row.total += v;
-      });
-      const off = pi * FILES.length;
-      p.row.unique = FILES.reduce((acc, _f, fi) => acc + Number(uniqResults[off + fi] || 0), 0);
-      p.row.bots = FILES.reduce(
-        (acc, _f, fi) => acc + Number(botResults[off + fi] || 0), 0);
-      p.row.people = Number(pessResults[pi * 2] || 0);
-      p.row.multi = Number(pessResults[pi * 2 + 1] || 0);
-    });
-    const rows = plan.map((p) => p.row);
-
-    const totPipe = redis.pipeline();
-    FILES.forEach((f) => totPipe.get(`downloads:${f}:total`));
-    const totRes = await totPipe.exec();
-    const totals = {};
-    let grand = 0;
-    FILES.forEach((f, i) => {
-      totals[f] = Number(totRes[i] || 0);
-      grand += totals[f];
-    });
-    totals.total = grand;
-    const botTotPipe = redis.pipeline();
-    FILES.forEach((f) => botTotPipe.get(`downloads:bot:${f}`));
-    const botTotRes = await botTotPipe.exec();
-    totals.bots = FILES.reduce(
-      (acc, _f, i) => acc + Number(botTotRes[i] || 0), 0);
-    // PESSOAS distintas desde sempre (1 hash por pessoa, sem recorte de dia)
-    totals.people = Number((await redis.scard("downloads:pessoas")) || 0);
 
     // ── 2) GitHub: downloads reais (best-effort, com cache) ─────────────
     let github = null;
@@ -814,49 +763,22 @@ export default async function handler(req, res) {
       github = { ok: false, error: String(err?.message ?? err) };
     }
 
-    // ── 3) Visitas do site + de onde vieram (nunca derruba o resto) ─────
-    let visits = null;
-    let origin = null;
-    try {
-      visits = await cachedWindow(`visits:${days}`, () => visitsWindow(days));
-    } catch (err) {
-      console.error("visits stats error:", err?.message ?? err);
-      visits = { ok: false, error: String(err?.message ?? err) };
-    }
-    try {
-      origin = await cachedWindow(`origin:${days}`, () => origemWindow(days));
-    } catch (err) {
-      console.error("origin stats error:", err?.message ?? err);
-      origin = { ok: false, error: String(err?.message ?? err) };
-    }
-    try {
-      const extra = await cachedWindow(`extra:${days}`, () => extraWindow(days));
-      if (origin && origin.ok) origin = { ...origin, ...extra };
-    } catch (err) {
-      console.error("extra stats error:", err?.message ?? err);
-    }
+    // ── 3) Visitas do site + de onde vieram (do Postgres) ───────────────
+    const vrows = (agg.visits && agg.visits.rows) || [];
+    const vtot = { views: 0, uniques: 0, bots: 0, all_time_views: 0 };
+    vrows.forEach((r) => {
+      vtot.views += Number(r.views || 0);
+      vtot.uniques += Number(r.unique || 0);
+      vtot.bots += Number(r.bots || 0);
+    });
+    const visits = { ok: true, window_days: days, rows: vrows, totals: vtot };
+    const origin = agg.origin || null;
 
-    // ── 4) Trials iniciados + vendas/ativações (nunca derruba o resto) ──
-    let trials = null;
-    let sales = null;
-    try {
-      trials = await cachedWindow(`trials:${days}`, () => trialsWindow(days));
-    } catch (err) {
-      console.error("trials stats error:", err?.message ?? err);
-      trials = { ok: false, error: String(err?.message ?? err) };
-    }
-    try {
-      sales = await cachedWindow(`sales:${days}`, () => salesWindow(days));
-    } catch (err) {
-      console.error("sales stats error:", err?.message ?? err);
-      sales = { ok: false, error: String(err?.message ?? err) };
-    }
-    try {
-      const ccf = await cachedWindow(`ccf:${days}`, () => ccfWindow(days));
-      if (origin && origin.ok) origin = { ...origin, ...ccf };
-    } catch (err) {
-      console.error("ccf stats error:", err?.message ?? err);
-    }
+    // ── 4) Trials iniciados + vendas/ativações (do Postgres) ──────────
+    const trials = agg.trials || null;
+    const sales = agg.sales
+      ? { ...agg.sales, window_total: agg.sales.total || 0 }
+      : null;
 
     // ── 5) LOG das últimas requisições de download (best-effort) ────────
     let log = null;
