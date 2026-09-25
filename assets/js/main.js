@@ -232,6 +232,19 @@
     });
   }
 
+  // ---- Eventos: conta cliques em botões marcados com data-ev ----
+  document.addEventListener('click', function (ev) {
+    try {
+      var alvo = ev.target && ev.target.closest ? ev.target.closest('a[data-ev]') : null;
+      if (!alvo) return;
+      var nome = alvo.getAttribute('data-ev');
+      if (!nome) return;
+      var url = '/api/visit?ev=' + encodeURIComponent(nome);
+      if (navigator.sendBeacon) navigator.sendBeacon(url);
+      else if (window.fetch) fetch(url, { keepalive: true, cache: 'no-store' })['catch'](function () {});
+    } catch (e) { /* estatística nunca atrapalha o clique */ }
+  }, true);
+
   // ---- Video: "lite embed" — só carrega o YouTube quando a pessoa clica ----
   var videoPoster = document.getElementById('videoPoster');
   if (videoPoster) {
