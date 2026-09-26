@@ -578,6 +578,27 @@ export async function contagemAberturas(dias = 90) {
       `SELECT COALESCE(NULLIF(status, ''), '?') AS status,
               count(DISTINCT install_id)::int AS instalacoes
          FROM app_opens GROUP BY status ORDER BY 2 DESC`);
+    // Atualizou x primeira vez: a PRIMEIRA versao vista e comparada com a
+    // ULTIMA, por instalacao.
+    const porInstalacao = await q(
+      `SELECT install_id, left(install_id, 8) AS curto,
+              count(*)::int AS aberturas,
+              count(DISTINCT (ts - interval '180 minutes')::date)::int AS dias,
+              min(ts) AS primeira, max(ts) AS ultima,
+              (array_agg(NULLIF(app_version,'') ORDER BY ts ASC))[1] AS v_entrada,
+              (array_agg(NULLIF(app_version,'') ORDER BY ts DESC))[1] AS v_atual,
+              (array_agg(NULLIF(city,'') ORDER BY ts DESC))[1] AS cidade,
+              (array_agg(NULLIF(cc,'') ORDER BY ts DESC))[1] AS cc,
+              (array_agg(NULLIF(status,'') ORDER BY ts DESC))[1] AS status
+         FROM app_opens GROUP BY install_id ORDER BY ultima DESC LIMIT 300`);
+    const resumoInst = await q(
+      `SELECT count(*)::int AS total,
+              count(*) FILTER (WHERE v1 IS NOT NULL AND v2 IS NOT NULL
+                                 AND v1 <> v2)::int AS atualizaram
+         FROM (SELECT install_id,
+                      (array_agg(NULLIF(app_version,'') ORDER BY ts ASC))[1] AS v1,
+                      (array_agg(NULLIF(app_version,'') ORDER BY ts DESC))[1] AS v2
+                 FROM app_opens GROUP BY install_id) x`);
     const semana = await q(
       `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
         WHERE ts >= now() - interval '7 days'`);
@@ -593,6 +614,11 @@ export async function contagemAberturas(dias = 90) {
       ultimas: ultimas.rows,
       ativas_7d: semana.rows[0].n,
       ativas_24h: hoje.rows[0].n,
+      instalacoes_total: resumoInst.rows[0].total,
+      atualizaram: resumoInst.rows[0].atualizaram,
+      estreia: resumoInst.rows[0].total -
+               resumoInst.rows[0].atualizaram,
+      por_instalacao: porInstalacao.rows,
     };
   } catch (err) {
     console.error("app_opens read error:", err?.message ?? err);
