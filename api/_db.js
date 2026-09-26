@@ -423,32 +423,48 @@ export async function contagemAvisos() {
 // ── Instalacoes (trial iniciado = instalou e abriu o app) ───────────────
 // O app manda UM beacon anonimo quando o trial comeca, e o indice unico em
 // install_id garante UMA linha por instalacao — e por isso que esta contagem e
-// "pessoas que instalaram", nao "downloads". Devolve null sem banco.
+// "pessoas que instalaram", nao "downloads".
+//
+// AS INSTALACOES DE QA FICAM FORA DOS NUMEROS: os probes usam install_id com
+// prefixo `teste-`/`zzz-probe-` (ex.: o POST que prova que a tubulacao grava).
+// Elas continuam sendo contadas em `qa_teste` para a conta FECHAR — nada e
+// escondido, so nao se mistura cliente com teste do dono.
+const QA_INSTALL = "(install_id LIKE 'teste-%' OR install_id LIKE 'zzz-probe%')";
+
+// Devolve null sem banco/falha (a rota responde 503 honesto, nunca 0 fingido).
 export async function contagemInstalacoes() {
   try {
     const db = await getPool();
     if (!db) return null;
     await ensureSchema(db);
-    const q = (sql, p) => db.query(sql, p);
+    const q = (sql) => db.query(sql);
+    const limpo = `NOT ${QA_INSTALL}`;
     const total = await q("SELECT count(*)::int AS n FROM trials");
+    const qa = await q(
+      `SELECT count(*)::int AS n FROM trials WHERE ${QA_INSTALL}`);
     const porDia = await q(
-      `SELECT to_char((ts - interval '180 minutes')::date, 'YYYY-MM-DD') AS dia,
-              count(*)::int AS n
-         FROM trials GROUP BY dia ORDER BY dia DESC LIMIT 90`);
+      `SELECT ${DIA} AS dia, count(*)::int AS n
+         FROM trials WHERE ${limpo} GROUP BY dia ORDER BY dia DESC LIMIT 90`);
     const porSo = await q(
       `SELECT COALESCE(NULLIF(platform, ''), '?') AS plataforma,
               count(*)::int AS n
-         FROM trials GROUP BY plataforma ORDER BY n DESC`);
+         FROM trials WHERE ${limpo} GROUP BY plataforma ORDER BY n DESC`);
     const porPais = await q(
       `SELECT COALESCE(NULLIF(cc, ''), '??') AS cc, count(*)::int AS n
-         FROM trials GROUP BY cc ORDER BY n DESC LIMIT 60`);
+         FROM trials WHERE ${limpo} GROUP BY cc ORDER BY n DESC LIMIT 60`);
     const porCidade = await q(
       `SELECT COALESCE(NULLIF(city, ''), '—') AS cidade,
               COALESCE(NULLIF(cc, ''), '??') AS cc, count(*)::int AS n
-         FROM trials GROUP BY cidade, cc ORDER BY n DESC LIMIT 60`);
-    const janela = await q("SELECT min(ts) AS primeiro, max(ts) AS ultimo FROM trials");
+         FROM trials WHERE ${limpo} GROUP BY cidade, cc ORDER BY n DESC LIMIT 60`);
+    const janela = await q(
+      `SELECT min(ts) AS primeiro, max(ts) AS ultimo
+         FROM trials WHERE ${limpo}`);
+    const nTotal = total.rows[0].n;
+    const nQa = qa.rows[0].n;
     return {
-      total: total.rows[0].n,
+      total: nTotal,
+      qa_teste: nQa,
+      total_reais: nTotal - nQa,
       por_dia: porDia.rows,
       por_sistema: porSo.rows,
       por_pais: porPais.rows,
@@ -458,6 +474,26 @@ export async function contagemInstalacoes() {
     };
   } catch (err) {
     console.error("instalacoes read error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// Linhas CRUAS das ultimas instalacoes (auditoria: "de onde veio este
+// numero?"). O install_id vai TRUNCADO e nao identifica ninguem: e um UUID
+// aleatorio da instalacao, sem email e sem IP. `qa` marca nossos testes.
+export async function listarInstalacoes(limite = 60) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const n = Math.max(1, Math.min(500, Number(limite) || 60));
+    const r = await db.query(
+      `SELECT ts, platform, cc, region, city, left(install_id, 8) AS install_id,
+              ${QA_INSTALL} AS qa
+         FROM trials ORDER BY ts DESC LIMIT ${n}`);
+    return r.rows;
+  } catch (err) {
+    console.error("instalacoes list error:", err?.message ?? err);
     return null;
   }
 }
