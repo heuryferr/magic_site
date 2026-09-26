@@ -30,7 +30,7 @@
 // pais/estado/cidade sao COARSE (cabecalho do Vercel), como nas outras rotas.
 // ======================================================================
 
-import { registrarAbertura } from "./_db.js";
+import { registrarAbertura, registrarFeature } from "./_db.js";
 
 const json = (res, status, body) => res.status(status).json(body);
 
@@ -84,6 +84,8 @@ export default async function handler(req, res) {
     sessao = "",
     duracao_s = 0,
     aberto_s = 0,
+    feature = "",
+    detail = "",
   } = req.body ?? {};
 
   const validos = ["macos", "windows", "linux"];
@@ -94,6 +96,25 @@ export default async function handler(req, res) {
       error: "bad_request",
       message: "install_id (string) e platform (macos|windows|linux) sao obrigatorios.",
     });
+  }
+
+  // Recursos usados (dono, 26/09) vão para a tabela própria; abertura,
+  // batida e fechamento seguem para app_opens. Mesma função, sem rota nova
+  // (o plano limita 12 funções).
+  if (feature) {
+    const gravou = await registrarFeature({
+      install_id, sessao, feature, detail, duracao_s, aberto_s,
+      platform, app_version: String(app_version || '').slice(0, 20),
+      cc: pais(req), region: regiao(req), city: cidade(req),
+    });
+    if (gravou === null) {
+      return json(res, 503, {
+        success: false,
+        error: 'feature_registry_unavailable',
+        message: 'Falha ao registrar o uso do recurso.',
+      });
+    }
+    return json(res, 200, { success: true, registrado: gravou });
   }
 
   const registrado = await registrarAbertura({

@@ -117,6 +117,18 @@ async function ensureSchema(db) {
     city text)`);
   await db.query("CREATE INDEX IF NOT EXISTS app_opens_ts_idx ON app_opens (ts DESC)");
   await db.query("CREATE INDEX IF NOT EXISTS app_opens_install_idx ON app_opens (install_id)");
+  // O QUE O CLIENTE USOU (dono, 2026-09-26): um evento por uso de
+  // recurso. `feature` é 'janela:<Classe>' (tempo exato medido),
+  // 'analysis:<acao>', 'ia:<provedor>', 'report'... Nada pessoal:
+  // sem chave, sem conta, sem conteúdo de mensagem.
+  await db.query(`CREATE TABLE IF NOT EXISTS feature_events (
+    id bigserial PRIMARY KEY,
+    ts timestamptz NOT NULL DEFAULT now(),
+    install_id text NOT NULL, sessao text, feature text NOT NULL,
+    detail text, duracao_s int DEFAULT 0, aberto_s int DEFAULT 0,
+    platform text, app_version text, cc text, region text, city text)`);
+  await db.query("CREATE INDEX IF NOT EXISTS feature_events_ts_idx ON feature_events (ts DESC)");
+  await db.query("CREATE INDEX IF NOT EXISTS feature_events_feat_idx ON feature_events (feature)");
   // SESSÃO (dono, 2026-09-26): `event` separa abertura, BATIDA e
   // fechamento; `sessao` é o uuid da execução; `duracao_s` vem no
   // fechamento e `aberto_s` em cada batida (milissegundos não: segundos).
@@ -548,6 +560,81 @@ export async function registrarAbertura(dados) {
 // Leitor: por dia (instalacoes distintas = DAU, aberturas, quantas em trial /
 // licenciadas / bloqueadas), total, por sistema, os ULTIMOS eventos (com pais,
 // cidade e hora — "quem acabou de abrir") e as instalacoes ativas em 7 dias.
+// ── O QUE O CLIENTE USOU (beacon de recursos) ───────────────────────────
+// Um evento por uso. `feature` = 'janela:<Classe>' (tempo exato), 'analysis:...',
+// 'ia:<provedor>', 'report'... Devolve null sem banco (rota responde 503).
+export async function registrarFeature(dados) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const r = await db.query(
+      `INSERT INTO feature_events
+         (install_id, sessao, feature, detail, duracao_s, aberto_s, platform,
+          app_version, cc, region, city)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      [dados.install_id || "", String(dados.sessao || "").slice(0, 40),
+       String(dados.feature || "").slice(0, 60),
+       String(dados.detail || "").slice(0, 60),
+       Number(dados.duracao_s) || 0, Number(dados.aberto_s) || 0,
+       dados.platform || "", dados.app_version || "",
+       dados.cc || "", dados.region || "", dados.city || ""]);
+    return r.rowCount > 0 ? "novo" : "duplicado";
+  } catch (err) {
+    console.error("feature insert error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// Agregado por RECURSO: quantas instalações usaram, quantos usos, o tempo
+// MEDIDO (janelas, em segundos) e o tempo ESTIMADO (intervalo até a próxima
+// ação, com teto de 15 min — nunca apresentado como medição).
+export async function contagemFeatures(dias = 90) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const n = Math.max(1, Math.min(365, Number(dias) || 90));
+    const q = (sql, p) => db.query(sql, p);
+    const porFeature = await q(
+      `WITH f AS (
+         SELECT install_id, COALESCE(NULLIF(sessao, ''), '?') AS sessao,
+                feature, COALESCE(duracao_s, 0) AS dur,
+                ts,
+                LEAD(ts) OVER (PARTITION BY install_id,
+                               COALESCE(NULLIF(sessao, ''), '?')
+                               ORDER BY ts) AS proximo
+           FROM feature_events WHERE ts >= now() - ($1)::interval)
+       SELECT feature,
+              count(*)::int AS usos,
+              count(DISTINCT install_id)::int AS instalacoes,
+              COALESCE(sum(GREATEST(dur, 0)), 0)::int AS segundos_janela,
+              COALESCE(sum(LEAST(GREATEST(
+                EXTRACT(EPOCH FROM (proximo - ts)), 0), 900)), 0)::int
+                AS segundos_estimado,
+              max(ts) AS ultimo
+         FROM f GROUP BY feature
+        ORDER BY instalacoes DESC, usos DESC LIMIT 120`, [`${n} days`]);
+    const ultimos = await q(
+      `SELECT ts, feature, detail, duracao_s, platform, app_version, cc, city,
+              left(install_id, 8) AS install_id
+         FROM feature_events ORDER BY ts DESC LIMIT 100`);
+    const total = await q(
+      `SELECT count(*)::int AS eventos,
+              count(DISTINCT install_id)::int AS instalacoes,
+              count(DISTINCT feature)::int AS recursos
+         FROM feature_events`);
+    return {
+      por_feature: porFeature.rows,
+      ultimos: ultimos.rows,
+      total: total.rows[0],
+    };
+  } catch (err) {
+    console.error("features read error:", err?.message ?? err);
+    return null;
+  }
+}
+
 export async function contagemAberturas(dias = 90) {
   try {
     const db = await getPool();

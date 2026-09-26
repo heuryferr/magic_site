@@ -26,7 +26,7 @@
 // ======================================================================
 
 import { contagemInstalacoes, listarInstalacoes, agregados,
-         contagemAberturas } from "./_db.js";
+         contagemAberturas, contagemFeatures } from "./_db.js";
 
 const json = (res, status, body) => res.status(status).json(body);
 
@@ -100,9 +100,11 @@ export default async function handler(req, res) {
   const querFunil = String((req.query && req.query.funnel) || "") === "1";
   const querLinhas = String((req.query && req.query.rows) || "") === "1";
   const querAberturas = String((req.query && req.query.opens) || "") === "1";
+  const querRecursos = String((req.query && req.query.features) || "") === "1";
   const funil = querFunil ? await funilDiario(dados) : null;
   const linhas = querLinhas ? await listarInstalacoes(60) : null;
   const aberturas = querAberturas ? await contagemAberturas(90) : null;
+  const recursos = querRecursos ? await contagemFeatures(90) : null;
 
   if (String((req.query && req.query.format) || "") === "html") {
     res.setHeader("content-type", "text/html; charset=utf-8");
@@ -153,5 +155,6 @@ export default async function handler(req, res) {
     );
   }
 
-  return json(res, 200, { success: true, ...dados, funil, linhas, aberturas });
+  return json(res, 200, { success: true, ...dados, funil, linhas,
+                         aberturas, recursos });
 }
