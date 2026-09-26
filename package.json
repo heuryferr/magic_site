@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node tools/test_ccf.mjs && node tools/test_download.mjs && node tools/test_stats.mjs && node tools/test_update_notice.mjs"
+    "test": "node tools/test_ccf.mjs && node tools/test_download.mjs && node tools/test_stats.mjs && node tools/test_update_notice.mjs && node tools/test_privacidade_dataset.mjs"
   },
   "repository": {
     "type": "git",
