@@ -714,6 +714,29 @@ export default async function handler(req, res) {
     }
   }
 
+  // MODO LEGADO (dono, 2026-09-26): le as chaves ANTIGAS de trial/venda no
+  // Redis, gravadas antes de 19/09 (quando o beacon passou para o Postgres).
+  // Serve para CONFERIR o historico perdido — sem criar rota nova.
+  if (String(req.query.only || "") === "trials_legacy") {
+    const n = Math.min(Math.max(parseInt(req.query.days, 10) || 365, 1), 365);
+    try {
+      const t = await trialsWindow(n);
+      let s = null;
+      try {
+        s = await salesWindow(n);
+      } catch (err) {
+        s = { ok: false, error: String(err?.message ?? err) };
+      }
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json({ ok: true, trials: t, sales: s });
+    } catch (err) {
+      return res.status(200).json({
+        ok: false, error: "legacy_unavailable",
+        message: String(err?.message ?? err),
+      });
+    }
+  }
+
   // MODO AGREGADO: contadores de clique/visita lidos do POSTGRES (o Redis
   // ficou só para a licença). Devolve a MESMA forma que o app já consumia.
   if (String(req.query.only || "") === "agg") {
