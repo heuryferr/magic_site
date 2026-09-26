@@ -90,6 +90,37 @@ const INSTALL_TTL_SECONDS = 400 * 24 * 60 * 60; // dedupe ~1 ano
 
 const json = (res, status, body) => res.status(status).json(body);
 
+// ── Geolocalizacao COARSE da instalacao (dono, 2026-09-23) ──────────────
+// Vem dos cabecalhos do Vercel (x-vercel-ip-*), os MESMOS que as tabelas
+// clicks/visits ja usam. Sem IP: pais/estado/cidade e o maximo que guardamos.
+function limpaTexto(valor, max = 60) {
+  return String(valor || "")
+    .replace(/[<>&"'`\\]/g, "")
+    .trim()
+    .slice(0, max);
+}
+function regiao(req) {
+  return limpaTexto(req.headers["x-vercel-ip-country-region"], 8).toUpperCase();
+}
+function cidade(req) {
+  const bruto = String(req.headers["x-vercel-ip-city"] || "");
+  let c = bruto;
+  try {
+    c = decodeURIComponent(bruto);
+  } catch (err) {
+    /* '%' invalido no cabecalho: fica como veio */
+  }
+  return limpaTexto(c, 60);
+}
+function pais(req) {
+  return (
+    String(req.headers["x-vercel-ip-country"] || "??")
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, 2) || "??"
+  );
+}
+
 // Detalhe SEGURO do erro do Redis (ver api/license-devices.js): junta a causa
 // raiz e MASCARA url, token e host antes de devolver.
 function safeDetail(err) {
@@ -143,7 +174,10 @@ export default async function handler(req, res) {
 
   // Registro no POSTGRES — o Redis ficou reservado à licença. O dedupe é o
   // índice único em `install_id`: a MESMA instalação conta UMA vez.
-  const resultado = await registrarTrial({ install_id, platform });
+  const resultado = await registrarTrial({
+    install_id, platform,
+    cc: pais(req), region: regiao(req), city: cidade(req),
+  });
   if (resultado === null) {
     // Sem banco configurado (ou falha): declarado como indisponível.
     return json(res, 503, {

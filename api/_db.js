@@ -78,6 +78,14 @@ async function ensureSchema(db) {
     install_id text NOT NULL, platform text)`);
   await db.query(
     "CREATE UNIQUE INDEX IF NOT EXISTS trials_install_idx ON trials (install_id)");
+  // Geolocalizacao COARSE da instalacao, dos cabecalhos do Vercel
+  // (pais/estado/cidade). Pedido do dono (2026-09-23): "se puder dizer
+  // mais: sistema operacional, pais cidade". SEM IP e sem nada que
+  // identifique a pessoa — e a mesma coisa que as tabelas clicks/visits
+  // ja guardam.
+  await db.query("ALTER TABLE trials ADD COLUMN IF NOT EXISTS cc text");
+  await db.query("ALTER TABLE trials ADD COLUMN IF NOT EXISTS region text");
+  await db.query("ALTER TABLE trials ADD COLUMN IF NOT EXISTS city text");
   // VENDAS/licencas ativadas (registro do verify-license).
   await db.query(`CREATE TABLE IF NOT EXISTS sales (
     id bigserial PRIMARY KEY,
@@ -137,9 +145,11 @@ export async function registrarTrial(dados) {
     if (!db) return null;
     await ensureSchema(db);
     const r = await db.query(
-      `INSERT INTO trials (install_id, platform) VALUES ($1,$2)
+      `INSERT INTO trials (install_id, platform, cc, region, city)
+         VALUES ($1,$2,$3,$4,$5)
          ON CONFLICT (install_id) DO NOTHING`,
-      [dados.install_id || "", dados.platform || ""]);
+      [dados.install_id || "", dados.platform || "",
+       dados.cc || "", dados.region || "", dados.city || ""]);
     return r.rowCount > 0 ? "novo" : "duplicado";
   } catch (err) {
     console.error("trial insert error:", err?.message ?? err);
@@ -406,6 +416,48 @@ export async function contagemAvisos() {
     }));
   } catch (err) {
     console.error("update_notice read error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// ── Instalacoes (trial iniciado = instalou e abriu o app) ───────────────
+// O app manda UM beacon anonimo quando o trial comeca, e o indice unico em
+// install_id garante UMA linha por instalacao — e por isso que esta contagem e
+// "pessoas que instalaram", nao "downloads". Devolve null sem banco.
+export async function contagemInstalacoes() {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const q = (sql, p) => db.query(sql, p);
+    const total = await q("SELECT count(*)::int AS n FROM trials");
+    const porDia = await q(
+      `SELECT to_char((ts - interval '180 minutes')::date, 'YYYY-MM-DD') AS dia,
+              count(*)::int AS n
+         FROM trials GROUP BY dia ORDER BY dia DESC LIMIT 90`);
+    const porSo = await q(
+      `SELECT COALESCE(NULLIF(platform, ''), '?') AS plataforma,
+              count(*)::int AS n
+         FROM trials GROUP BY plataforma ORDER BY n DESC`);
+    const porPais = await q(
+      `SELECT COALESCE(NULLIF(cc, ''), '??') AS cc, count(*)::int AS n
+         FROM trials GROUP BY cc ORDER BY n DESC LIMIT 60`);
+    const porCidade = await q(
+      `SELECT COALESCE(NULLIF(city, ''), '—') AS cidade,
+              COALESCE(NULLIF(cc, ''), '??') AS cc, count(*)::int AS n
+         FROM trials GROUP BY cidade, cc ORDER BY n DESC LIMIT 60`);
+    const janela = await q("SELECT min(ts) AS primeiro, max(ts) AS ultimo FROM trials");
+    return {
+      total: total.rows[0].n,
+      por_dia: porDia.rows,
+      por_sistema: porSo.rows,
+      por_pais: porPais.rows,
+      por_cidade: porCidade.rows,
+      primeiro: janela.rows[0].primeiro,
+      ultimo: janela.rows[0].ultimo,
+    };
+  } catch (err) {
+    console.error("instalacoes read error:", err?.message ?? err);
     return null;
   }
 }
