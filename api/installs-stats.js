@@ -25,7 +25,8 @@
 // veem dos cabecalhos do Vercel e sao COARSE (a cidade pode ser aproximada).
 // ======================================================================
 
-import { contagemInstalacoes, listarInstalacoes, agregados } from "./_db.js";
+import { contagemInstalacoes, listarInstalacoes, agregados,
+         contagemAberturas } from "./_db.js";
 
 const json = (res, status, body) => res.status(status).json(body);
 
@@ -98,8 +99,10 @@ export default async function handler(req, res) {
 
   const querFunil = String((req.query && req.query.funnel) || "") === "1";
   const querLinhas = String((req.query && req.query.rows) || "") === "1";
+  const querAberturas = String((req.query && req.query.opens) || "") === "1";
   const funil = querFunil ? await funilDiario(dados) : null;
   const linhas = querLinhas ? await listarInstalacoes(60) : null;
+  const aberturas = querAberturas ? await contagemAberturas(90) : null;
 
   if (String((req.query && req.query.format) || "") === "html") {
     res.setHeader("content-type", "text/html; charset=utf-8");
@@ -114,6 +117,23 @@ export default async function handler(req, res) {
         `${dados.ultimo || "—"}</p>` +
         (funil ? tabela("Baixar x instalar, por dia", funil,
                         ["dia", "cliques", "pessoas", "instalacoes"]) : "") +
+        (aberturas
+          ? `<h2>Aberturas do app — ${aberturas.total.instalacoes} instalacoes ` +
+            `ativas (${aberturas.ativas_24h} nas ultimas 24h)</h2>` +
+            tabela("Aberturas por dia (instalacoes distintas = uso real)",
+                   aberturas.por_dia.slice(0, 30),
+                   ["dia", "instalacoes", "aberturas", "em_trial",
+                    "licenciadas", "bloqueadas"]) +
+            tabela("Ultimas aberturas", aberturas.ultimas.map((r) => ({
+                     ts: r.ts, platform: r.platform, v: r.app_version,
+                     status: r.status, days_left: r.days_left,
+                     local: [r.city, r.cc].filter(Boolean).join("/"),
+                     install_id: r.install_id,
+                     novo: r.first_open ? "1a vez" : "",
+                   })),
+                   ["ts", "platform", "v", "status", "days_left", "local",
+                    "install_id", "novo"])
+          : "") +
         tabela("Por sistema", dados.por_sistema, ["plataforma", "n"]) +
         tabela("Por pais", dados.por_pais, ["cc", "n"]) +
         tabela("Por cidade", dados.por_cidade, ["cidade", "cc", "n"]) +
@@ -133,5 +153,5 @@ export default async function handler(req, res) {
     );
   }
 
-  return json(res, 200, { success: true, ...dados, funil, linhas });
+  return json(res, 200, { success: true, ...dados, funil, linhas, aberturas });
 }

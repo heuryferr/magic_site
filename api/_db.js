@@ -104,6 +104,19 @@ async function ensureSchema(db) {
   await db.query(
     "CREATE UNIQUE INDEX IF NOT EXISTS update_notices_unique_idx ON update_notices (install_id, offered_version)");
   await db.query("CREATE INDEX IF NOT EXISTS update_notices_ts_idx ON update_notices (ts DESC)");
+  // ABERTURAS DO APP (beacon /api/app-open): cada abertura e uma
+  // linha. O numero de INSTALACOES ativas e count(distinct
+  // install_id) — por isso aberturas e instalacoes sao contadas
+  // separado (abrir 5x no dia = 1 instalacao ativa, 5 aberturas).
+  await db.query(`CREATE TABLE IF NOT EXISTS app_opens (
+    id bigserial PRIMARY KEY,
+    ts timestamptz NOT NULL DEFAULT now(),
+    install_id text NOT NULL, platform text, app_version text,
+    os_release text, status text, reason text, days_left int,
+    first_open boolean DEFAULT false, cc text, region text,
+    city text)`);
+  await db.query("CREATE INDEX IF NOT EXISTS app_opens_ts_idx ON app_opens (ts DESC)");
+  await db.query("CREATE INDEX IF NOT EXISTS app_opens_install_idx ON app_opens (install_id)");
   _schemaOk = true;
 }
 
@@ -494,6 +507,83 @@ export async function listarInstalacoes(limite = 60) {
     return r.rows;
   } catch (err) {
     console.error("instalacoes list error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// ── ABERTURAS DO APP (beacon /api/app-open) ─────────────────────────────
+// Cada abertura do app = 1 linha. `count(distinct install_id)` = installs
+// REALMENTE EM USO (DAU). Nao ha dado pessoal: sem email/IP/hardware.
+export async function registrarAbertura(dados) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const r = await db.query(
+      `INSERT INTO app_opens
+         (install_id, platform, app_version, os_release, status, reason,
+          days_left, first_open, cc, region, city)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+      [dados.install_id || "", dados.platform || "", dados.app_version || "",
+       dados.os_release || "", dados.status || "", dados.reason || "",
+       Number(dados.days_left) || 0, Boolean(dados.first_open),
+       dados.cc || "", dados.region || "", dados.city || ""]);
+    return r.rowCount > 0 ? "novo" : "duplicado";
+  } catch (err) {
+    console.error("app_open insert error:", err?.message ?? err);
+    return null;
+  }
+}
+
+// Leitor: por dia (instalacoes distintas = DAU, aberturas, quantas em trial /
+// licenciadas / bloqueadas), total, por sistema, os ULTIMOS eventos (com pais,
+// cidade e hora — "quem acabou de abrir") e as instalacoes ativas em 7 dias.
+export async function contagemAberturas(dias = 90) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const n = Math.max(1, Math.min(365, Number(dias) || 90));
+    const q = (sql, p) => db.query(sql, p);
+    const porDia = await q(
+      `SELECT ${DIA} AS dia,
+              count(DISTINCT install_id)::int AS instalacoes,
+              count(*)::int AS aberturas,
+              count(*) FILTER (WHERE first_open)::int AS primeiras,
+              count(DISTINCT install_id) FILTER (WHERE status = 'TRIAL')::int AS em_trial,
+              count(DISTINCT install_id) FILTER (WHERE status = 'LICENSED')::int AS licenciadas,
+              count(DISTINCT install_id) FILTER (
+                WHERE status NOT IN ('TRIAL', 'LICENSED'))::int AS bloqueadas
+         FROM app_opens WHERE ts >= now() - ($1)::interval
+        GROUP BY dia ORDER BY dia DESC`, [`${n} days`]);
+    const total = await q(
+      `SELECT count(DISTINCT install_id)::int AS instalacoes,
+              count(*)::int AS aberturas,
+              min(ts) AS primeira, max(ts) AS ultima FROM app_opens`);
+    const porSo = await q(
+      `SELECT COALESCE(NULLIF(platform, ''), '?') AS plataforma,
+              count(DISTINCT install_id)::int AS instalacoes
+         FROM app_opens GROUP BY plataforma ORDER BY 2 DESC`);
+    const ultimas = await q(
+      `SELECT ts, platform, app_version, status, reason, days_left, cc, region,
+              city, left(install_id, 8) AS install_id, first_open
+         FROM app_opens ORDER BY ts DESC LIMIT 60`);
+    const semana = await q(
+      `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
+        WHERE ts >= now() - interval '7 days'`);
+    const hoje = await q(
+      `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
+        WHERE ts >= now() - interval '24 hours'`);
+    return {
+      por_dia: porDia.rows,
+      total: total.rows[0],
+      por_sistema: porSo.rows,
+      ultimas: ultimas.rows,
+      ativas_7d: semana.rows[0].n,
+      ativas_24h: hoje.rows[0].n,
+    };
+  } catch (err) {
+    console.error("app_opens read error:", err?.message ?? err);
     return null;
   }
 }
