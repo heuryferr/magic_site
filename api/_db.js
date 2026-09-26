@@ -568,6 +568,16 @@ export async function contagemAberturas(dias = 90) {
       `SELECT ts, platform, app_version, status, reason, days_left, cc, region,
               city, left(install_id, 8) AS install_id, first_open
          FROM app_opens ORDER BY ts DESC LIMIT 60`);
+    const porVersao = await q(
+      `SELECT COALESCE(NULLIF(app_version, ''), '?') AS versao,
+              count(DISTINCT install_id)::int AS instalacoes,
+              count(*)::int AS aberturas,
+              min(ts) AS primeira, max(ts) AS ultima
+         FROM app_opens GROUP BY versao ORDER BY ultima DESC LIMIT 30`);
+    const porStatus = await q(
+      `SELECT COALESCE(NULLIF(status, ''), '?') AS status,
+              count(DISTINCT install_id)::int AS instalacoes
+         FROM app_opens GROUP BY status ORDER BY 2 DESC`);
     const semana = await q(
       `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
         WHERE ts >= now() - interval '7 days'`);
@@ -576,6 +586,8 @@ export async function contagemAberturas(dias = 90) {
         WHERE ts >= now() - interval '24 hours'`);
     return {
       por_dia: porDia.rows,
+      por_versao: porVersao.rows,
+      por_status: porStatus.rows,
       total: total.rows[0],
       por_sistema: porSo.rows,
       ultimas: ultimas.rows,
