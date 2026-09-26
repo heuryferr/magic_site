@@ -615,6 +615,32 @@ export async function registrarFeature(dados) {
 // Agregado por RECURSO: quantas instalações usaram, quantos usos, o tempo
 // MEDIDO (janelas, em segundos) e o tempo ESTIMADO (intervalo até a próxima
 // ação, com teto de 15 min — nunca apresentado como medição).
+// TODAS as acoes de UMA instalacao (dono, 2026-09-26): os eventos de recurso
+// (janela/grafico/analise/ia/dataset/report) + as sessoes (abriu/bateu/fechou).
+// E o que responde "quem abriu, quando, e TUDO o que ele fez", em ordem.
+export async function eventosDaInstalacao(install_id, limite = 1000) {
+  try {
+    const db = await getPool();
+    if (!db) return null;
+    await ensureSchema(db);
+    const id = String(install_id || "").slice(0, 64);
+    const n = Math.max(1, Math.min(5000, Number(limite) || 1000));
+    const acoes = await db.query(
+      `SELECT ts, feature, detail, duracao_s, platform, app_version, cc, city
+         FROM feature_events WHERE install_id = $1 ORDER BY ts ASC LIMIT $2`,
+      [id, n]);
+    const sessoes = await db.query(
+      `SELECT ts, event, status, reason, days_left, duracao_s, aberto_s,
+              platform, app_version, cc, city, first_open, sessao
+         FROM app_opens WHERE install_id = $1 ORDER BY ts ASC LIMIT 500`,
+      [id]);
+    return { acoes: acoes.rows, sessoes: sessoes.rows };
+  } catch (err) {
+    console.error("eventosDaInstalacao error:", err?.message ?? err);
+    return null;
+  }
+}
+
 export async function contagemFeatures(dias = 90) {
   try {
     const db = await getPool();

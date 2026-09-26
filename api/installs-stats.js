@@ -26,7 +26,8 @@
 // ======================================================================
 
 import { contagemInstalacoes, listarInstalacoes, agregados,
-         contagemAberturas, contagemFeatures } from "./_db.js";
+         contagemAberturas, contagemFeatures,
+         eventosDaInstalacao } from "./_db.js";
 
 const json = (res, status, body) => res.status(status).json(body);
 
@@ -86,6 +87,22 @@ export default async function handler(req, res) {
         ? "Token invalido (use ?token=STATS_TOKEN)."
         : "Set STATS_TOKEN in Vercel -> Environment Variables.",
     });
+  }
+
+  // TODAS AS ACOES DE UMA INSTALACAO (dono, 2026-09-26): "quem abriu, quando,
+  // e TODAS as acoes que fez". Roda ANTES dos agregados (e barato e e uma
+  // consulta por instalacao).
+  const querEventos = String((req.query && req.query.eventos) || "").trim();
+  if (querEventos) {
+    const ev = await eventosDaInstalacao(querEventos);
+    if (ev === null) {
+      return json(res, 503, {
+        success: false,
+        error: "events_registry_unavailable",
+        message: "Falha ao ler as acoes da instalacao.",
+      });
+    }
+    return json(res, 200, { success: true, install_id: querEventos, ...ev });
   }
 
   const dados = await contagemInstalacoes();
