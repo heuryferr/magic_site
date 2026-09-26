@@ -117,6 +117,13 @@ async function ensureSchema(db) {
     city text)`);
   await db.query("CREATE INDEX IF NOT EXISTS app_opens_ts_idx ON app_opens (ts DESC)");
   await db.query("CREATE INDEX IF NOT EXISTS app_opens_install_idx ON app_opens (install_id)");
+  // SESSÃO (dono, 2026-09-26): `event` separa abertura, BATIDA e
+  // fechamento; `sessao` é o uuid da execução; `duracao_s` vem no
+  // fechamento e `aberto_s` em cada batida (milissegundos não: segundos).
+  await db.query("ALTER TABLE app_opens ADD COLUMN IF NOT EXISTS event text");
+  await db.query("ALTER TABLE app_opens ADD COLUMN IF NOT EXISTS sessao text");
+  await db.query("ALTER TABLE app_opens ADD COLUMN IF NOT EXISTS duracao_s int");
+  await db.query("ALTER TABLE app_opens ADD COLUMN IF NOT EXISTS aberto_s int");
   _schemaOk = true;
 }
 
@@ -522,12 +529,15 @@ export async function registrarAbertura(dados) {
     const r = await db.query(
       `INSERT INTO app_opens
          (install_id, platform, app_version, os_release, status, reason,
-          days_left, first_open, cc, region, city)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+          days_left, first_open, cc, region, city, event, sessao,
+          duracao_s, aberto_s)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
       [dados.install_id || "", dados.platform || "", dados.app_version || "",
        dados.os_release || "", dados.status || "", dados.reason || "",
        Number(dados.days_left) || 0, Boolean(dados.first_open),
-       dados.cc || "", dados.region || "", dados.city || ""]);
+       dados.cc || "", dados.region || "", dados.city || "",
+       dados.event || "app_open", String(dados.sessao || "").slice(0, 40),
+       Number(dados.duracao_s) || 0, Number(dados.aberto_s) || 0]);
     return r.rowCount > 0 ? "novo" : "duplicado";
   } catch (err) {
     console.error("app_open insert error:", err?.message ?? err);
@@ -564,6 +574,36 @@ export async function contagemAberturas(dias = 90) {
       `SELECT COALESCE(NULLIF(platform, ''), '?') AS plataforma,
               count(DISTINCT install_id)::int AS instalacoes
          FROM app_opens GROUP BY plataforma ORDER BY 2 DESC`);
+    // MINUTOS com o app aberto, por SESSAO (abertura + batidas + fecho).
+    // A duracao e o MAIOR entre o que o app informou no fechamento, o maior
+    // 'aberto_s' das batidas e o intervalo primeiro->ultimo evento da sessao:
+    // app MORTO sem fechar ainda rende o limite inferior, nunca 'nao sei'.
+    // Linhas antigas (sem sessao) caem numa sessao por dia da instalacao.
+    const SES = `WITH s AS (
+        SELECT install_id,
+               COALESCE(NULLIF(sessao, ''),
+                        'dia:' || to_char((ts - interval '180 minutes')::date,
+                                          'YYYY-MM-DD')) AS sessao,
+               min(ts) AS inicio, max(ts) AS fim,
+               GREATEST(max(COALESCE(duracao_s, 0))::numeric,
+                        max(COALESCE(aberto_s, 0))::numeric,
+                        EXTRACT(EPOCH FROM (max(ts) - min(ts)))) AS dur_s
+          FROM app_opens
+         GROUP BY 1, 2)`;
+
+    const sessPorInst = await q(SES + ` SELECT install_id,
+              count(*)::int AS sessoes,
+              round(sum(dur_s) / 60.0)::int AS minutos,
+              round(avg(dur_s) / 60.0)::int AS media_min,
+              round((array_agg(dur_s ORDER BY fim DESC))[1] / 60.0)::int AS ultima_min,
+              round(max(dur_s) / 60.0)::int AS maior_min
+         FROM s GROUP BY install_id`);
+    const sessTotal = await q(SES + ` SELECT count(*)::int AS sessoes,
+              round(sum(dur_s) / 60.0)::int AS minutos,
+              round(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_s)
+                    / 60.0)::int AS mediana_min,
+              round(max(dur_s) / 60.0)::int AS maior_min FROM s`);
+
     const ultimas = await q(
       `SELECT ts, platform, app_version, status, reason, days_left, cc, region,
               city, left(install_id, 8) AS install_id, first_open
@@ -609,12 +649,27 @@ export async function contagemAberturas(dias = 90) {
     const mes = await q(
       `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
         WHERE ts >= now() - interval '30 days'`);
+    // Junta os minutos de cada instalação na linha dela.
+    const sessPorId = {};
+    sessPorInst.rows.forEach((r) => { sessPorId[r.install_id] = r; });
+    const instalacoesComMinutos = porInstalacao.rows.map((r) => {
+      const s = sessPorId[r.install_id] || {};
+      return {
+        ...r,
+        sessoes: s.sessoes || 0,
+        minutos: s.minutos || 0,
+        sessao_media_min: s.media_min || 0,
+        sessao_ultima_min: s.ultima_min || 0,
+        sessao_maior_min: s.maior_min || 0,
+      };
+    });
     return {
       por_dia: porDia.rows,
       por_versao: porVersao.rows,
       por_status: porStatus.rows,
       total: total.rows[0],
       por_sistema: porSo.rows,
+      sessoes: sessTotal.rows[0],
       ultimas: ultimas.rows,
       ativas_7d: semana.rows[0].n,
       ativas_24h: hoje.rows[0].n,
@@ -623,7 +678,7 @@ export async function contagemAberturas(dias = 90) {
       atualizaram: resumoInst.rows[0].atualizaram,
       estreia: resumoInst.rows[0].total -
                resumoInst.rows[0].atualizaram,
-      por_instalacao: porInstalacao.rows,
+      por_instalacao: instalacoesComMinutos,
     };
   } catch (err) {
     console.error("app_opens read error:", err?.message ?? err);

@@ -80,6 +80,10 @@ export default async function handler(req, res) {
     reason = "",
     days_left = 0,
     first_open = "",
+    event = "app_open",
+    sessao = "",
+    duracao_s = 0,
+    aberto_s = 0,
   } = req.body ?? {};
 
   const validos = ["macos", "windows", "linux"];
@@ -101,6 +105,10 @@ export default async function handler(req, res) {
     reason: String(reason || "").slice(0, 30),
     days_left: Number(days_left) || 0,
     first_open: String(first_open || "") === "1",
+    event: String(event || "app_open").slice(0, 20),
+    sessao: String(sessao || "").slice(0, 40),
+    duracao_s: Number(duracao_s) || 0,
+    aberto_s: Number(aberto_s) || 0,
     cc: pais(req),
     region: regiao(req),
     city: cidade(req),
