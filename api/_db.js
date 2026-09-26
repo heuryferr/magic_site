@@ -737,8 +737,18 @@ export async function contagemAberturas(dias = 90) {
               round((array_agg(dur_s ORDER BY fim DESC))[1] / 60.0)::int AS ultima_min,
               round(max(dur_s) / 60.0)::int AS maior_min
          FROM s GROUP BY install_id`);
+    // ESTATISTICA POR SESSAO (dono, 2026-09-26: *"o tempo total nao e
+    // relevante, soma sessoes de pessoas distintas; melhor MEDIA, MAXIMO,
+    // MINIMO"*). Em SEGUNDOS para nao perder precisao em sessao curta — quem
+    // formata e a tela.
     const sessTotal = await q(SES + ` SELECT count(*)::int AS sessoes,
+              round(sum(dur_s))::int AS segundos,
               round(sum(dur_s) / 60.0)::int AS minutos,
+              round(avg(dur_s))::int AS media_s,
+              round(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_s))::int
+                    AS mediana_s,
+              round(min(dur_s))::int AS menor_s,
+              round(max(dur_s))::int AS maior_s,
               round(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_s)
                     / 60.0)::int AS mediana_min,
               round(max(dur_s) / 60.0)::int AS maior_min FROM s`);
