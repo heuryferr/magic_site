@@ -129,6 +129,18 @@ async function ensureSchema(db) {
     platform text, app_version text, cc text, region text, city text)`);
   await db.query("CREATE INDEX IF NOT EXISTS feature_events_ts_idx ON feature_events (ts DESC)");
   await db.query("CREATE INDEX IF NOT EXISTS feature_events_feat_idx ON feature_events (feature)");
+  // ⛔ PRIVACIDADE (dono, 2026-09-26): apaga NOMES de arquivo já gravados de
+  // quem usou a 4.5.3 (que os mandava). Sobra só o FORMATO. Idempotente: depois
+  // da primeira passada nenhuma linha casa. Exemplos (detail 'example') ficam —
+  // o nome é nosso. `[.]` = ponto literal, sem depender de escape.
+  await db.query(`UPDATE feature_events
+     SET feature = 'dataset:' || CASE
+           WHEN feature ~ '[.][A-Za-z0-9]{1,8}$'
+             THEN lower(substring(feature from '[.]([A-Za-z0-9]{1,8})$'))
+           ELSE 'arquivo' END
+   WHERE feature LIKE 'dataset:%'
+     AND COALESCE(detail, '') <> 'example'
+     AND substring(feature from 9) !~ '^[A-Za-z0-9]{1,10}$'`);
   // SESSÃO (dono, 2026-09-26): `event` separa abertura, BATIDA e
   // fechamento; `sessao` é o uuid da execução; `duracao_s` vem no
   // fechamento e `aberto_s` em cada batida (milissegundos não: segundos).
@@ -563,6 +575,20 @@ export async function registrarAbertura(dados) {
 // ── O QUE O CLIENTE USOU (beacon de recursos) ───────────────────────────
 // Um evento por uso. `feature` = 'janela:<Classe>' (tempo exato), 'analysis:...',
 // 'ia:<provedor>', 'report'... Devolve null sem banco (rota responde 503).
+// Do ARQUIVO do cliente guardamos só o FORMATO; o nome do EXEMPLO (nosso) fica.
+// ⛔ PRIVACIDADE (dono, 2026-09-26): o app 4.5.3 ainda mandava o nome do arquivo
+// no `feature`; esta função limpa na ENTRADA e vale também para ele.
+function _featureSemNome(feature, detail) {
+  const f = String(feature || "");
+  if (!f.startsWith("dataset:")) return f;
+  if (String(detail || "") === "example") return f;   // catálogo nosso
+  const resto = f.slice(8);
+  const m = resto.match(/[.]([A-Za-z0-9]{1,10})$/);
+  if (m) return "dataset:" + m[1].toLowerCase();
+  if (/^[A-Za-z0-9]{1,10}$/.test(resto)) return "dataset:" + resto.toLowerCase();
+  return "dataset:arquivo";
+}
+
 export async function registrarFeature(dados) {
   try {
     const db = await getPool();
@@ -574,7 +600,7 @@ export async function registrarFeature(dados) {
           app_version, cc, region, city)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
       [dados.install_id || "", String(dados.sessao || "").slice(0, 40),
-       String(dados.feature || "").slice(0, 60),
+       _featureSemNome(dados.feature, dados.detail).slice(0, 60),
        String(dados.detail || "").slice(0, 60),
        Number(dados.duracao_s) || 0, Number(dados.aberto_s) || 0,
        dados.platform || "", dados.app_version || "",
