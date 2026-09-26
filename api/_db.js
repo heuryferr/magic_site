@@ -693,7 +693,8 @@ export async function contagemAberturas(dias = 90) {
 
     const ultimas = await q(
       `SELECT ts, platform, app_version, status, reason, days_left, cc, region,
-              city, left(install_id, 8) AS install_id, first_open
+              city, left(install_id, 8) AS install_id, first_open,
+              event, duracao_s, sessao
          FROM app_opens ORDER BY ts DESC LIMIT 60`);
     const porVersao = await q(
       `SELECT COALESCE(NULLIF(app_version, ''), '?') AS versao,
