@@ -732,8 +732,9 @@ export async function contagemAberturas(dias = 90) {
 
     const sessPorInst = await q(SES + ` SELECT install_id,
               count(*)::int AS sessoes,
+              count(*) FILTER (WHERE dur_s > 0)::int AS medidas,
               round(sum(dur_s) / 60.0)::int AS minutos,
-              round(avg(dur_s) / 60.0)::int AS media_min,
+              round(avg(dur_s) FILTER (WHERE dur_s > 0) / 60.0)::int AS media_min,
               round((array_agg(dur_s ORDER BY fim DESC))[1] / 60.0)::int AS ultima_min,
               round(max(dur_s) / 60.0)::int AS maior_min
          FROM s GROUP BY install_id`);
@@ -741,17 +742,25 @@ export async function contagemAberturas(dias = 90) {
     // relevante, soma sessoes de pessoas distintas; melhor MEDIA, MAXIMO,
     // MINIMO"*). Em SEGUNDOS para nao perder precisao em sessao curta — quem
     // formata e a tela.
-    const sessTotal = await q(SES + ` SELECT count(*)::int AS sessoes,
-              round(sum(dur_s))::int AS segundos,
-              round(sum(dur_s) / 60.0)::int AS minutos,
-              round(avg(dur_s))::int AS media_s,
-              round(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_s))::int
+    // ⛔ DADO FALTANTE NÃO É ZERO (2026-09-26): sessão sem duração MEDIDA (o app
+    // foi morto antes de avisar o fecho, ou só abriu) aparecia como dur_s = 0 e
+    // puxava a média para baixo e a mediana/mínimo para zero. Estatística é
+    // sobre as sessões COM duração (m); o total de abertas fica à parte.
+    const sessTotal = await q(SES + ` , m AS (SELECT dur_s FROM s WHERE dur_s > 0)
+       SELECT (SELECT count(*) FROM s)::int AS sessoes,
+              (SELECT count(*) FROM m)::int AS medidas,
+              (SELECT round(sum(dur_s)) FROM m)::int AS segundos,
+              (SELECT round(sum(dur_s) / 60.0) FROM m)::int AS minutos,
+              (SELECT round(avg(dur_s)) FROM m)::int AS media_s,
+              (SELECT round(percentile_cont(0.5)
+                            WITHIN GROUP (ORDER BY dur_s)) FROM m)::int
                     AS mediana_s,
-              round(min(dur_s))::int AS menor_s,
-              round(max(dur_s))::int AS maior_s,
-              round(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_s)
-                    / 60.0)::int AS mediana_min,
-              round(max(dur_s) / 60.0)::int AS maior_min FROM s`);
+              (SELECT round(min(dur_s)) FROM m)::int AS menor_s,
+              (SELECT round(max(dur_s)) FROM m)::int AS maior_s,
+              (SELECT round(percentile_cont(0.5)
+                            WITHIN GROUP (ORDER BY dur_s) / 60.0) FROM m)::int
+                    AS mediana_min,
+              (SELECT round(max(dur_s) / 60.0) FROM m)::int AS maior_min`);
 
     const ultimas = await q(
       `SELECT ts, platform, app_version, status, reason, days_left, cc, region,
