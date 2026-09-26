@@ -589,7 +589,8 @@ export async function contagemAberturas(dias = 90) {
               (array_agg(NULLIF(app_version,'') ORDER BY ts DESC))[1] AS v_atual,
               (array_agg(NULLIF(city,'') ORDER BY ts DESC))[1] AS cidade,
               (array_agg(NULLIF(cc,'') ORDER BY ts DESC))[1] AS cc,
-              (array_agg(NULLIF(status,'') ORDER BY ts DESC))[1] AS status
+              (array_agg(NULLIF(status,'') ORDER BY ts DESC))[1] AS status,
+              (array_agg(NULLIF(platform,'') ORDER BY ts DESC))[1] AS plataforma
          FROM app_opens GROUP BY install_id ORDER BY ultima DESC LIMIT 300`);
     const resumoInst = await q(
       `SELECT count(*)::int AS total,
@@ -605,6 +606,9 @@ export async function contagemAberturas(dias = 90) {
     const hoje = await q(
       `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
         WHERE ts >= now() - interval '24 hours'`);
+    const mes = await q(
+      `SELECT count(DISTINCT install_id)::int AS n FROM app_opens
+        WHERE ts >= now() - interval '30 days'`);
     return {
       por_dia: porDia.rows,
       por_versao: porVersao.rows,
@@ -614,6 +618,7 @@ export async function contagemAberturas(dias = 90) {
       ultimas: ultimas.rows,
       ativas_7d: semana.rows[0].n,
       ativas_24h: hoje.rows[0].n,
+      ativas_30d: mes.rows[0].n,
       instalacoes_total: resumoInst.rows[0].total,
       atualizaram: resumoInst.rows[0].atualizaram,
       estreia: resumoInst.rows[0].total -
