@@ -429,7 +429,7 @@ export async function contagemAvisos() {
 // prefixo `teste-`/`zzz-probe-` (ex.: o POST que prova que a tubulacao grava).
 // Elas continuam sendo contadas em `qa_teste` para a conta FECHAR — nada e
 // escondido, so nao se mistura cliente com teste do dono.
-const QA_INSTALL = "(install_id LIKE 'teste-%' OR install_id LIKE 'zzz-probe%')";
+const QA_INSTALL = "(install_id LIKE 'teste-%' OR install_id LIKE 'zzz-probe%' OR length(install_id) < 32)";
 
 // Devolve null sem banco/falha (a rota responde 503 honesto, nunca 0 fingido).
 export async function contagemInstalacoes() {
