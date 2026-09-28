@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NMDS analysis software — run NMDS without coding | Magic Stat</title>
+<meta name="description" content="Run NMDS without coding: pick your dissimilarity measure, get the stress value and a publication-ready ordination figure. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/nmds/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NMDS analysis without coding">
+<meta property="og:description" content="Choose the dissimilarity measure, run NMDS, read the stress and export a publication-ready ordination figure.">
+<meta property="og:url" content="https://getmagicstat.com/nmds/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "NMDS analysis", "item": "https://getmagicstat.com/nmds/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I need to know R?", "acceptedAnswer": {"@type": "Answer", "text": "No. That is the entire point. If you already use R comfortably and it serves you well, keep using it — Magic Stat competes on the analysis-to-manuscript workflow, not on replacing your scripts."}}, {"@type": "Question", "name": "Which dissimilarity should I use?", "acceptedAnswer": {"@type": "Answer", "text": "For species abundance data, Bray–Curtis is the convention and the safest default. For presence/absence, Jaccard or Sorensen. For standardised, continuous variables, Euclidean. The measurement should match the data, not the other way round."}}, {"@type": "Question", "name": "What stress value is acceptable?", "acceptedAnswer": {"@type": "Answer", "text": "Stress below 0.1 is generally considered good, up to about 0.2 is usable with care, and above that the configuration is distorting enough that it should be reported as a caveat rather than as a result. Magic Stat reports it so you can make that call yourself."}}, {"@type": "Question", "name": "Can I use it for a paper?", "acceptedAnswer": {"@type": "Answer", "text": "The figure is exported at publication quality (including TIFF) and the analysis is written into a report with its settings, so the method section can be described accurately."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">NMDS analysis</span>
+    <h1 class="hero-title">Non-metric multidimensional scaling <span class="grad">without writing code</span></h1>
+    <p class="hero-sub">NMDS is one of those analyses that has always meant R, a distance matrix and a script nobody else on the lab can read. Magic Stat runs it from the data you already have — you pick the dissimilarity measure, it gives you the stress value and the ordination figure.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What NMDS actually is, and <span class="grad">when it is the right tool</span></h2>
+  </div>
+  <div class="container">
+    <p>Non-metric multidimensional scaling takes a table of samples and variables and represents the samples as points in a low-dimensional space — usually two dimensions — so that the <em>ranking</em> of distances between points matches the ranking of dissimilarities in your data. It does not try to reproduce the distances themselves, only their order. That is what makes it "non-metric", and it is why NMDS copes with strongly non-linear, ecological, messy data where PCA distorts.</p>
+    <p>The number that matters is <strong>stress</strong>: how badly the two-dimensional picture distorts the original dissimilarities. Low stress means the picture is trustworthy; high stress means you are looking at a caricature. Magic Stat reports the stress alongside the figure, because an ordination figure without its stress is a picture pretending to be a result.</p>
+    <p>It is the standard tool in community ecology, microbiome work and any field where you have many species/variables measured on many samples and you want to see whether the groups separate. If your variables are continuous and roughly linear, PCA is usually the more honest answer — and Magic Stat does that too.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">NMDS</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Your choice of dissimilarity.</strong> Bray–Curtis, Euclidean, Manhattan, Canberra, Jaccard, Sorensen and Horn–Morisita, selected from a list — not from a function argument you have to remember.</li>
+      <li><strong>The transformations you would do in R.</strong> None, Z-score (standardise), ln(1+x), ln(x), Hellinger, Chord, Chi-square, square root, and range 0–1.</li>
+      <li><strong>Stress reported with the result</strong>, so the figure can be read honestly instead of taken on faith.</li>
+      <li><strong>A figure you can put in the manuscript.</strong> The ordination plot comes out with legends placed outside the plot and scientific colour palettes, exported as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>The analysis enters the report automatically</strong> — method, settings, result and interpretation — exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong> Load the spreadsheet, choose the analysis, read the result.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to an <span class="grad">ordination figure</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> a normal spreadsheet — samples in rows, species or variables in columns. No reformatting, no transposing, no <code>as.matrix()</code>.</li>
+      <li><strong>Choose the dissimilarity and the transformation.</strong> Bray–Curtis and Hellinger are the usual starting points for abundance data; the list is in the dialog.</li>
+      <li><strong>Run it.</strong> Magic Stat computes the distance matrix and the ordination in one step.</li>
+      <li><strong>Read the stress.</strong> the value is reported with the result, so you know whether the two-dimensional picture can be trusted.</li>
+      <li><strong>Export.</strong> the ordination figure goes to the gallery and the analysis goes into the report with its settings and interpretation.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Dissimilarity measures:</strong> Bray–Curtis · Euclidean · Manhattan · Canberra · Jaccard · Sorensen · Horn–Morisita.</p>
+    <p><strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">NMDS questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Do I need to know R?</h3>
+    <p>No. That is the entire point. If you already use R comfortably and it serves you well, keep using it — Magic Stat competes on the analysis-to-manuscript workflow, not on replacing your scripts.</p>
+    <h3>Which dissimilarity should I use?</h3>
+    <p>For species abundance data, Bray–Curtis is the convention and the safest default. For presence/absence, Jaccard or Sorensen. For standardised, continuous variables, Euclidean. The measurement should match the data, not the other way round.</p>
+    <h3>What stress value is acceptable?</h3>
+    <p>Stress below 0.1 is generally considered good, up to about 0.2 is usable with care, and above that the configuration is distorting enough that it should be reported as a caveat rather than as a result. Magic Stat reports it so you can make that call yourself.</p>
+    <h3>Can I use it for a paper?</h3>
+    <p>The figure is exported at publication quality (including TIFF) and the analysis is written into a report with its settings, so the method section can be described accurately.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/pca/" class="btn btn-ghost">PCA analysis &rarr;</a>
+  <a href="/pcoa/" class="btn btn-ghost">PCoA analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

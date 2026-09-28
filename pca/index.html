@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCA software — run principal component analysis without coding | Magic Stat</title>
+<meta name="description" content="Run PCA without coding: scores, loadings, scree plot and a publication-ready biplot, from a normal spreadsheet. macOS, Windows and Linux. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/pca/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCA without coding">
+<meta property="og:description" content="Principal component analysis from a normal spreadsheet — scores, loadings and a publication-ready ordination figure.">
+<meta property="og:url" content="https://getmagicstat.com/pca/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "PCA analysis", "item": "https://getmagicstat.com/pca/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I standardise my variables?", "acceptedAnswer": {"@type": "Answer", "text": "If they are measured on different scales — concentrations in mg/L next to temperature in °C — yes, otherwise the variable with the largest numbers dominates the components. Z-score is in the transformation list for exactly this."}}, {"@type": "Question", "name": "PCA or NMDS?", "acceptedAnswer": {"@type": "Answer", "text": "PCA if the variables are continuous and roughly linear. NMDS or PCoA if you are working from a dissimilarity (ecological abundance data, many zeros, non-linear gradients). Using PCA on abundance data is common and usually a mistake."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. And if you already use R comfortably, keep it — the point here is the output and the manuscript workflow, not replacing your scripts."}}, {"@type": "Question", "name": "Can I publish the figure?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — the figure is exported at publication quality, including TIFF, with legends placed outside the plot."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your machine. The only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">PCA analysis</span>
+    <h1 class="hero-title">Principal component analysis <span class="grad">without the command line</span></h1>
+    <p class="hero-sub">Principal component analysis is the first multivariate analysis most researchers need, and the one most often abandoned halfway through an R tutorial. Magic Stat runs it from the spreadsheet you already have and gives you the figure, the loadings and the report.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What PCA does, and <span class="grad">where it stops being useful</span></h2>
+  </div>
+  <div class="container">
+    <p>PCA takes a table of samples and continuous variables and finds new axes — the principal components — along which the data varies most. The first components compress the main structure of the table into a few dimensions you can draw. It is used to see whether samples group together, which variables drive that grouping, and how many dimensions the data really needs.</p>
+    <p>PCA is <em>linear</em>. It is the right answer when your variables are continuous and their relationships are roughly linear. When they are not — abundance data with many zeros, strong non-linear gradients — the ordination that is actually appropriate is usually PCoA or NMDS, and Magic Stat runs those too.</p>
+    <p>The practical trap is not the arithmetic, it is the workflow: getting the loadings out of a script, turning them into a readable table, and getting a figure that does not embarrass you in a figure legend.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">PCA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Scores, loadings and the variation explained</strong>, presented as tables rather than as console output.</li>
+      <li><strong>A biplot you can publish</strong> — legends outside the plot, scientific palettes, exported as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>Grouping by a categorical column</strong>, so samples are coloured by the factor you care about instead of by variable number.</li>
+      <li><strong>Transformations when you need them</strong>: standardise, ln, Hellinger, Chord, Chi-square, square root and more.</li>
+      <li><strong>Everything lands in the report</strong> with the settings and the interpretation, exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong> The analysis is a dialog, not a script.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Three clicks, not <span class="grad">three hours</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the spreadsheet.</strong> samples in rows, variables in columns. The variable dictionary handles scientific labels.</li>
+      <li><strong>Pick PCA.</strong> Statistics → Multivariate → PCA.</li>
+      <li><strong>Choose the variables.</strong> and, if you want the samples coloured, the grouping factor.</li>
+      <li><strong>Read the figure and the tables.</strong> scores, loadings, variation explained — in dialogs and in the report, not in a console.</li>
+      <li><strong>Export.</strong> figure to the gallery, analysis to the report, tables straight into the manuscript.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings you actually need</h2>
+  </div>
+  <div class="container">
+    <p><strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1.</p>
+    <p><strong>Input:</strong> PCA works on the sample × variable matrix directly (unconstrained ordination) — no distance matrix required.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">PCA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Should I standardise my variables?</h3>
+    <p>If they are measured on different scales — concentrations in mg/L next to temperature in °C — yes, otherwise the variable with the largest numbers dominates the components. Z-score is in the transformation list for exactly this.</p>
+    <h3>PCA or NMDS?</h3>
+    <p>PCA if the variables are continuous and roughly linear. NMDS or PCoA if you are working from a dissimilarity (ecological abundance data, many zeros, non-linear gradients). Using PCA on abundance data is common and usually a mistake.</p>
+    <h3>Do I need R?</h3>
+    <p>No. And if you already use R comfortably, keep it — the point here is the output and the manuscript workflow, not replacing your scripts.</p>
+    <h3>Can I publish the figure?</h3>
+    <p>Yes — the figure is exported at publication quality, including TIFF, with legends placed outside the plot.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your machine. The only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/nmds/" class="btn btn-ghost">NMDS analysis &rarr;</a>
+  <a href="/pcoa/" class="btn btn-ghost">PCoA analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

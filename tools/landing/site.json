@@ -1,0 +1,27 @@
+{
+  "brand": "Magic Stat",
+  "domain": "https://getmagicstat.com",
+  "contact": "magicstat@proton.me",
+  "price_usd": "990",
+  "style_css": "/assets/css/style.css?v=11",
+  "track_js": "/assets/js/track.js?v=2",
+  "buy_url": "/#pricing",
+  "downloads": {
+    "windows": "/api/download?file=windows",
+    "macos": "/api/download?file=macos",
+    "linux": "/api/download?file=linux"
+  },
+  "nav": [
+    ["Features", "/#features"],
+    ["AI Assistant", "/#ai"],
+    ["Gallery", "/#gallery"],
+    ["Pricing", "/#pricing"],
+    ["FAQ", "/#faq"]
+  ],
+  "footer_links": [
+    ["Home", "/"],
+    ["SPSS alternative", "/spss-alternative/"],
+    ["APA tables in Word", "/apa-tables-word/"],
+    ["Pricing", "/#pricing"]
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "methods": [
+    {
+      "slug": "nmds",
+      "eyebrow": "NMDS analysis",
+      "h1": "Non-metric multidimensional scaling <span class=\"grad\">without writing code</span>",
+      "seo_title": "NMDS analysis software — run NMDS without coding | Magic Stat",
+      "meta": "Run NMDS without coding: pick your dissimilarity measure, get the stress value and a publication-ready ordination figure. Free 48-hour trial.",
+      "og_title": "NMDS analysis without coding",
+      "og_desc": "Choose the dissimilarity measure, run NMDS, read the stress and export a publication-ready ordination figure.",
+      "hero_sub": "NMDS is one of those analyses that has always meant R, a distance matrix and a script nobody else on the lab can read. Magic Stat runs it from the data you already have — you pick the dissimilarity measure, it gives you the stress value and the ordination figure.",
+      "intro": {
+        "id": "what",
+        "eyebrow": "The honest part",
+        "title": "What NMDS actually is, and <span class=\"grad\">when it is the right tool</span>",
+        "paras": [
+          "Non-metric multidimensional scaling takes a table of samples and variables and represents the samples as points in a low-dimensional space — usually two dimensions — so that the <em>ranking</em> of distances between points matches the ranking of dissimilarities in your data. It does not try to reproduce the distances themselves, only their order. That is what makes it \"non-metric\", and it is why NMDS copes with strongly non-linear, ecological, messy data where PCA distorts.",
+          "The number that matters is <strong>stress</strong>: how badly the two-dimensional picture distorts the original dissimilarities. Low stress means the picture is trustworthy; high stress means you are looking at a caricature. Magic Stat reports the stress alongside the figure, because an ordination figure without its stress is a picture pretending to be a result.",
+          "It is the standard tool in community ecology, microbiome work and any field where you have many species/variables measured on many samples and you want to see whether the groups separate. If your variables are continuous and roughly linear, PCA is usually the more honest answer — and Magic Stat does that too."
+        ]
+      },
+      "gives": {
+        "eyebrow": "What it does",
+        "title": "What Magic Stat gives you for <span class=\"grad\">NMDS</span>",
+        "bullets": [
+          "<strong>Your choice of dissimilarity.</strong> Bray–Curtis, Euclidean, Manhattan, Canberra, Jaccard, Sorensen and Horn–Morisita, selected from a list — not from a function argument you have to remember.",
+          "<strong>The transformations you would do in R.</strong> None, Z-score (standardise), ln(1+x), ln(x), Hellinger, Chord, Chi-square, square root, and range 0–1.",
+          "<strong>Stress reported with the result</strong>, so the figure can be read honestly instead of taken on faith.",
+          "<strong>A figure you can put in the manuscript.</strong> The ordination plot comes out with legends placed outside the plot and scientific colour palettes, exported as PNG, SVG, PDF, JPEG or TIFF.",
+          "<strong>The analysis enters the report automatically</strong> — method, settings, result and interpretation — exportable to .docx, .html or .md.",
+          "<strong>No code, no command line.</strong> Load the spreadsheet, choose the analysis, read the result."
+        ]
+      },
+      "how": {
+        "id": "how",
+        "eyebrow": "How it works",
+        "title": "From a spreadsheet to an <span class=\"grad\">ordination figure</span>",
+        "steps": [
+          {"t": "Load your data", "d": "a normal spreadsheet — samples in rows, species or variables in columns. No reformatting, no transposing, no <code>as.matrix()</code>."},
+          {"t": "Choose the dissimilarity and the transformation", "d": "Bray–Curtis and Hellinger are the usual starting points for abundance data; the list is in the dialog."},
+          {"t": "Run it", "d": "Magic Stat computes the distance matrix and the ordination in one step."},
+          {"t": "Read the stress", "d": "the value is reported with the result, so you know whether the two-dimensional picture can be trusted."},
+          {"t": "Export", "d": "the ordination figure goes to the gallery and the analysis goes into the report with its settings and interpretation."}
+        ]
+      },
+      "options": {
+        "eyebrow": "Options",
+        "title": "The settings, <span class=\"grad\">out in the open</span>",
+        "paras": [
+          "<strong>Dissimilarity measures:</strong> Bray–Curtis · Euclidean · Manhattan · Canberra · Jaccard · Sorensen · Horn–Morisita.",
+          "<strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1."
+        ]
+      },
+      "faq_title": "NMDS questions, <span class=\"grad\">answered honestly</span>",
+      "faq": [
+        {"q": "Do I need to know R?", "a": "No. That is the entire point. If you already use R comfortably and it serves you well, keep using it — Magic Stat competes on the analysis-to-manuscript workflow, not on replacing your scripts."},
+        {"q": "Which dissimilarity should I use?", "a": "For species abundance data, Bray–Curtis is the convention and the safest default. For presence/absence, Jaccard or Sorensen. For standardised, continuous variables, Euclidean. The measurement should match the data, not the other way round."},
+        {"q": "What stress value is acceptable?", "a": "Stress below 0.1 is generally considered good, up to about 0.2 is usable with care, and above that the configuration is distorting enough that it should be reported as a caveat rather than as a result. Magic Stat reports it so you can make that call yourself."},
+        {"q": "Can I use it for a paper?", "a": "The figure is exported at publication quality (including TIFF) and the analysis is written into a report with its settings, so the method section can be described accurately."},
+        {"q": "Is my data uploaded somewhere?", "a": "No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}
+      ],
+      "related": ["pca", "pcoa"]
+    },
+    {
+      "slug": "pca",
+      "eyebrow": "PCA analysis",
+      "h1": "Principal component analysis <span class=\"grad\">without the command line</span>",
+      "seo_title": "PCA software — run principal component analysis without coding | Magic Stat",
+      "meta": "Run PCA without coding: scores, loadings, scree plot and a publication-ready biplot, from a normal spreadsheet. macOS, Windows and Linux. 48-hour free trial.",
+      "og_title": "PCA without coding",
+      "og_desc": "Principal component analysis from a normal spreadsheet — scores, loadings and a publication-ready ordination figure.",
+      "hero_sub": "Principal component analysis is the first multivariate analysis most researchers need, and the one most often abandoned halfway through an R tutorial. Magic Stat runs it from the spreadsheet you already have and gives you the figure, the loadings and the report.",
+      "intro": {
+        "id": "what",
+        "eyebrow": "The honest part",
+        "title": "What PCA does, and <span class=\"grad\">where it stops being useful</span>",
+        "paras": [
+          "PCA takes a table of samples and continuous variables and finds new axes — the principal components — along which the data varies most. The first components compress the main structure of the table into a few dimensions you can draw. It is used to see whether samples group together, which variables drive that grouping, and how many dimensions the data really needs.",
+          "PCA is <em>linear</em>. It is the right answer when your variables are continuous and their relationships are roughly linear. When they are not — abundance data with many zeros, strong non-linear gradients — the ordination that is actually appropriate is usually PCoA or NMDS, and Magic Stat runs those too.",
+          "The practical trap is not the arithmetic, it is the workflow: getting the loadings out of a script, turning them into a readable table, and getting a figure that does not embarrass you in a figure legend."
+        ]
+      },
+      "gives": {
+        "eyebrow": "What it does",
+        "title": "What Magic Stat gives you for <span class=\"grad\">PCA</span>",
+        "bullets": [
+          "<strong>Scores, loadings and the variation explained</strong>, presented as tables rather than as console output.",
+          "<strong>A biplot you can publish</strong> — legends outside the plot, scientific palettes, exported as PNG, SVG, PDF, JPEG or TIFF.",
+          "<strong>Grouping by a categorical column</strong>, so samples are coloured by the factor you care about instead of by variable number.",
+          "<strong>Transformations when you need them</strong>: standardise, ln, Hellinger, Chord, Chi-square, square root and more.",
+          "<strong>Everything lands in the report</strong> with the settings and the interpretation, exportable to .docx, .html or .md.",
+          "<strong>No code, no command line.</strong> The analysis is a dialog, not a script."
+        ]
+      },
+      "how": {
+        "id": "how",
+        "eyebrow": "How it works",
+        "title": "Three clicks, not <span class=\"grad\">three hours</span>",
+        "steps": [
+          {"t": "Load the spreadsheet", "d": "samples in rows, variables in columns. The variable dictionary handles scientific labels."},
+          {"t": "Pick PCA", "d": "Statistics → Multivariate → PCA."},
+          {"t": "Choose the variables", "d": "and, if you want the samples coloured, the grouping factor."},
+          {"t": "Read the figure and the tables", "d": "scores, loadings, variation explained — in dialogs and in the report, not in a console."},
+          {"t": "Export", "d": "figure to the gallery, analysis to the report, tables straight into the manuscript."}
+        ]
+      },
+      "options": {
+        "eyebrow": "Options",
+        "title": "The settings you actually need",
+        "paras": [
+          "<strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1.",
+          "<strong>Input:</strong> PCA works on the sample × variable matrix directly (unconstrained ordination) — no distance matrix required."
+        ]
+      },
+      "faq_title": "PCA questions, <span class=\"grad\">answered honestly</span>",
+      "faq": [
+        {"q": "Should I standardise my variables?", "a": "If they are measured on different scales — concentrations in mg/L next to temperature in °C — yes, otherwise the variable with the largest numbers dominates the components. Z-score is in the transformation list for exactly this."},
+        {"q": "PCA or NMDS?", "a": "PCA if the variables are continuous and roughly linear. NMDS or PCoA if you are working from a dissimilarity (ecological abundance data, many zeros, non-linear gradients). Using PCA on abundance data is common and usually a mistake."},
+        {"q": "Do I need R?", "a": "No. And if you already use R comfortably, keep it — the point here is the output and the manuscript workflow, not replacing your scripts."},
+        {"q": "Can I publish the figure?", "a": "Yes — the figure is exported at publication quality, including TIFF, with legends placed outside the plot."},
+        {"q": "Is my data uploaded somewhere?", "a": "No. Everything runs on your machine. The only automatic signal is an anonymous installation counter."}
+      ],
+      "related": ["nmds", "pcoa"]
+    },
+    {
+      "slug": "pcoa",
+      "eyebrow": "PCoA analysis",
+      "h1": "Principal coordinates analysis <span class=\"grad\">from your own data</span>",
+      "seo_title": "PCoA software — principal coordinates analysis without coding | Magic Stat",
+      "meta": "Run PCoA without coding: choose any dissimilarity measure and get an ordination figure ready for publication. Free 48-hour trial.",
+      "og_title": "PCoA without coding",
+      "og_desc": "Principal coordinates analysis from any dissimilarity measure — ordination figure and explained variation, no scripts.",
+      "hero_sub": "PCoA, also called classical multidimensional scaling, answers the same visual question as NMDS — do my samples group? — but from a dissimilarity matrix and with a metric fit. In Magic Stat it is a dialog, not a script.",
+      "intro": {
+        "id": "what",
+        "eyebrow": "The honest part",
+        "title": "PCoA, and the difference from <span class=\"grad\">NMDS that actually matters</span>",
+        "paras": [
+          "PCoA takes a dissimilarity matrix between samples and places them in a low-dimensional space, trying to preserve the distances themselves rather than only their ranking. That is the practical difference from NMDS: PCoA is a metric method, so it reports how much of the variation the axes explain, while NMDS only reports stress.",
+          "It is the natural companion to any distance-based analysis — the ordination you draw next to a PERMANOVA, using the same dissimilarity measure, on the same data. If you have already chosen Bray–Curtis for one, staying with Bray–Curtis for the other is not a stylistic choice, it is what makes the two results describe the same thing.",
+          "The awkward part has always been the plumbing: computing the distance matrix, feeding it to the ordination, and getting a figure whose axes you can label without guessing."
+        ]
+      },
+      "gives": {
+        "eyebrow": "What it does",
+        "title": "What Magic Stat gives you for <span class=\"grad\">PCoA</span>",
+        "bullets": [
+          "<strong>The dissimilarity is a setting, not a script.</strong> Bray–Curtis, Euclidean, Manhattan, Canberra, Jaccard, Sorensen and Horn–Morisita.",
+          "<strong>Transformations included</strong>: None, Z-score, ln(1+x), ln(x), Hellinger, Chord, Chi-square, square root, range 0–1.",
+          "<strong>A publication-ready ordination figure</strong>, legend outside the plot, scientific palettes, exported as PNG, SVG, PDF, JPEG or TIFF.",
+          "<strong>Consistent with the distance-based tests</strong> — the same dissimilarity you used for PERMANOVA, so the figure and the test describe the same thing.",
+          "<strong>The analysis is written into the report</strong> with its settings and interpretation, exportable to .docx, .html or .md.",
+          "<strong>No code, no command line.</strong>"
+        ]
+      },
+      "how": {
+        "id": "how",
+        "eyebrow": "How it works",
+        "title": "Distance matrix to <span class=\"grad\">figure</span>",
+        "steps": [
+          {"t": "Load the data", "d": "the same spreadsheet you use for the rest of the analysis."},
+          {"t": "Choose PCoA", "d": "Statistics → Multivariate → PCoA."},
+          {"t": "Set the dissimilarity and transformation", "d": "match them to the data (Bray–Curtis and Hellinger cover most abundance work)."},
+          {"t": "Draw and colour", "d": "colour the samples by a categorical column so the grouping is visible in the figure."},
+          {"t": "Export", "d": "figure to the gallery, report to .docx/.html/.md."}
+        ]
+      },
+      "options": {
+        "eyebrow": "Options",
+        "title": "The settings, <span class=\"grad\">in the dialog</span>",
+        "paras": [
+          "<strong>Dissimilarity measures:</strong> Bray–Curtis · Euclidean · Manhattan · Canberra · Jaccard · Sorensen · Horn–Morisita.",
+          "<strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1."
+        ]
+      },
+      "faq_title": "PCoA questions, <span class=\"grad\">answered honestly</span>",
+      "faq": [
+        {"q": "PCoA or NMDS?", "a": "PCoA is metric: it preserves the distances and tells you how much variation the axes explain. NMDS is non-metric: it preserves only the ranking, and reports stress. For strongly non-linear data NMDS often gives the more readable picture; for a figure that pairs with PERMANOVA, PCoA is the natural choice."},
+        {"q": "Which dissimilarity?", "a": "Match it to the data. Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables."},
+        {"q": "Do I need R?", "a": "No. If you use R comfortably, keep it; the value here is the output and the manuscript workflow."},
+        {"q": "Is my data uploaded somewhere?", "a": "No — the analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it."}
+      ],
+      "related": ["nmds", "pca"]
+    }
+  ]
+}

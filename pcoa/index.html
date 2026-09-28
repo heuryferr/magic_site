@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCoA software — principal coordinates analysis without coding | Magic Stat</title>
+<meta name="description" content="Run PCoA without coding: choose any dissimilarity measure and get an ordination figure ready for publication. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/pcoa/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCoA without coding">
+<meta property="og:description" content="Principal coordinates analysis from any dissimilarity measure — ordination figure and explained variation, no scripts.">
+<meta property="og:url" content="https://getmagicstat.com/pcoa/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "PCoA analysis", "item": "https://getmagicstat.com/pcoa/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "PCoA or NMDS?", "acceptedAnswer": {"@type": "Answer", "text": "PCoA is metric: it preserves the distances and tells you how much variation the axes explain. NMDS is non-metric: it preserves only the ranking, and reports stress. For strongly non-linear data NMDS often gives the more readable picture; for a figure that pairs with PERMANOVA, PCoA is the natural choice."}}, {"@type": "Question", "name": "Which dissimilarity?", "acceptedAnswer": {"@type": "Answer", "text": "Match it to the data. Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. If you use R comfortably, keep it; the value here is the output and the manuscript workflow."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No — the analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">PCoA analysis</span>
+    <h1 class="hero-title">Principal coordinates analysis <span class="grad">from your own data</span></h1>
+    <p class="hero-sub">PCoA, also called classical multidimensional scaling, answers the same visual question as NMDS — do my samples group? — but from a dissimilarity matrix and with a metric fit. In Magic Stat it is a dialog, not a script.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">PCoA, and the difference from <span class="grad">NMDS that actually matters</span></h2>
+  </div>
+  <div class="container">
+    <p>PCoA takes a dissimilarity matrix between samples and places them in a low-dimensional space, trying to preserve the distances themselves rather than only their ranking. That is the practical difference from NMDS: PCoA is a metric method, so it reports how much of the variation the axes explain, while NMDS only reports stress.</p>
+    <p>It is the natural companion to any distance-based analysis — the ordination you draw next to a PERMANOVA, using the same dissimilarity measure, on the same data. If you have already chosen Bray–Curtis for one, staying with Bray–Curtis for the other is not a stylistic choice, it is what makes the two results describe the same thing.</p>
+    <p>The awkward part has always been the plumbing: computing the distance matrix, feeding it to the ordination, and getting a figure whose axes you can label without guessing.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">PCoA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>The dissimilarity is a setting, not a script.</strong> Bray–Curtis, Euclidean, Manhattan, Canberra, Jaccard, Sorensen and Horn–Morisita.</li>
+      <li><strong>Transformations included</strong>: None, Z-score, ln(1+x), ln(x), Hellinger, Chord, Chi-square, square root, range 0–1.</li>
+      <li><strong>A publication-ready ordination figure</strong>, legend outside the plot, scientific palettes, exported as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>Consistent with the distance-based tests</strong> — the same dissimilarity you used for PERMANOVA, so the figure and the test describe the same thing.</li>
+      <li><strong>The analysis is written into the report</strong> with its settings and interpretation, exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Distance matrix to <span class="grad">figure</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> the same spreadsheet you use for the rest of the analysis.</li>
+      <li><strong>Choose PCoA.</strong> Statistics → Multivariate → PCoA.</li>
+      <li><strong>Set the dissimilarity and transformation.</strong> match them to the data (Bray–Curtis and Hellinger cover most abundance work).</li>
+      <li><strong>Draw and colour.</strong> colour the samples by a categorical column so the grouping is visible in the figure.</li>
+      <li><strong>Export.</strong> figure to the gallery, report to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Dissimilarity measures:</strong> Bray–Curtis · Euclidean · Manhattan · Canberra · Jaccard · Sorensen · Horn–Morisita.</p>
+    <p><strong>Transformations:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">PCoA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>PCoA or NMDS?</h3>
+    <p>PCoA is metric: it preserves the distances and tells you how much variation the axes explain. NMDS is non-metric: it preserves only the ranking, and reports stress. For strongly non-linear data NMDS often gives the more readable picture; for a figure that pairs with PERMANOVA, PCoA is the natural choice.</p>
+    <h3>Which dissimilarity?</h3>
+    <p>Match it to the data. Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables.</p>
+    <h3>Do I need R?</h3>
+    <p>No. If you use R comfortably, keep it; the value here is the output and the manuscript workflow.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No — the analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/nmds/" class="btn btn-ghost">NMDS analysis &rarr;</a>
+  <a href="/pca/" class="btn btn-ghost">PCA analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>
