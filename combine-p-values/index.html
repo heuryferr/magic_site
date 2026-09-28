@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combine p-values — Fisher&#x27;s and Stouffer&#x27;s methods | Magic Stat</title>
+<meta name="description" content="Combine independent p-values without coding: Fisher&#x27;s method and Stouffer&#x27;s Z, weighted or not, one-sided. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/combine-p-values/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Combine p-values">
+<meta property="og:description" content="Combine independent studies&#x27; p-values with Fisher&#x27;s method or Stouffer&#x27;s Z, weighted or unweighted.">
+<meta property="og:url" content="https://getmagicstat.com/combine-p-values/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Combine p-values", "item": "https://getmagicstat.com/combine-p-values/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Fisher or Stouffer?", "acceptedAnswer": {"@type": "Answer", "text": "Fisher's method is governed by the smallest p-value and is the classic choice for a handful of studies. Stouffer's method is more balanced and lets you weight studies by precision or importance. Neither is universally better; the decision should match how you think about the individual tests."}}, {"@type": "Question", "name": "Can the tests be dependent?", "acceptedAnswer": {"@type": "Answer", "text": "No. Both methods assume the p-values come from independent tests. Combining correlated p-values (overlapping samples, repeated measures, the same data reanalysed) invalidates the result. If your tests are dependent, these methods are not the answer, and the app offers no shortcut around that."}}, {"@type": "Question", "name": "Why is there no two-sided Stouffer option?", "acceptedAnswer": {"@type": "Answer", "text": "The reference implementation, metap's sumz, is one-sided, and Magic Stat follows it. Presenting a two-sided p under the same name would silently disagree with the package you might cite."}}, {"@type": "Question", "name": "Can a combined p be smaller than every input p?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — Fisher's method can produce a very small combined p from several moderately small ones, and that is a feature of the method, not an error. It is also why a single extreme p-value can dominate."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The arithmetic runs locally; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Combine p-values</span>
+    <h1 class="hero-title">Combine independent p-values <span class="grad">with Fisher and Stouffer</span></h1>
+    <p class="hero-sub">When several independent tests address the same question, combining their p-values into one answer is a small, well-defined calculation — and one that is easy to do wrong. Magic Stat offers the two standard methods, Fisher's and Stouffer's, with the same conventions as the R metap package.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Two methods, <span class="grad">one assumption</span></h2>
+  </div>
+  <div class="container">
+    <p>Fisher's method turns the k p-values into a chi-square statistic: χ² = −2·Σ ln(pᵢ), with 2k degrees of freedom. It reacts strongly to a single very small p-value, so it is sensitive to one strong study. Stouffer's method converts each pᵢ to a normal deviate zᵢ = Φ⁻¹(1−pᵢ) and combines them, z = Σzᵢ/√k; it can be weighted, z = Σwᵢzᵢ/√(Σwᵢ²), when studies deserve different importance.</p>
+    <p>Both methods assume the tests being combined are independent. That is the foundation. If the same data or the same subjects appear in more than one test, the combined p-value is not valid, and neither method is the right answer — no combination of dependent p-values is offered here.</p>
+    <p>One convention is worth knowing: the Stouffer combination here is one-sided (upper tail), matching metap's sumz. A two-sided variant is not offered, and the app reports the one-sided result explicitly rather than leaving you to guess.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">combining p-values</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Fisher's method</strong>: χ² = −2·Σ ln(pᵢ) with df = 2k and its upper-tail p, computed against the chi-square distribution.</li>
+      <li><strong>Stouffer's method</strong>: z = Σzᵢ/√k, unweighted or with positive weights, and its one-sided p.</li>
+      <li><strong>Guards that catch bad input</strong>: p-values must be in (0, 1]; p ≤ 0 (where ln p diverges) and p > 1 are rejected; weights are accepted only for Stouffer and must be positive and the same length as the p-values.</li>
+      <li><strong>A plain verdict</strong> at α = 0.05 — rejects the combined null or not — reported beside the statistic and its p.</li>
+      <li><strong>One row per study</strong>: p-values are typed or pasted one per row, with k as small as 1.</li>
+      <li><strong>The result joins the report</strong> with the method, k and the combined statistic, exportable to .docx, .html or .md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a column of p-values to <span class="grad">one answer</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Choose the method.</strong> Fisher or Stouffer.</li>
+      <li><strong>Enter the p-values.</strong> one per row; anywhere from one to many.</li>
+      <li><strong>Add weights if needed.</strong> only for Stouffer, and only positive values.</li>
+      <li><strong>Run.</strong> the combined statistic (χ² or z), its df where relevant, and the combined p.</li>
+      <li><strong>Read the verdict.</strong> the result is compared with α = 0.05 and written into the report with the method stated.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Methods:</strong> Fisher (χ², df = 2k) · Stouffer (Z, unweighted or weighted).</p>
+    <p><strong>Input:</strong> p-values in (0, 1], one per row; p = 1 is allowed and behaves as in R.</p>
+    <p><strong>Weights:</strong> positive numbers, the same length as the p-values, Stouffer only.</p>
+    <p><strong>Sidedness:</strong> one-sided (upper tail), the metap convention.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Combining p-values, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Fisher or Stouffer?</h3>
+    <p>Fisher's method is governed by the smallest p-value and is the classic choice for a handful of studies. Stouffer's method is more balanced and lets you weight studies by precision or importance. Neither is universally better; the decision should match how you think about the individual tests.</p>
+    <h3>Can the tests be dependent?</h3>
+    <p>No. Both methods assume the p-values come from independent tests. Combining correlated p-values (overlapping samples, repeated measures, the same data reanalysed) invalidates the result. If your tests are dependent, these methods are not the answer, and the app offers no shortcut around that.</p>
+    <h3>Why is there no two-sided Stouffer option?</h3>
+    <p>The reference implementation, metap's sumz, is one-sided, and Magic Stat follows it. Presenting a two-sided p under the same name would silently disagree with the package you might cite.</p>
+    <h3>Can a combined p be smaller than every input p?</h3>
+    <p>Yes — Fisher's method can produce a very small combined p from several moderately small ones, and that is a feature of the method, not an error. It is also why a single extreme p-value can dominate.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The arithmetic runs locally; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/meta-analysis/" class="btn btn-ghost">Meta-analysis &rarr;</a>
+  <a href="/power-analysis/" class="btn btn-ghost">Power analysis &rarr;</a>
+  <a href="/medical-statistics/" class="btn btn-ghost">Medical statistics &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

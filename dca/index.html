@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCA software — detrended correspondence analysis without coding | Magic Stat</title>
+<meta name="description" content="Run DCA without coding: a faithful port of vegan::decorana with detrending and rescaling, plus gradient lengths. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/dca/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DCA without coding">
+<meta property="og:description" content="Detrended correspondence analysis with segment detrending and rescaling — site and species scores, gradient lengths, no scripts.">
+<meta property="og:url" content="https://getmagicstat.com/dca/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Detrended correspondence analysis", "item": "https://getmagicstat.com/dca/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "DCA or CA?", "acceptedAnswer": {"@type": "Answer", "text": "DCA is CA plus segment detrending and rescaling. If all you want is a descriptive ordination of a table, CA is simpler. DCA earns its place when you need gradient lengths, or when the arch of CA is distorting the second axis."}}, {"@type": "Question", "name": "Should I still use DCA?", "acceptedAnswer": {"@type": "Answer", "text": "It is debated. DCA was designed to fix a real artefact, but detrending is an aggressive treatment that can remove structure as well as the arch. Many reviewers will accept CCA or NMDS instead. The gradient length remains a useful, honest number."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. But if you want vegan's other detrending options — polynomial detrending, different segment counts, downweighting of rare species — vegan::decorana exposes them and this dialog does not. For those, R is the better tool."}}, {"@type": "Question", "name": "What does the axis length mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is the range of site scores on that axis, expressed in standard deviations of turnover. As a rule of thumb, values above roughly four suggest unimodal methods (CA, CCA), while short axes are usually handled adequately by linear methods (RDA, PCA). It is a guide, not a switch."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs locally. The only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Detrended correspondence analysis</span>
+    <h1 class="hero-title">Detrended correspondence analysis <span class="grad">from your own table</span></h1>
+    <p class="hero-sub">DCA is correspondence analysis with the arch removed and the axes rescaled so that one unit is one standard deviation of species turnover — which is what makes the gradient length on each axis readable. Magic Stat runs it from a count table as a dialog.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What DCA does, and <span class="grad">the reason it exists</span></h2>
+  </div>
+  <div class="container">
+    <p>Detrended correspondence analysis is correspondence analysis with two corrections applied during the iteration: the second axis is detrended by segments, which removes the arch that plain CA produces on long gradients, and each axis is rescaled so that one unit corresponds to one standard deviation of compositional turnover.</p>
+    <p>That rescaling is the reason DCA is still used: the gradient length it reports on each axis tells you whether the linear methods (PCA, RDA) or the unimodal methods (CA, CCA) suit your data. It is a diagnostic as much as an ordination.</p>
+    <p>The implementation is where software quietly diverges, and this is the part worth checking. Magic Stat's DCA is a port of the numerical engine of vegan::decorana — the reciprocal averaging with tridiagonal acceleration, segment detrending and rescaling — rather than an approximation that carries the same name.</p>
+    <p>Be aware, though: detrending is a strong and somewhat arbitrary treatment, and many ecologists now treat DCA as a legacy step. If you can justify CCA or NMDS for the analysis itself, prefer them. DCA is honest about the gradient; it is not the only way to be.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">DCA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Site and species scores</strong> on all four axes, from the same reciprocal-averaging engine the reference implementation uses.</li>
+      <li><strong>Gradient lengths</strong> — the axis lengths in standard deviations that tell you whether a linear or a unimodal ordination fits the data.</li>
+      <li><strong>Inertia per axis</strong>, shown as a percentage of the CA inertia, so the ordination can be read next to the numbers.</li>
+      <li><strong>A publication-ready ordination figure</strong>: scientific palettes, legends outside the plot, export as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>The analysis enters the report automatically</strong> with its method and settings, exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a count table to a <span class="grad">gradient length</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the table.</strong> sites in rows, species or categories in columns, non-negative counts with positive row totals.</li>
+      <li><strong>Pick DCA.</strong> Statistics → Multivariate → DCA.</li>
+      <li><strong>Select matrix X.</strong> and a grouping column if you want the samples coloured.</li>
+      <li><strong>Run it.</strong> the detrending and rescaling happen inside the same engine that produces the scores.</li>
+      <li><strong>Read the axis lengths.</strong> and export the figure to the gallery and the analysis to the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Input:</strong> a non-negative, complete count or abundance table with positive row sums. Negative values or empty rows are rejected with a clear message rather than a silent NaN.</p>
+    <p><strong>Transformations available in the dialog:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1. Detrending and rescaling use the standard decorana parameters; there is no spin box for the segment count here.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">DCA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>DCA or CA?</h3>
+    <p>DCA is CA plus segment detrending and rescaling. If all you want is a descriptive ordination of a table, CA is simpler. DCA earns its place when you need gradient lengths, or when the arch of CA is distorting the second axis.</p>
+    <h3>Should I still use DCA?</h3>
+    <p>It is debated. DCA was designed to fix a real artefact, but detrending is an aggressive treatment that can remove structure as well as the arch. Many reviewers will accept CCA or NMDS instead. The gradient length remains a useful, honest number.</p>
+    <h3>Do I need R?</h3>
+    <p>No. But if you want vegan's other detrending options — polynomial detrending, different segment counts, downweighting of rare species — vegan::decorana exposes them and this dialog does not. For those, R is the better tool.</p>
+    <h3>What does the axis length mean?</h3>
+    <p>It is the range of site scores on that axis, expressed in standard deviations of turnover. As a rule of thumb, values above roughly four suggest unimodal methods (CA, CCA), while short axes are usually handled adequately by linear methods (RDA, PCA). It is a guide, not a switch.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs locally. The only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/ca/" class="btn btn-ghost">Correspondence analysis &rarr;</a>
+  <a href="/cca/" class="btn btn-ghost">Canonical correspondence analysis &rarr;</a>
+  <a href="/rda/" class="btn btn-ghost">Redundancy analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

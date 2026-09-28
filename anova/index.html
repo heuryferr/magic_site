@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANOVA software — one-way, Welch, factorial and nested ANOVA without coding | Magic Stat</title>
+<meta name="description" content="Run one-way, Welch&#x27;s and factorial ANOVA (Type III SS) without coding, with post-hoc tests and effect sizes. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/anova/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ANOVA without coding">
+<meta property="og:description" content="One-way, Welch and factorial ANOVA from a spreadsheet, with Scheirer-Ray-Hare, nested designs and block designs.">
+<meta property="og:url" content="https://getmagicstat.com/anova/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "ANOVA", "item": "https://getmagicstat.com/anova/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "One-way or Welch's ANOVA?", "acceptedAnswer": {"@type": "Answer", "text": "Welch's does not assume equal variances and is the safer default when the groups differ in spread or size. The classical one-way F is exact when the variances are equal and the design is balanced. Both are offered, so you can see whether the conclusion depends on the assumption."}}, {"@type": "Question", "name": "Which post-hoc should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Tukey HSD for equal variances and a balanced design; Games-Howell when variances or sizes differ; Bonferroni or Dunn-Sidak when you want a conservative correction for any design; Dunn or Conover-Iman after Kruskal-Wallis; Dunnett when every group is compared against a control. The dialog lists them with their assumptions."}}, {"@type": "Question", "name": "What if the data are not normal?", "acceptedAnswer": {"@type": "Answer", "text": "For one factor, Kruskal-Wallis or Mood's median test; for two factors with an interaction, Scheirer-Ray-Hare tests the interaction as well. A permutation F test is also available. The app reports the choice rather than making it silently."}}, {"@type": "Question", "name": "I have two factors, not one.", "acceptedAnswer": {"@type": "Answer", "text": "Use the factorial tab of the ANOVA dialog. It computes a two-way ANOVA with Type III sums of squares and the interaction term, and partial eta-squared for each effect."}}, {"@type": "Question", "name": "Is ANOVA the right tool for repeated measures?", "acceptedAnswer": {"@type": "Answer", "text": "Not the same one-way dialog — the same subjects measured several times need the repeated-measures route, where the within-subject structure is handled explicitly. That lives in the Repeated Measures tab of the same ANOVA window."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">ANOVA</span>
+    <h1 class="hero-title">One-way and factorial <span class="grad">ANOVA without code</span></h1>
+    <p class="hero-sub">ANOVA compares three or more group means. The arithmetic is the easy part; the friction is choosing the right variant, checking the assumptions, and turning the result into a table and a post-hoc comparison you can defend. Magic Stat keeps all of that in one window.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Which ANOVA, and <span class="grad">when it is the wrong one</span></h2>
+  </div>
+  <div class="container">
+    <p>One-way ANOVA tests whether the means of three or more independent groups are equal, by comparing the variation between groups with the variation inside them. That ratio is the F statistic. Welch's ANOVA relaxes the equal-variance assumption and is the safer choice when the groups differ in spread or in size — the same logic as Welch's t for two groups.</p>
+    <p>When the response is not roughly normal, the rank-based routes are Kruskal-Wallis and Mood's median test, and a permutation F test is available as a check that does not rely on a distributional formula. For two factors at once, the factorial ANOVA adds the interaction term — the question of whether the effect of one factor depends on the level of the other — and Magic Stat computes it with Type III sums of squares. The non-parametric counterpart of the two-way design, Scheirer-Ray-Hare, tests the interaction too.</p>
+    <p>Designs beyond the simple one-way are where general-purpose tools usually stop: a nested (hierarchical) design, where each level of one factor belongs to exactly one level of another, and block designs such as the Latin square, the 2×2 crossover and the balanced incomplete block. Those are in the same dialog, with the sums-of-squares decomposition each design requires.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">ANOVA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>One-way and Welch's ANOVA.</strong> The classic equal-variance F and the unequal-variance version, chosen from the same dialog.</li>
+      <li><strong>The rank-based routes.</strong> Kruskal-Wallis and Mood's median test for three or more groups, plus a permutation F test.</li>
+      <li><strong>Factorial (two-way) ANOVA with the interaction.</strong> Type III sums of squares and partial eta-squared for factor A, factor B and the A×B interaction, with Scheirer-Ray-Hare as the non-parametric two-way test.</li>
+      <li><strong>Nested (hierarchical) designs.</strong> Two levels, with the correct F ratios and the method-of-moments variance components.</li>
+      <li><strong>Block designs.</strong> Latin square, 2×2 crossover and balanced incomplete block, each with its own sums-of-squares decomposition and, for the BIB, adjusted treatment means.</li>
+      <li><strong>Post-hoc tests with a compact letter display.</strong> Tukey, Games-Howell, Dunn, Conover-Iman and others, shown as pairwise comparisons and as letters.</li>
+      <li><strong>Effect sizes.</strong> Eta-squared, omega-squared and epsilon-squared for the multi-group case, partial eta-squared for the factorial one.</li>
+      <li><strong>Correction across variables</strong> when several ANOVAs run in one batch (Benjamini-Hochberg, Bonferroni, Holm, Hochberg), and a report exportable to .docx/.html/.md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to an <span class="grad">ANOVA table</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> the response in one column, the grouping factor (three or more levels) in another.</li>
+      <li><strong>Open Statistics → Means Comparison Tests.</strong> and choose Multiple Means for a one-way design.</li>
+      <li><strong>For more than one factor.</strong> click the "Factorial & Repeated Measures ANOVA" button and use the Two-way, Nested or Block Designs tab.</li>
+      <li><strong>Set the analysis.</strong> test family (classical, Welch or rank-based), the post-hoc method, and whether you want effect sizes and confidence intervals.</li>
+      <li><strong>Read and export.</strong> the omnibus table, the post-hoc comparisons and the report, to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>One-way family:</strong> One-way ANOVA (equal variances) · Welch's ANOVA (unequal variances) · Kruskal-Wallis · Mood's median test · permutation test.</p>
+    <p><strong>Post-hoc:</strong> Tukey HSD · Bonferroni · Dunn-Sidak · Games-Howell · Dunn's test · Conover-Iman · Dunnett (vs control), with a compact letter display.</p>
+    <p><strong>Factorial:</strong> Type III sums of squares with the interaction, or the non-parametric Scheirer-Ray-Hare; partial eta-squared for A, B and A×B.</p>
+    <p><strong>Other designs:</strong> nested (hierarchical) two levels · Latin square · 2×2 crossover · balanced incomplete block.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">ANOVA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>One-way or Welch's ANOVA?</h3>
+    <p>Welch's does not assume equal variances and is the safer default when the groups differ in spread or size. The classical one-way F is exact when the variances are equal and the design is balanced. Both are offered, so you can see whether the conclusion depends on the assumption.</p>
+    <h3>Which post-hoc should I use?</h3>
+    <p>Tukey HSD for equal variances and a balanced design; Games-Howell when variances or sizes differ; Bonferroni or Dunn-Sidak when you want a conservative correction for any design; Dunn or Conover-Iman after Kruskal-Wallis; Dunnett when every group is compared against a control. The dialog lists them with their assumptions.</p>
+    <h3>What if the data are not normal?</h3>
+    <p>For one factor, Kruskal-Wallis or Mood's median test; for two factors with an interaction, Scheirer-Ray-Hare tests the interaction as well. A permutation F test is also available. The app reports the choice rather than making it silently.</p>
+    <h3>I have two factors, not one.</h3>
+    <p>Use the factorial tab of the ANOVA dialog. It computes a two-way ANOVA with Type III sums of squares and the interaction term, and partial eta-squared for each effect.</p>
+    <h3>Is ANOVA the right tool for repeated measures?</h3>
+    <p>Not the same one-way dialog — the same subjects measured several times need the repeated-measures route, where the within-subject structure is handled explicitly. That lives in the Repeated Measures tab of the same ANOVA window.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/post-hoc-tests/" class="btn btn-ghost">Post-hoc tests &rarr;</a>
+  <a href="/planned-contrasts/" class="btn btn-ghost">Planned contrasts &rarr;</a>
+  <a href="/ancova/" class="btn btn-ghost">ANCOVA &rarr;</a>
+  <a href="/nonparametric-tests/" class="btn btn-ghost">Non-parametric tests &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

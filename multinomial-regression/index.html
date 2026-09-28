@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multinomial logistic regression software — categorical outcomes | Magic Stat</title>
+<meta name="description" content="Multinomial logistic regression for outcomes with 3+ categories: odds ratios per category against a chosen reference. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/multinomial-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multinomial logistic regression without coding">
+<meta property="og:description" content="Model a categorical outcome with three or more levels: odds ratios per category against a reference, pseudo-R², AIC/BIC and a classification matrix.">
+<meta property="og:url" content="https://getmagicstat.com/multinomial-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Multinomial logistic regression", "item": "https://getmagicstat.com/multinomial-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I choose the reference category?", "acceptedAnswer": {"@type": "Answer", "text": "Pick the category that makes the comparisons meaningful — often a control, a baseline or the most common level. Changing the reference never changes the fit; it only re-expresses the coefficients relative to a different baseline."}}, {"@type": "Question", "name": "How do I read an odds ratio here?", "acceptedAnswer": {"@type": "Answer", "text": "Each block compares one category with the reference. An odds ratio of 2 in a block means the odds of being in that category rather than the reference are twice as high per one-unit increase in the predictor, holding the others fixed."}}, {"@type": "Question", "name": "When is multinomial the wrong choice?", "acceptedAnswer": {"@type": "Answer", "text": "With only two categories, use binary logistic regression — the dialog will point you there. With ordered categories, an ordinal model is usually a better fit to the structure than treating the levels as unrelated."}}, {"@type": "Question", "name": "Is my outcome ordinal or nominal?", "acceptedAnswer": {"@type": "Answer", "text": "If the categories have a natural order — severity grades, Likert levels — they are ordinal and this nominal method ignores that order. Fitting an ordinal model, such as R's <code>MASS::polr</code>, is the more appropriate route; Magic Stat fits the nominal case."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Each category needs enough observations for its coefficients to be stable; sparse categories give unstable estimates. Magic Stat requires at least 30 complete rows as a floor, but more data per category is the real requirement."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Multinomial logistic regression</span>
+    <h1 class="hero-title">Multinomial logistic regression <span class="grad">for three or more categories</span></h1>
+    <p class="hero-sub">When the outcome has more than two categories — a diagnosis, a soil class, a preferred option — a binary model is not enough. Multinomial logistic regression fits the probability of each category against a reference you choose. Magic Stat runs it from your spreadsheet and returns the odds ratios and the classification matrix.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Everything is measured <span class="grad">against a reference category</span></h2>
+  </div>
+  <div class="container">
+    <p>With k outcome categories, multinomial logistic regression fits k−1 equations, each contrasting one category with a reference category. A coefficient is the change in the log-odds of being in that category rather than the reference, per unit of the predictor, and its exponential is an odds ratio. Magic Stat reports every block with its own coefficients and confidence intervals.</p>
+    <p>The reference category is a choice, not a fact of the data. Changing it does not change the fit — the log-likelihood and the predicted probabilities stay the same — it only changes which comparisons the coefficients describe. The dialog lets you set it, and the default is the first category in order, as in R's <code>nnet::multinom</code>.</p>
+    <p>This method models <em>nominal</em> categories, where the order carries no meaning. If the outcome is ordinal — mild, moderate, severe — an ordinal model usually fits the ordering better and uses the data more efficiently, and Magic Stat does not fit one.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">multinomial regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>One block of coefficients per outcome category</strong>, each contrasted with the reference you choose.</li>
+      <li><strong>Odds ratios with 95% confidence intervals</strong> for every term in every block.</li>
+      <li><strong>A changeable reference category</strong>, with the dialog stating plainly that changing it does not change the fit, only the interpretation.</li>
+      <li><strong>McFadden's pseudo-R², AIC and BIC</strong> for the fitted model, matched to R's <code>nnet::multinom</code>.</li>
+      <li><strong>A classification matrix and overall accuracy</strong>, so you can see where the model confuses categories.</li>
+      <li><strong>APA-formatted odds-ratio sentences</strong> you can copy straight into the manuscript, plus the analysis in the report.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Pick the reference, <span class="grad">read each block</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> a categorical outcome with three or more levels and numeric predictors.</li>
+      <li><strong>Choose Multinomial & Logistic Regression.</strong> Statistics → Regression Models → Multinomial & Logistic Regression.</li>
+      <li><strong>Select the outcome.</strong> the reference category list fills automatically.</li>
+      <li><strong>Set the reference.</strong> the category every other category is compared against.</li>
+      <li><strong>Run and export.</strong> coefficients per category, the classification matrix, and the analysis into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Outcome:</strong> a categorical column with three or more levels (two levels belong in the binary logistic dialog).</p>
+    <p><strong>Reference category:</strong> choose which level is the baseline; the default is the first level in order.</p>
+    <p><strong>Predictors:</strong> one or more numeric columns, selected together.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Multinomial regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How do I choose the reference category?</h3>
+    <p>Pick the category that makes the comparisons meaningful — often a control, a baseline or the most common level. Changing the reference never changes the fit; it only re-expresses the coefficients relative to a different baseline.</p>
+    <h3>How do I read an odds ratio here?</h3>
+    <p>Each block compares one category with the reference. An odds ratio of 2 in a block means the odds of being in that category rather than the reference are twice as high per one-unit increase in the predictor, holding the others fixed.</p>
+    <h3>When is multinomial the wrong choice?</h3>
+    <p>With only two categories, use binary logistic regression — the dialog will point you there. With ordered categories, an ordinal model is usually a better fit to the structure than treating the levels as unrelated.</p>
+    <h3>Is my outcome ordinal or nominal?</h3>
+    <p>If the categories have a natural order — severity grades, Likert levels — they are ordinal and this nominal method ignores that order. Fitting an ordinal model, such as R's <code>MASS::polr</code>, is the more appropriate route; Magic Stat fits the nominal case.</p>
+    <h3>How much data do I need?</h3>
+    <p>Each category needs enough observations for its coefficients to be stable; sparse categories give unstable estimates. Magic Stat requires at least 30 complete rows as a floor, but more data per category is the real requirement.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/logistic-regression/" class="btn btn-ghost">Logistic regression &rarr;</a>
+  <a href="/glm/" class="btn btn-ghost">Generalized linear models &rarr;</a>
+  <a href="/contingency-tables/" class="btn btn-ghost">Contingency tables &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

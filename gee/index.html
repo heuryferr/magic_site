@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEE software — generalized estimating equations without coding | Magic Stat</title>
+<meta name="description" content="Run GEE without coding: choose the family, link and working correlation, and get robust sandwich standard errors. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/gee/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GEE without coding">
+<meta property="og:description" content="Generalized estimating equations from a spreadsheet — population-average effects with robust standard errors.">
+<meta property="og:url" content="https://getmagicstat.com/gee/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "GEE analysis", "item": "https://getmagicstat.com/gee/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "GEE or a mixed model?", "acceptedAnswer": {"@type": "Answer", "text": "GEE answers the population-average question and stays valid under a wrong working correlation when clusters are numerous. A mixed model answers the subject-specific question and can be preferable with few clusters or when you want variance components. For non-linear links the two effects genuinely differ; the choice is about which question you are asking."}}, {"@type": "Question", "name": "Which working correlation should I use?", "acceptedAnswer": {"@type": "Answer", "text": "independence is the conservative default and, with a robust sandwich, still gives valid inference. exchangeable fits repeated measures with no time order; AR(1) assumes evenly spaced, ordered measurements; unstructured is the most flexible and the most parameter-hungry."}}, {"@type": "Question", "name": "What is the difference from an ordinary GLM?", "acceptedAnswer": {"@type": "Answer", "text": "A GLM assumes independent rows. If your rows are clustered, its standard errors are too small. GEE accounts for the within-cluster dependence through the working correlation and the robust variance."}}, {"@type": "Question", "name": "Does the app warn about non-convergence?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — unlike the plain R summary, Magic Stat shows a note when the iteration did not converge, so a non-converged fit is not presented as a clean result."}}, {"@type": "Question", "name": "Is anything sent to a server?", "acceptedAnswer": {"@type": "Answer", "text": "No. The estimation runs locally; only an anonymous installation counter is sent."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">GEE analysis</span>
+    <h1 class="hero-title">Generalized estimating equations <span class="grad">without the geepack setup</span></h1>
+    <p class="hero-sub">GEE estimates population-average effects when observations come in clusters — repeated visits, siblings, matched sites — without assuming a full distribution for the random effects. Magic Stat runs the geepack-equivalent fit and reports the robust standard errors that GEE is used for.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What GEE estimates, and <span class="grad">when a mixed model fits better</span></h2>
+  </div>
+  <div class="container">
+    <p>GEE solves a set of estimating equations that depend on a mean model (a GLM with the family and link you choose) and a working correlation structure describing how observations inside a cluster move together. Its output is the population-average effect: how the average response changes with a predictor, across the whole population. Inference uses a sandwich (robust) estimator, so it stays valid even if the working correlation is not exactly right.</p>
+    <p>This is a different question from a mixed model's. A random-intercept mixed model gives a subject-specific effect (what happens to a given subject); GEE gives the marginal effect (what happens on average). For a linear model they coincide; for logistic and other non-linear links they do not, and choosing the wrong one is a real mistake, not a nuance.</p>
+    <p>The engine mirrors geepack's geeglm: the same Gauss–Seidel β → γ → α iteration, the same moment estimators for the correlation, the same convergence tolerance. It also reports when the fit did not converge — which the plain R summary does not do for you.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">GEE</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Four families with their links</strong>: gaussian (identity, log, inverse), poisson (log, identity, sqrt), binomial (logit, probit, cloglog, log) and Gamma (inverse, log, identity).</li>
+      <li><strong>Four working correlation structures</strong>: independence, exchangeable, AR(1) and unstructured.</li>
+      <li><strong>Robust sandwich standard errors</strong> (the san.se of geeglm), with a Wald statistic and p for each coefficient.</li>
+      <li><strong>The working-correlation parameters</strong> (α for exchangeable/AR(1), a matrix for unstructured) and the estimated scale, on a separate Model and Correlation tab.</li>
+      <li><strong>Numeric and categorical predictors</strong>, with categorical columns coded by treatment contrasts and the first category as reference.</li>
+      <li><strong>An Observed vs Fitted plot</strong>, and full entry into the report with the coefficients, the correlation and the interpretation.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From clusters to <span class="grad">robust standard errors</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> one row per observation, with a column identifying the cluster (subject, site, matched set).</li>
+      <li><strong>Choose the outcome and the cluster column.</strong> the dialog reports how many clusters there are and their sizes before the fit.</li>
+      <li><strong>Set family, link and working correlation.</strong> independence is the safe default; exchangeable suits repeated measures without a natural order.</li>
+      <li><strong>Choose predictors.</strong> numeric or categorical.</li>
+      <li><strong>Run and read.</strong> coefficients with robust SEs, the correlation parameters, and a note if the fit did not converge.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Families and links:</strong> gaussian · poisson · binomial · Gamma, with the links listed per family above.</p>
+    <p><strong>Working correlation:</strong> independence · exchangeable · AR(1) · unstructured.</p>
+    <p><strong>Clusters:</strong> defined by an ID column; the data are ordered by it before fitting, as geepack requires.</p>
+    <p><strong>Scale:</strong> estimated by moments for gaussian and Gamma, fixed at the GLM value for poisson and binomial — the geepack convention.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">GEE questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>GEE or a mixed model?</h3>
+    <p>GEE answers the population-average question and stays valid under a wrong working correlation when clusters are numerous. A mixed model answers the subject-specific question and can be preferable with few clusters or when you want variance components. For non-linear links the two effects genuinely differ; the choice is about which question you are asking.</p>
+    <h3>Which working correlation should I use?</h3>
+    <p>independence is the conservative default and, with a robust sandwich, still gives valid inference. exchangeable fits repeated measures with no time order; AR(1) assumes evenly spaced, ordered measurements; unstructured is the most flexible and the most parameter-hungry.</p>
+    <h3>What is the difference from an ordinary GLM?</h3>
+    <p>A GLM assumes independent rows. If your rows are clustered, its standard errors are too small. GEE accounts for the within-cluster dependence through the working correlation and the robust variance.</p>
+    <h3>Does the app warn about non-convergence?</h3>
+    <p>Yes — unlike the plain R summary, Magic Stat shows a note when the iteration did not converge, so a non-converged fit is not presented as a clean result.</p>
+    <h3>Is anything sent to a server?</h3>
+    <p>No. The estimation runs locally; only an anonymous installation counter is sent.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/mixed-models/" class="btn btn-ghost">Mixed models &rarr;</a>
+  <a href="/glm/" class="btn btn-ghost">Generalized linear models &rarr;</a>
+  <a href="/logistic-regression/" class="btn btn-ghost">Logistic regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time series software — forecast, STL, stationarity | Magic Stat</title>
+<meta name="description" content="Forecast with confidence bands, STL decomposition, ACF/PACF, ADF/KPSS stationarity and honest walk-forward model comparison. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/time-series/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Time series without a script">
+<meta property="og:description" content="Forecast with confidence bands, decompose, test stationarity and compare models by rolling-origin error.">
+<meta property="og:url" content="https://getmagicstat.com/time-series/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Time series analysis", "item": "https://getmagicstat.com/time-series/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How should I compare the models?", "acceptedAnswer": {"@type": "Answer", "text": "By out-of-sample error, not in-sample fit. Use the walk-forward evaluation with several rolling origins — it is the more honest test — and look at RMSE and MAE rather than only MAPE, which is unstable when values are near zero."}}, {"@type": "Question", "name": "Which model should I start with?", "acceptedAnswer": {"@type": "Answer", "text": "For a seasonal series, Holt-Winters or SARIMA; for a series with little structure, Theta and the naive benchmarks are hard to beat. If the comparison shows a naive benchmark winning, that is the honest answer — report it."}}, {"@type": "Question", "name": "Does it test stationarity?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — ADF and KPSS, on the level series and on the first difference. They are reported together because a unit-root test and a stationarity test can disagree, and the disagreement is informative."}}, {"@type": "Question", "name": "Can it forecast several series at once?", "acceptedAnswer": {"@type": "Answer", "text": "No — it is a univariate (or seasonal) forecasting module. For multivariate models such as VAR or VECM, the econometrics module and its cointegration tab are the place to look, and for anything beyond that a dedicated package is the honest recommendation."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your machine; the only automatic signal is an anonymous installation counter with nothing in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Time series analysis</span>
+    <h1 class="hero-title">Time series forecasting <span class="grad">without a script</span></h1>
+    <p class="hero-sub">A time series asks two questions: what is the pattern (trend, season, noise) and what comes next. Magic Stat answers both from a column of dates and a column of values — decomposition, autocorrelation, stationarity tests and a forecast with its confidence band, plus a model comparison that does not flatter itself.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Forecasting and decomposition, and <span class="grad">the in-sample trap</span></h2>
+  </div>
+  <div class="container">
+    <p>The module decomposes the series (STL: trend, seasonal, residual), describes its dependence (ACF and PACF), tests whether it is stationary (ADF and KPSS, on the level and on the first difference) and forecasts it with a model chosen among Holt-Winters, Theta, ARIMA/SARIMA, ETS, a random-forest lag model, the naive benchmarks or an ensemble.</p>
+    <p>The trap in forecasting is choosing the model by in-sample fit. Magic Stat compares models by how they do on data they did not see — a holdout split or, better, walk-forward cross-validation across several origins — and reports RMSE, MAE and MAPE from that evaluation.</p>
+    <p>It is for the classical, univariate and seasonal setting. If you need structural VARs, state-space models with custom components, or the full Box-Jenkins methodology with manual order and diagnostics, statsmodels in Python or a dedicated package is the honest recommendation; the econometrics module covers the intervention-and-breaks side of time series.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">time series</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Forecast with a confidence band</strong> (95%), the future period highlighted, and the model that produced it named on the figure.</li>
+      <li><strong>Model comparison on out-of-sample error:</strong> Holt-Winters, Theta, ARIMA (auto AIC), SARIMA, ETS, Random Forest on lags, an ensemble average and the naive benchmarks, judged by holdout or walk-forward evaluation (RMSE, MAE, MAPE).</li>
+      <li><strong>STL decomposition</strong> into trend, seasonal and residual components.</li>
+      <li><strong>ACF and PACF</strong> — computed on the first difference when the level series is non-stationary, and labelled so.</li>
+      <li><strong>Stationarity tests:</strong> ADF and KPSS on the original series and on the first difference, reported together because they answer the question from opposite directions.</li>
+      <li><strong>Seasonality, residuals and spectrum:</strong> seasonality diagnostics with the dominant period, residual diagnostics including the Ljung-Box test, and a periodogram.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From two columns to <span class="grad">a forecast</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the series.</strong> a time/date column and a value column. Numeric timestamps are read with the correct unit, and duplicates are aggregated.</li>
+      <li><strong>Set the frequency.</strong> daily, weekly or monthly — the horizon is then expressed in those units.</li>
+      <li><strong>Look before forecasting.</strong> decomposition, ACF/PACF, stationarity and seasonality tell you what the model has to cope with.</li>
+      <li><strong>Choose and compare.</strong> pick a model, or let the app choose by holdout RMSE, and check the out-of-sample error.</li>
+      <li><strong>Export.</strong> the forecast and diagnostic figures go to the gallery; the analysis and its tables go into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Models:</strong> Holt-Winters · Theta · ARIMA (auto AIC) · SARIMA (auto seasonal) · ETS · Random Forest (lags) · Ensemble (average) · Naive · Seasonal Naive. <strong>Selection:</strong> by holdout RMSE or by AIC.</p>
+    <p><strong>Evaluation:</strong> holdout (one split) or walk-forward (rolling origin, 2–20 folds). <strong>Horizon:</strong> up to 120 steps. <strong>Seasonal period</strong> is set in the dialog.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Time series questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How should I compare the models?</h3>
+    <p>By out-of-sample error, not in-sample fit. Use the walk-forward evaluation with several rolling origins — it is the more honest test — and look at RMSE and MAE rather than only MAPE, which is unstable when values are near zero.</p>
+    <h3>Which model should I start with?</h3>
+    <p>For a seasonal series, Holt-Winters or SARIMA; for a series with little structure, Theta and the naive benchmarks are hard to beat. If the comparison shows a naive benchmark winning, that is the honest answer — report it.</p>
+    <h3>Does it test stationarity?</h3>
+    <p>Yes — ADF and KPSS, on the level series and on the first difference. They are reported together because a unit-root test and a stationarity test can disagree, and the disagreement is informative.</p>
+    <h3>Can it forecast several series at once?</h3>
+    <p>No — it is a univariate (or seasonal) forecasting module. For multivariate models such as VAR or VECM, the econometrics module and its cointegration tab are the place to look, and for anything beyond that a dedicated package is the honest recommendation.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your machine; the only automatic signal is an anonymous installation counter with nothing in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/econometrics/" class="btn btn-ghost">Econometrics &rarr;</a>
+  <a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

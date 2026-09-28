@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Econometrics software — breaks, panel, DiD, GARCH | Magic Stat</title>
+<meta name="description" content="Intervention ARIMA, Bai-Perron breaks, panel FE/RE, DiD, Granger, cointegration, probit/Tobit, quantile, 2SLS and GARCH. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/econometrics/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Econometrics without Stata syntax">
+<meta property="og:description" content="Intervention ARIMA, structural breaks, panel data, difference-in-differences, cointegration and GARCH.">
+<meta property="og:url" content="https://getmagicstat.com/econometrics/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Econometrics", "item": "https://getmagicstat.com/econometrics/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a replacement for Stata?", "acceptedAnswer": {"@type": "Answer", "text": "No. It covers the common applied analyses — intervention ARIMA, breaks, panel, DiD, Granger, cointegration, probit/Tobit/quantile, 2SLS and GARCH — but not the whole Stata surface. If your identification relies on a specific Stata procedure, stay in Stata."}}, {"@type": "Question", "name": "Are the estimators validated?", "acceptedAnswer": {"@type": "Answer", "text": "The implementations follow the same definitions as plm, strucchange, urca, AER and rugarch, and were built to reproduce their numbers rather than to introduce new conventions. Standard errors can still differ from another software's convention (for example, ARIMA with MA terms) — that is a convention difference, not a different model."}}, {"@type": "Question", "name": "Do I need to install extra packages?", "acceptedAnswer": {"@type": "Answer", "text": "No. The module runs on the app's existing scientific stack. Installing the optional packages enables GJR/EGARCH with Student-t, clustered/robust panel standard errors and the PELT/Binseg break search; without them, the built-in implementations are used."}}, {"@type": "Question", "name": "Can I do difference-in-differences here?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — the panel tab runs DiD with a group×post interaction, reports the pre/post means by group and draws the parallel-trends figure."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs locally. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Econometrics</span>
+    <h1 class="hero-title">Applied econometrics <span class="grad">without Stata syntax</span></h1>
+    <p class="hero-sub">The econometrics module assembles the analyses that usually mean Stata or a shelf of R packages: interrupted ARIMA, structural breaks, panel models with Hausman tests, difference-in-differences, Granger causality and cointegration, limited dependent variables and GARCH volatility. Each is a tab, and each writes its tables and figures into the report.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">The SAS/Stata toolbox, and <span class="grad">when to stay in Stata</span></h2>
+  </div>
+  <div class="container">
+    <p>The module covers the analyses an applied paper in economics or policy usually needs: whether an intervention changed a series (ARIMA with an exogenous intervention term, estimated per group), whether a series breaks and where (Bai-Perron, Chow, supF, CUSUM), how to model panel data (pooled, fixed or random effects, with the Hausman test), difference-in-differences, Granger causality and cointegration, probit/Tobit/quantile regression, and GARCH volatility.</p>
+    <p>The estimators follow the definitions of the canonical R packages rather than inventing conventions — the panel estimators match plm, the breaks match strucchange, cointegration follows urca, instrumental variables follow AER, and GARCH follows rugarch. Where a technique has a standard test attached (Hausman, Breusch-Pagan LM, Sargan, Wu-Hausman), the test is reported with the estimate.</p>
+    <p>It does not do everything Stata does. If your identification strategy depends on the full Stata ecosystem — margins, the many ivreg2 options, or a specific estimator you rely on — stay in Stata. Magic Stat's point is doing these standard analyses, with journal-ready figures and a report, from a spreadsheet and without writing xtreg or arima syntax.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">econometrics</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Impact (ARIMA with intervention):</strong> order chosen by AIC, an intervention term entered as an exogenous regressor (xreg), and coefficients (coefficient, SE, z, p) estimated by group, with the pre/post figure.</li>
+      <li><strong>Structural breaks:</strong> Bai-Perron (optimal partition with BIC, as in strucchange), the Chow test, supF and recursive CUSUM — in the mean, or in a linear regression with regressors, per group.</li>
+      <li><strong>Panel and difference-in-differences:</strong> pooled OLS, fixed effects (within) and random effects (Swamy-Arora), with the Hausman test, Breusch-Pagan LM, the F test of individual effects and clustered standard errors; DiD with the group×post interaction and a parallel-trends figure.</li>
+      <li><strong>Causality and cointegration:</strong> Granger causality (F per lag), Engle-Granger (ADF on the residuals) and Johansen (trace and maximum-eigenvalue with the Osterwald-Lenum critical values).</li>
+      <li><strong>Limited dependent variables:</strong> probit, Tobit (censored maximum likelihood) and quantile regression.</li>
+      <li><strong>Volatility, systems and instruments:</strong> GARCH(1,1) by maximum likelihood, SUR and 2SLS with the first-stage F and Sargan/Wu-Hausman tests; optional packages add GJR/EGARCH with Student-t innovations and clustered/robust panel standard errors.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to <span class="grad">an estimate</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> time, outcome and — where needed — the group, event and regressor columns.</li>
+      <li><strong>Choose the analysis.</strong> impact, breaks, panel/DiD, causality/cointegration, limited dependent, or volatility.</li>
+      <li><strong>Set the columns.</strong> each tab names exactly the columns it needs, and refuses to run when the structure is not there.</li>
+      <li><strong>Run and read.</strong> coefficient tables with standard errors and p-values, the diagnostic tests, and the figure that goes with the analysis.</li>
+      <li><strong>Report.</strong> tables and figures go into the Analysis Report with the settings and the interpretation (.docx, .html or .md).</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The choices, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Method availability:</strong> the optional packages <code>arch</code>, <code>linearmodels</code> and <code>ruptures</code> unlock advanced paths (GJR/EGARCH, clustered/robust panel SEs, PELT/Binseg break search). Without them, the module uses its own implementation, which is the default.</p>
+    <p><strong>Panel:</strong> fixed or random effects with the Hausman decision, and standard errors clustered by unit. <strong>Breaks:</strong> minimum segment length and, optionally, a set of regressors.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Econometrics questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Is this a replacement for Stata?</h3>
+    <p>No. It covers the common applied analyses — intervention ARIMA, breaks, panel, DiD, Granger, cointegration, probit/Tobit/quantile, 2SLS and GARCH — but not the whole Stata surface. If your identification relies on a specific Stata procedure, stay in Stata.</p>
+    <h3>Are the estimators validated?</h3>
+    <p>The implementations follow the same definitions as plm, strucchange, urca, AER and rugarch, and were built to reproduce their numbers rather than to introduce new conventions. Standard errors can still differ from another software's convention (for example, ARIMA with MA terms) — that is a convention difference, not a different model.</p>
+    <h3>Do I need to install extra packages?</h3>
+    <p>No. The module runs on the app's existing scientific stack. Installing the optional packages enables GJR/EGARCH with Student-t, clustered/robust panel standard errors and the PELT/Binseg break search; without them, the built-in implementations are used.</p>
+    <h3>Can I do difference-in-differences here?</h3>
+    <p>Yes — the panel tab runs DiD with a group×post interaction, reports the pre/post means by group and draws the parallel-trends figure.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs locally. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/time-series/" class="btn btn-ghost">Time series analysis &rarr;</a>
+  <a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/robust-regression/" class="btn btn-ghost">Robust regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power analysis software — sample size and power without coding, G*Power-compatible | Magic Stat</title>
+<meta name="description" content="Power analysis and sample size without coding: a priori, post hoc and sensitivity modes, a live power curve, G*Power-compatible. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/power-analysis/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Power analysis without coding">
+<meta property="og:description" content="A priori sample size, achieved power and sensitivity analysis with a live power curve, for t-tests, ANOVA, correlation, chi-square, regression and SEM.">
+<meta property="og:url" content="https://getmagicstat.com/power-analysis/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Power analysis", "item": "https://getmagicstat.com/power-analysis/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which mode do I need for a grant or an ethics application?", "acceptedAnswer": {"@type": "Answer", "text": "The a priori analysis: you state the test, an effect size justified from the literature or a pilot, the alpha and the target power, and the app returns the sample size. That is the analysis a reviewer expects to see before data collection, not after."}}, {"@type": "Question", "name": "Is post hoc power meaningful?", "acceptedAnswer": {"@type": "Answer", "text": "Rarely. Power computed from the effect you observed in the same sample is a transformation of the p-value: a non-significant result will always look underpowered, and a significant one will always look adequately powered. It is not a good defence of a study that has already been run, and the app does not present it as one."}}, {"@type": "Question", "name": "Is it really G*Power-compatible?", "acceptedAnswer": {"@type": "Answer", "text": "The formulas are documented against the G*Power and WebPower conventions and the repeated-measures case follows the Potvin and Schutz approach. For an unusual design, cross-checking a single number against G*Power is still a sensible habit — agreement is the point of documenting the conventions."}}, {"@type": "Question", "name": "What if my design is clustered or multilevel?", "acceptedAnswer": {"@type": "Answer", "text": "Then power depends on the design, not only on the effect size and n: the number of clusters and their size both matter, and a simple formula will mislead. For those designs, a simulation or a design-specific tool is the honest route; the app's power analysis targets the single-level tests listed in the dialog."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No — power analysis runs locally from the values you type, and the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Power analysis</span>
+    <h1 class="hero-title">Power analysis and sample size <span class="grad">that matches G*Power</span></h1>
+    <p class="hero-sub">Before a study, power analysis answers how many subjects you need; after one, it answers what you could have detected. Magic Stat computes both from the same dialog, shows the power curve live as you change the parameters, and documents the formulas against the G*Power conventions.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">The three questions power analysis answers, and <span class="grad">the one it should not</span></h2>
+  </div>
+  <div class="container">
+    <p>Power analysis links four quantities: the effect size, the sample size, the significance level and the power (the chance of detecting the effect if it exists). You know three of them and solve for the fourth. Solving for the sample size, given a target power, is the a priori analysis — the one you do when planning a study. Solving for power, given the sample you already collected, is the post hoc analysis. Solving for the smallest effect you could detect, given the sample and a target power, is the sensitivity analysis.</p>
+    <p>The honesty caveat belongs here. Post hoc power computed from the effect size you observed is a monotone function of the p-value; a non-significant result will look "underpowered" by construction. It is a weak argument for the value of a study that has already been run, and reporting it as if it rescued a null result is a known misuse. The a priori analysis, done before data collection and with an effect size justified from the literature or from a pilot, is where power analysis earns its place.</p>
+    <p>The tests covered run from the common ones — independent and paired t-tests, one-way ANOVA, correlation, chi-square, multiple regression — to repeated-measures ANOVA and structural equation models with RMSEA-based fit tests. Effect sizes can be typed in directly or computed from descriptive statistics with a calculator in the same style as G*Power's "Determine".</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">power analysis</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Three analysis modes:</strong> a priori (the n needed for a target power), post hoc (the power achieved with the n you have) and sensitivity (the smallest effect detectable).</li>
+      <li><strong>The tests that matter:</strong> independent, paired and one-sample t-tests; one-way ANOVA; repeated-measures ANOVA (within, between and interaction); Pearson correlation; chi-square (Cohen's w); multiple regression (R² increase); a single regression coefficient; two independent proportions; one proportion; and SEM close-fit, not-close-fit and PLS path tests.</li>
+      <li><strong>An effect-size calculator.</strong> Compute Cohen's d, d_z, f, f², w, h or r from means and standard deviations, proportions or R² — the G*Power "Determine" idea, in the dialog.</li>
+      <li><strong>A live power curve.</strong> Power is drawn against sample size and updates as you change the parameters; it can be opened in a graph window and exported as a figure.</li>
+      <li><strong>The parameters each test needs,</strong> shown only when relevant: alpha, target power, n, the n2/n1 ratio, the number of groups, chi-square df, predictors, repeated measures and the nonsphericity ε, model df and the H0/true RMSEA for SEM.</li>
+      <li><strong>G*Power-compatible conventions,</strong> with the formulas documented against the G*Power and WebPower references.</li>
+      <li><strong>A report with the result and the curve,</strong> exportable to .docx/.html/.md — no code.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Answer three quantities, <span class="grad">solve for the fourth</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Open Statistics → Power Analysis & Sample Size.</strong> the dialog opens with a live power curve on the right.</li>
+      <li><strong>Choose the analysis type.</strong> A priori (required sample size), Post hoc (achieved power) or Sensitivity (required effect size).</li>
+      <li><strong>Choose the test and the effect size.</strong> pick from the test list and type the effect size, or click "Determine…" to compute it from descriptive statistics.</li>
+      <li><strong>Enter the parameters.</strong> alpha, target power, and the design parameters the chosen test needs (the dialog shows only those).</li>
+      <li><strong>Read and export.</strong> the result updates as you type; open the power curve in a graph window and send the analysis to the report (.docx/.html/.md).</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Analysis types:</strong> A priori — required sample size · Post hoc — achieved power · Sensitivity — required effect size.</p>
+    <p><strong>Parameters:</strong> alpha · target power · n · ratio n2/n1 · groups (k) · chi-square df · predictors (p) · measures (nm) · nonsphericity ε · model df · H0 RMSEA · true RMSEA.</p>
+    <p><strong>Effect-size calculator:</strong> Cohen's d, d_z, f, f², w, h or r from means and standard deviations, proportions or R².</p>
+    <p><strong>Output:</strong> the solved quantity stated in words, plus a live power-versus-n curve rendered as a figure.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Power analysis questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Which mode do I need for a grant or an ethics application?</h3>
+    <p>The a priori analysis: you state the test, an effect size justified from the literature or a pilot, the alpha and the target power, and the app returns the sample size. That is the analysis a reviewer expects to see before data collection, not after.</p>
+    <h3>Is post hoc power meaningful?</h3>
+    <p>Rarely. Power computed from the effect you observed in the same sample is a transformation of the p-value: a non-significant result will always look underpowered, and a significant one will always look adequately powered. It is not a good defence of a study that has already been run, and the app does not present it as one.</p>
+    <h3>Is it really G*Power-compatible?</h3>
+    <p>The formulas are documented against the G*Power and WebPower conventions and the repeated-measures case follows the Potvin and Schutz approach. For an unusual design, cross-checking a single number against G*Power is still a sensible habit — agreement is the point of documenting the conventions.</p>
+    <h3>What if my design is clustered or multilevel?</h3>
+    <p>Then power depends on the design, not only on the effect size and n: the number of clusters and their size both matter, and a simple formula will mislead. For those designs, a simulation or a design-specific tool is the honest route; the app's power analysis targets the single-level tests listed in the dialog.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No — power analysis runs locally from the values you type, and the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/t-test/" class="btn btn-ghost">t-test &rarr;</a>
+  <a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/correlation/" class="btn btn-ghost">Correlation analysis &rarr;</a>
+  <a href="/mixed-models/" class="btn btn-ghost">Mixed models &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

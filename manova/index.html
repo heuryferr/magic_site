@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANOVA software — one-way multivariate analysis of variance without coding | Magic Stat</title>
+<meta name="description" content="Run one-way MANOVA without coding: Pillai, Wilks, Hotelling-Lawley and Roy, plus a permutational PERMANOVA alongside. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/manova/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="One-way MANOVA without coding">
+<meta property="og:description" content="One-way MANOVA with Pillai, Wilks, Hotelling-Lawley and Roy, and a permutational PERMANOVA computed alongside.">
+<meta property="og:url" content="https://getmagicstat.com/manova/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "MANOVA", "item": "https://getmagicstat.com/manova/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which statistic should I read?", "acceptedAnswer": {"@type": "Answer", "text": "They usually lead to the same conclusion. Pillai's trace is the common recommendation because it is comparatively robust to violations of the assumptions; Wilks' lambda is the classical default; Roy's greatest root is the most sensitive to violations. Reporting all four, as the app does, makes the choice transparent."}}, {"@type": "Question", "name": "MANOVA or several separate ANOVAs?", "acceptedAnswer": {"@type": "Answer", "text": "MANOVA tests one combined hypothesis about the vector of means and controls the error rate across correlated outcomes; separate ANOVAs each test a narrower question but multiply the false-positive risk. With many outcomes and a small sample, though, MANOVA can be underpowered — running the univariate tests as a follow-up is standard."}}, {"@type": "Question", "name": "MANOVA or PERMANOVA?", "acceptedAnswer": {"@type": "Answer", "text": "MANOVA is parametric: it relies on multivariate normality and homogeneous covariance matrices. PERMANOVA makes no normality assumption and works from a distance matrix. The app computes both for the same factor, so you can see whether the conclusion depends on the distributional assumptions."}}, {"@type": "Question", "name": "Can I include more than one factor?", "acceptedAnswer": {"@type": "Answer", "text": "The MANOVA in this app is one-way: a single grouping factor. For a factorial multivariate design with interactions, R (for example car::Anova on an mlm object) is the better route — being honest about that is more useful than pretending the dialog covers it."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The computation runs on your computer; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">MANOVA</span>
+    <h1 class="hero-title">One-way MANOVA <span class="grad">without writing R</span></h1>
+    <p class="hero-sub">MANOVA asks whether groups differ on several outcome variables at once, accounting for the correlation among them. It is a statement about a vector of means, which is why it has four different test statistics and why the choice among them matters less than people fear.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">MANOVA, and why <span class="grad">the four statistics usually agree</span></h2>
+  </div>
+  <div class="container">
+    <p>A multivariate analysis of variance (MANOVA) tests whether one grouping factor produces differences on two or more dependent variables considered together. Instead of running one ANOVA per outcome and multiplying the chances of a false positive, it tests a single hypothesis about the vector of group means while accounting for the correlations among the outcomes.</p>
+    <p>There are four classical test statistics — Pillai's trace, Wilks' lambda, Hotelling-Lawley trace and Roy's greatest root — and Magic Stat reports all four with their F, degrees of freedom and p-value. They rarely disagree in practice; Pillai's trace is often suggested because it is comparatively robust to assumption violations, while Roy's greatest root is the most sensitive to violations of the assumptions. Reporting all four lets the reader see that the conclusion does not hinge on the choice.</p>
+    <p>Where MANOVA stops being the right tool: with many outcomes and a modest sample it can be underpowered, and it assumes multivariate normality and homogeneous covariance matrices. A permutational alternative, PERMANOVA, is computed alongside. If the question is classification rather than group difference, discriminant analysis is the better fit.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">MANOVA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>All four classic statistics,</strong> each with its F approximation, degrees of freedom and p-value: Pillai's trace, Wilks' lambda, Hotelling-Lawley trace and Roy's greatest root.</li>
+      <li><strong>An effect size from Pillai's trace:</strong> partial eta-squared, reported with the result.</li>
+      <li><strong>PERMANOVA alongside,</strong> permutational and based on Euclidean distance, with R² — the distribution-free companion for the same grouping factor.</li>
+      <li><strong>A dedicated MANOVA / PERMANOVA tab</strong> in the results window, so the multivariate result is not mixed in with the univariate ones.</li>
+      <li><strong>Assumption-aware reporting.</strong> If the MANOVA cannot be computed for a sample, the tab says so rather than showing an empty table, and the PERMANOVA is reported independently.</li>
+      <li><strong>A report</strong> with the settings and the result, exportable to .docx/.html/.md — no code.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Several outcomes, <span class="grad">one grouping factor</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> two or more numeric outcome columns and one grouping factor.</li>
+      <li><strong>Open Statistics → Means Comparison Tests.</strong> and choose the scope "MANOVA / PERMANOVA".</li>
+      <li><strong>Select the outcomes and the factor.</strong> two or more response variables and the column that defines the groups.</li>
+      <li><strong>Run it.</strong> Magic Stat computes the four multivariate statistics and the Euclidean PERMANOVA in one step.</li>
+      <li><strong>Read and export.</strong> the MANOVA / PERMANOVA tab in the results window, then the report to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Design:</strong> one-way — a single grouping factor with two or more levels, and two or more numeric dependent variables.</p>
+    <p><strong>Statistics:</strong> Pillai's trace · Wilks' lambda · Hotelling-Lawley trace · Roy's greatest root, each with F, df1, df2 and p.</p>
+    <p><strong>Effect size:</strong> partial eta-squared, computed from Pillai's trace.</p>
+    <p><strong>Companion test:</strong> PERMANOVA (Euclidean distance, permutational), with R², reported in the same tab.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">MANOVA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Which statistic should I read?</h3>
+    <p>They usually lead to the same conclusion. Pillai's trace is the common recommendation because it is comparatively robust to violations of the assumptions; Wilks' lambda is the classical default; Roy's greatest root is the most sensitive to violations. Reporting all four, as the app does, makes the choice transparent.</p>
+    <h3>MANOVA or several separate ANOVAs?</h3>
+    <p>MANOVA tests one combined hypothesis about the vector of means and controls the error rate across correlated outcomes; separate ANOVAs each test a narrower question but multiply the false-positive risk. With many outcomes and a small sample, though, MANOVA can be underpowered — running the univariate tests as a follow-up is standard.</p>
+    <h3>MANOVA or PERMANOVA?</h3>
+    <p>MANOVA is parametric: it relies on multivariate normality and homogeneous covariance matrices. PERMANOVA makes no normality assumption and works from a distance matrix. The app computes both for the same factor, so you can see whether the conclusion depends on the distributional assumptions.</p>
+    <h3>Can I include more than one factor?</h3>
+    <p>The MANOVA in this app is one-way: a single grouping factor. For a factorial multivariate design with interactions, R (for example car::Anova on an mlm object) is the better route — being honest about that is more useful than pretending the dialog covers it.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The computation runs on your computer; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/permanova/" class="btn btn-ghost">PERMANOVA &rarr;</a>
+  <a href="/discriminant-analysis/" class="btn btn-ghost">Discriminant analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

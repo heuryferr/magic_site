@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correspondence analysis software — run CA without coding | Magic Stat</title>
+<meta name="description" content="Run correspondence analysis without coding: inertia per axis, chi-square and a publication-ready biplot from a count table. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/ca/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Correspondence analysis without coding">
+<meta property="og:description" content="Correspondence analysis from a count table — axis inertia, chi-square and a publication-ready biplot, no scripts.">
+<meta property="og:url" content="https://getmagicstat.com/ca/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Correspondence analysis", "item": "https://getmagicstat.com/ca/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is correspondence analysis the same as PCA?", "acceptedAnswer": {"@type": "Answer", "text": "No. PCA decomposes the variance of continuous variables on a Euclidean metric. CA decomposes the chi-square of a count table on a chi-square metric. Using PCA on a contingency table is a common mistake; CA is the appropriate ordination for that kind of table."}}, {"@type": "Question", "name": "CA or CCA?", "acceptedAnswer": {"@type": "Answer", "text": "Plain CA is unconstrained — it only describes the table you give it. CCA constrains the ordination by a second set of environmental or explanatory variables and adds a permutation test. If you have predictors you want to explain the table with, use CCA."}}, {"@type": "Question", "name": "My table has negative values — what now?", "acceptedAnswer": {"@type": "Answer", "text": "CA requires non-negative, complete data. If your variables are continuous and can be negative, the appropriate method is usually PCA. If you genuinely need the chi-square framework, that should be a deliberate, stated choice, not an afterthought."}}, {"@type": "Question", "name": "What about supplementary or illustrative variables?", "acceptedAnswer": {"@type": "Answer", "text": "Not in this dialog. CA here fits the table you give it. If you need supplementary rows or columns, FactoMineR::CA or the ca package in R is the better tool — and we will say so rather than pretend otherwise."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Correspondence analysis</span>
+    <h1 class="hero-title">Correspondence analysis <span class="grad">without writing code</span></h1>
+    <p class="hero-sub">Correspondence analysis is the ordination for two-way count tables: it shows how the rows and the columns of a contingency or abundance table correspond. Magic Stat runs it from the spreadsheet you already have and gives you the inertia, the chi-square and the biplot.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What correspondence analysis does, and <span class="grad">when to reach for it</span></h2>
+  </div>
+  <div class="container">
+    <p>Correspondence analysis takes a two-way table of non-negative counts — sites by species, samples by categories, any contingency table — and places both the rows and the columns in one low-dimensional space. Rows and columns that sit close together in that space correspond more than the row and column totals alone would predict.</p>
+    <p>Everything in CA is measured on a chi-square metric: the analysis decomposes the chi-square statistic of the table, and the inertia of each axis is a share of that total. That is what forces the constraint you will meet in the dialog — the data must be non-negative and complete. Negative values, or a spreadsheet full of gaps, are not a CA table.</p>
+    <p>CA is not the tool for continuous, possibly negative variables with linear structure; that is PCA. It is also not the tool when you want to explain the table by a second set of measured variables — that is RDA or CCA. And plain CA inherits the arch effect on long gradients, which is exactly what DCA was designed to remove.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">CA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Inertia per axis</strong>, with the percentage explained and the cumulative total, so you can see how much of the table the first two axes actually carry.</li>
+      <li><strong>The chi-square statistic of the table</strong>, reported alongside the ordination instead of left implicit.</li>
+      <li><strong>Joint row and column scores</strong> — the biplot that shows which rows and which columns correspond, with a grouping column and sample labels available for the points.</li>
+      <li><strong>Transformations and colours</strong>: the shared transformation list, scientific palettes, legends placed outside the plot, exported as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>The analysis enters the report automatically</strong> with its settings and interpretation — exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong> Choose Statistics → Multivariate → CA.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a count table to a <span class="grad">biplot</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the table.</strong> samples or sites in rows, species or categories in columns, non-negative counts with positive row totals.</li>
+      <li><strong>Pick CA.</strong> Statistics → Multivariate → CA.</li>
+      <li><strong>Choose the variables in matrix X.</strong> and a grouping column if you want the points coloured by a factor.</li>
+      <li><strong>Run it.</strong> Magic Stat computes the chi-square standardised residuals, the SVD and the row and column scores in one step.</li>
+      <li><strong>Read and export.</strong> inertia per axis in the results table, the biplot in the figure, and both in the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Input:</strong> a non-negative, complete table. CA is chi-square based, so for a raw count table the usual transformation is None — the chi-square metric is already part of the method.</p>
+    <p><strong>Transformations available in the dialog:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1. A grouping column, sample labels and point sizes are supported for the figure.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Correspondence analysis questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Is correspondence analysis the same as PCA?</h3>
+    <p>No. PCA decomposes the variance of continuous variables on a Euclidean metric. CA decomposes the chi-square of a count table on a chi-square metric. Using PCA on a contingency table is a common mistake; CA is the appropriate ordination for that kind of table.</p>
+    <h3>CA or CCA?</h3>
+    <p>Plain CA is unconstrained — it only describes the table you give it. CCA constrains the ordination by a second set of environmental or explanatory variables and adds a permutation test. If you have predictors you want to explain the table with, use CCA.</p>
+    <h3>My table has negative values — what now?</h3>
+    <p>CA requires non-negative, complete data. If your variables are continuous and can be negative, the appropriate method is usually PCA. If you genuinely need the chi-square framework, that should be a deliberate, stated choice, not an afterthought.</p>
+    <h3>What about supplementary or illustrative variables?</h3>
+    <p>Not in this dialog. CA here fits the table you give it. If you need supplementary rows or columns, FactoMineR::CA or the ca package in R is the better tool — and we will say so rather than pretend otherwise.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/dca/" class="btn btn-ghost">Detrended correspondence analysis &rarr;</a>
+  <a href="/cca/" class="btn btn-ghost">Canonical correspondence analysis &rarr;</a>
+  <a href="/rda/" class="btn btn-ghost">Redundancy analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

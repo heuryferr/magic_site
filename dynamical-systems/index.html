@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamical systems software — ODEs, chaos and Lyapunov | Magic Stat</title>
+<meta name="description" content="Write ODEs and maps, explore attractors, bifurcations and Lyapunov spectra, and detect chaos in real series. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/dynamical-systems/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dynamical systems by writing equations">
+<meta property="og:description" content="Write ODEs and maps, explore attractors, bifurcations, Poincaré sections and Lyapunov spectra, and test real series for chaos.">
+<meta property="og:url" content="https://getmagicstat.com/dynamical-systems/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Dynamical systems", "item": "https://getmagicstat.com/dynamical-systems/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to know the equations?", "acceptedAnswer": {"@type": "Answer", "text": "For the first half of the module, yes — it is an equation-first tool. For the second half, no: if you have only a measured series, the chaos-detection methods (s-map, Lyapunov exponents, 0–1 test, RQA) work on the data directly."}}, {"@type": "Question", "name": "Which solver should I use?", "acceptedAnswer": {"@type": "Answer", "text": "RK4 is the sensible default for smooth ODEs, with RK45 when the system is stiff or the time span is long; Euler is there for teaching and for maps. The step size matters — a chaotic system integrated with too large a step produces numerical chaos, not the system's."}}, {"@type": "Question", "name": "What does a positive Lyapunov exponent mean?", "acceptedAnswer": {"@type": "Answer", "text": "It means nearby trajectories separate exponentially, which is the defining feature of chaos. The module reports the spectrum, not only the leading exponent; but a positive exponent from a short or noisy series should be treated as an indication, not a proof."}}, {"@type": "Question", "name": "Is this a computer algebra system?", "acceptedAnswer": {"@type": "Answer", "text": "No. sympy is used for parsing, the symbolic Jacobian and the LaTeX preview, but the module is numerical. For closed-form solutions and symbolic work, use a CAS such as Mathematica, Maple or sympy directly."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs locally; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Dynamical systems</span>
+    <h1 class="hero-title">Dynamical systems <span class="grad">by writing the equations</span></h1>
+    <p class="hero-sub">The module starts from the thing a mathematician actually writes down: the equations. Type x' = s*(y-x) or x = r*x*(1-x), and Magic Stat detects whether it is an ODE or a map, typesets the equation as you write, and gives you the attractor, the bifurcation diagram, the Lyapunov spectrum and the rest.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Equations in, dynamics out — and <span class="grad">the second half: real data</span></h2>
+  </div>
+  <div class="container">
+    <p>There are two ways to study a dynamical system. The first is to know the equations: write them, integrate them, and explore the attractor, the bifurcation structure, the fixed points and their stability, the Poincaré sections and the Lyapunov exponents. Magic Stat takes the equations in the notation a person would use on paper — derivatives x', maps x_{t+1}, sums, roots and fractions — parses them symbolically and integrates them.</p>
+    <p>The second is to have only a time series and ask whether it is chaotic. The module implements the methods used for that question in ecology — s-map, Jacobian and direct Lyapunov exponents, the 0–1 test, recurrence quantification, permutation entropy and horizontal visibility graphs — as functions over any real series, not only over simulated ones.</p>
+    <p>It is not a computer algebra system. sympy is used for parsing, the symbolic Jacobian and the LaTeX preview, but the module is numerical. If you need closed-form solutions, stability proofs or symbolic manipulation, use a computer algebra system; Magic Stat is for numerical exploration and for the chaos tests on data.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">dynamical systems</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>The equation editor.</strong> Type the system in normal notation and it is typeset as you write; structural symbols (∑, ∏, ∫, √, fractions, derivatives) can be placed directly, and the free variables become parameters with editable values.</li>
+      <li><strong>ODE or map, detected automatically</strong> — continuous time from x', discrete from x = f(x) or x_{t+1} — with initial conditions entered next to each equation.</li>
+      <li><strong>Exploration of the system:</strong> time series, 2D and 3D attractors, bifurcation diagrams, Lyapunov spectra (Benettin/QR), cobweb plots for 1D maps, Poincaré sections, basins of attraction, and fixed points with their stability and a direction field.</li>
+      <li><strong>Chaos detection in real series:</strong> s-map, Jacobian Lyapunov exponents, direct Lyapunov exponents (Rosenstein), the 0–1 test, recurrence quantification (%REC, %DET, Lmax, entropy), permutation entropy and horizontal visibility graphs.</li>
+      <li><strong>A model library</strong> of the classics — Lorenz, Rössler, Van der Pol, Lotka–Volterra, SIR, Duffing, Hénon, the logistic and tent maps and others — ready to load and modify.</li>
+      <li><strong>Figures for the manuscript</strong> and a reviewer-style report of the run, with the equations and the parameters that produced it.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From equations to <span class="grad">a result</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Write the equations.</strong> in the canvas or as text — x' = s*(y-x) for an ODE, x = r*x*(1-x) for a map — or load a classic model from the library.</li>
+      <li><strong>Set the parameters and initial conditions.</strong> the variables you did not write as derivatives or next-state become parameters automatically, each with an editable value.</li>
+      <li><strong>Integrate or iterate.</strong> choose the solver settings (time span, step) and the analysis — attractor, bifurcation, Lyapunov, Poincaré, cobweb or basin.</li>
+      <li><strong>Or load a real series.</strong> and run the chaos-detection methods to see whether the data behave like a chaotic system.</li>
+      <li><strong>Read and export.</strong> the figures go to the gallery and the run is written into the report with its equations and parameters.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Integration:</strong> Euler, RK4 or RK45, with the time span and step set in the dialog; maps are iterated for the number of generations you specify. <strong>Bifurcation:</strong> iterations per point, transient to discard and number of points.</p>
+    <p><strong>Real-series methods:</strong> s-map lag and embedding by cross-validation, JLE/DLE, the 0–1 test, RQA, permutation entropy and HVG. <strong>Symbols:</strong> a palette of structures, functions, operators and Greek letters, or typed directly.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Dynamical-systems questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Do I have to know the equations?</h3>
+    <p>For the first half of the module, yes — it is an equation-first tool. For the second half, no: if you have only a measured series, the chaos-detection methods (s-map, Lyapunov exponents, 0–1 test, RQA) work on the data directly.</p>
+    <h3>Which solver should I use?</h3>
+    <p>RK4 is the sensible default for smooth ODEs, with RK45 when the system is stiff or the time span is long; Euler is there for teaching and for maps. The step size matters — a chaotic system integrated with too large a step produces numerical chaos, not the system's.</p>
+    <h3>What does a positive Lyapunov exponent mean?</h3>
+    <p>It means nearby trajectories separate exponentially, which is the defining feature of chaos. The module reports the spectrum, not only the leading exponent; but a positive exponent from a short or noisy series should be treated as an indication, not a proof.</p>
+    <h3>Is this a computer algebra system?</h3>
+    <p>No. sympy is used for parsing, the symbolic Jacobian and the LaTeX preview, but the module is numerical. For closed-form solutions and symbolic work, use a CAS such as Mathematica, Maple or sympy directly.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs locally; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/time-series/" class="btn btn-ghost">Time series analysis &rarr;</a>
+  <a href="/nonlinear-regression/" class="btn btn-ghost">Nonlinear regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

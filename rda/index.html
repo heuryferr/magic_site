@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RDA software — redundancy analysis without coding | Magic Stat</title>
+<meta name="description" content="Run redundancy analysis without coding: constrained ordination with R², adjusted R² and an environmental biplot. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/rda/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redundancy analysis without coding">
+<meta property="og:description" content="Constrained ordination of a response matrix by measured predictor variables — constrained eigenvalues, R² and a biplot.">
+<meta property="og:url" content="https://getmagicstat.com/rda/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Redundancy analysis", "item": "https://getmagicstat.com/rda/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "RDA or CCA?", "acceptedAnswer": {"@type": "Answer", "text": "RDA assumes linear responses; CCA assumes unimodal responses. On short gradients the two agree closely and RDA is simpler to explain. On long gradients, or with clear unimodal species responses, CCA is the more honest model."}}, {"@type": "Question", "name": "RDA or PCA?", "acceptedAnswer": {"@type": "Answer", "text": "PCA is unconstrained: it finds the main axes of the response matrix with no predictors. RDA constrains those axes to be combinations of your explanatory variables. If you only want to describe the responses, use PCA."}}, {"@type": "Question", "name": "How do I test whether the constraints are significant?", "acceptedAnswer": {"@type": "Answer", "text": "This dialog reports the constrained ordination, R² and the adjusted R², but it does not run a per-term permutation test of the constraints. When you need tests of individual terms or axes, or partial RDA, vegan in R is the appropriate tool."}}, {"@type": "Question", "name": "Which transformation should I use?", "acceptedAnswer": {"@type": "Answer", "text": "For abundance responses, Hellinger or chord usually behave better than raw counts because they reduce the weight of the largest values. For standardised continuous responses with comparable units, None or Z-score. Whatever you choose, report it — the transformation is part of the method."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only automatic signal is an anonymous installation counter, with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Redundancy analysis</span>
+    <h1 class="hero-title">Redundancy analysis <span class="grad">with your own predictors</span></h1>
+    <p class="hero-sub">Redundancy analysis asks a direct question: how much of the variation in one matrix is explained by another? Magic Stat runs it from two spreadsheet blocks — the response matrix and the predictors — and gives you the constrained ordination, R² and the biplot.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What RDA is, and <span class="grad">the question it answers</span></h2>
+  </div>
+  <div class="container">
+    <p>Redundancy analysis is a constrained ordination. It regresses each response variable on the explanatory variables, then does a PCA of the fitted values. The axes are therefore linear combinations of your predictors, chosen to explain as much of the response matrix as they can.</p>
+    <p>The number to read is not the picture but the R², and its adjusted version. R² says how much of the response variation the constrained axes carry; the adjusted R² penalises that figure for the number of predictors, which matters as soon as you have more than a handful.</p>
+    <p>RDA assumes a linear response of the response variables to the predictors. That is a real assumption, not a formality: on long ecological gradients, or with abundance data full of zeros and unimodal responses, CCA is the appropriate method and RDA will understate the structure. A Hellinger or chord transformation before RDA is a common and defensible compromise.</p>
+    <p>If you have no predictors at all, you want an unconstrained ordination — PCA or PCoA — not RDA.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">RDA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>The constrained ordination</strong>: site scores that are linear combinations of your explanatory variables, plus species or response scores and the environmental biplot arrows.</li>
+      <li><strong>R² and adjusted R² of the constrained model</strong>, reported as numbers so the ordination is not read without its effect size.</li>
+      <li><strong>Constrained eigenvalues and the variance explained per axis</strong>, expressed as percentages of the total variance rather than of the constrained block alone.</li>
+      <li><strong>Standardising the response variables</strong> as a checkbox, matching the scaling convention you would use in R.</li>
+      <li><strong>A publication-ready biplot</strong> — legends outside the plot, scientific palettes, PNG, SVG, PDF, JPEG or TIFF export — and the analysis written into the report (.docx, .html, .md).</li>
+      <li><strong>No code, no command line.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Two blocks to a <span class="grad">constrained ordination</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> responses in matrix X, explanatory variables in matrix Y, on the same rows.</li>
+      <li><strong>Pick RDA.</strong> Statistics → Multivariate → RDA.</li>
+      <li><strong>Select X and Y.</strong> the response variables and at least one non-overlapping explanatory variable; the dialog keeps the two matrices aligned by row.</li>
+      <li><strong>Choose the scaling.</strong> standardise the response variables if their scales differ; apply a transformation if the responses need one.</li>
+      <li><strong>Run and read.</strong> constrained axes and R² in the results table, the biplot in the figure, both in the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Two matrices:</strong> X (responses) and Y (explanatory). Y must contain at least one variable that is not in X; rows are matched across both.</p>
+    <p><strong>Standardise response variables</strong> (checkbox, matching the scaling you would use in R) and the shared transformation list: None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1. Hellinger is the usual starting point for abundance responses.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">RDA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>RDA or CCA?</h3>
+    <p>RDA assumes linear responses; CCA assumes unimodal responses. On short gradients the two agree closely and RDA is simpler to explain. On long gradients, or with clear unimodal species responses, CCA is the more honest model.</p>
+    <h3>RDA or PCA?</h3>
+    <p>PCA is unconstrained: it finds the main axes of the response matrix with no predictors. RDA constrains those axes to be combinations of your explanatory variables. If you only want to describe the responses, use PCA.</p>
+    <h3>How do I test whether the constraints are significant?</h3>
+    <p>This dialog reports the constrained ordination, R² and the adjusted R², but it does not run a per-term permutation test of the constraints. When you need tests of individual terms or axes, or partial RDA, vegan in R is the appropriate tool.</p>
+    <h3>Which transformation should I use?</h3>
+    <p>For abundance responses, Hellinger or chord usually behave better than raw counts because they reduce the weight of the largest values. For standardised continuous responses with comparable units, None or Z-score. Whatever you choose, report it — the transformation is part of the method.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only automatic signal is an anonymous installation counter, with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/cca/" class="btn btn-ghost">Canonical correspondence analysis &rarr;</a>
+  <a href="/pca/" class="btn btn-ghost">PCA analysis &rarr;</a>
+  <a href="/ca/" class="btn btn-ghost">Correspondence analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

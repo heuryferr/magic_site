@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Non-parametric test software — Mann-Whitney, Kruskal-Wallis, Wilcoxon and Friedman without coding | Magic Stat</title>
+<meta name="description" content="Run non-parametric tests without coding: Mann-Whitney, Kruskal-Wallis, Brunner-Munzel, Mood, Wilcoxon and Friedman. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/nonparametric-tests/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Non-parametric tests without coding">
+<meta property="og:description" content="Mann-Whitney, Kruskal-Wallis, Brunner-Munzel, Mood&#x27;s median, Wilcoxon signed-rank and Friedman, plus permutation p-values.">
+<meta property="og:url" content="https://getmagicstat.com/nonparametric-tests/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Non-parametric tests", "item": "https://getmagicstat.com/nonparametric-tests/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When should I use a non-parametric test?", "acceptedAnswer": {"@type": "Answer", "text": "When the data are ordinal, strongly skewed, or dominated by outliers, or when the sample is too small for the normality assumption to be credible. If the data are roughly normal, a parametric test uses more of the information and is usually the better choice — using a rank test by reflex discards power you already have."}}, {"@type": "Question", "name": "Should I transform the data instead?", "acceptedAnswer": {"@type": "Answer", "text": "A transformation can make a parametric test appropriate, but it changes the scale and therefore the meaning of the estimate, and it is not a cure for everything. A rank-based test is a cleaner statement about the data as measured. The app offers both routes so the decision is explicit."}}, {"@type": "Question", "name": "Mann-Whitney or Brunner-Munzel?", "acceptedAnswer": {"@type": "Answer", "text": "Mann-Whitney compares locations when the two distributions have a similar shape. Brunner-Munzel is the safer choice when the distributions differ in shape as well, because it does not assume equal variances in the rank sense."}}, {"@type": "Question", "name": "Can I get a p-value by permutation?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The permutation test builds the null distribution by reshuffling the group labels and is reported next to the formula-based result, which is a useful check when the sample is small or the distribution is uncertain."}}, {"@type": "Question", "name": "Does it still report an effect size?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The multi-group case reports eta-squared, omega-squared and epsilon-squared; the two-group case reports Cohen's d with a confidence interval built by bootstrap or normal approximation. An effect size belongs with any test, not only with the parametric ones."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Non-parametric tests</span>
+    <h1 class="hero-title">Rank-based tests <span class="grad">without the normality assumption</span></h1>
+    <p class="hero-sub">Non-parametric tests work from the ranks of the data rather than from the values themselves, so they do not assume a normal distribution. They are the right answer for ordinal data, strong skew and outliers — and the wrong reflex when the data are perfectly well behaved and a t-test would use more of the information.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What rank-based tests assume, and <span class="grad">what they cost</span></h2>
+  </div>
+  <div class="container">
+    <p>A non-parametric test replaces the observed values with their ranks and asks whether the ranks differ between groups. Because it does not depend on the shape of the distribution, it is robust to skew, to outliers and to ordinal scales where the distances between categories are not meaningful. The price is power: when the data really are normal, the rank-based test discards the information carried by the distances and can need a larger sample to detect the same effect.</p>
+    <p>The choice within the family depends on the design and on what you are willing to assume. Mann-Whitney U and Wilcoxon Rank-Sum (the same test under two names) compare two independent groups; Brunner-Munzel is the safer choice when the two distributions differ in shape as well as location. Kruskal-Wallis extends the rank comparison to three or more groups, and Mood's median test compares medians rather than ranks, at the cost of some power. The one-sample Wilcoxon signed-rank replaces the one-sample t-test, and Friedman replaces the repeated measures ANOVA.</p>
+    <p>A permutation test is available as a third route: it builds the null distribution by reshuffling the data, so it does not assume a distributional form either. It answers a slightly different question — a difference in means under exchangeability — which is worth knowing when you choose it.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">non-parametric tests</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Two independent groups.</strong> Mann-Whitney U, Wilcoxon Rank-Sum (the same test) and Brunner-Munzel, the last for distributions that differ in shape as well as location.</li>
+      <li><strong>Three or more groups.</strong> Kruskal-Wallis and Mood's median test, as the rank-based counterpart of the one-way ANOVA.</li>
+      <li><strong>One sample.</strong> The Wilcoxon signed-rank as the alternative to the one-sample t-test against a reference value.</li>
+      <li><strong>Repeated measures.</strong> The Friedman test, with pairwise Wilcoxon signed-rank comparisons, for three or more conditions.</li>
+      <li><strong>Permutation p-values.</strong> A permutation test for the two-sample and one-way routes, reported next to the parametric and rank-based results.</li>
+      <li><strong>An effect size with the result.</strong> Cohen's d for two groups; eta-squared, omega-squared and epsilon-squared for the multi-group case, with a bootstrap or normal-approximation confidence interval.</li>
+      <li><strong>Post-hoc that matches the omnibus.</strong> When the omnibus test is Kruskal-Wallis, the post-hoc method is converted to its rank-based equivalent — the app never runs Tukey on ranks.</li>
+      <li><strong>A paper table and a report,</strong> exportable to .docx/.html/.md — no code.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Pick the design, <span class="grad">get the rank-based answer</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> the response in one column and the grouping factor in another, or the paired/repeated columns for the within-subjects route.</li>
+      <li><strong>Open Statistics → Means Comparison Tests.</strong> and choose the scope: Single Mean, Two Means or Multiple Means.</li>
+      <li><strong>Choose the non-parametric test.</strong> Mann-Whitney U, Wilcoxon Rank-Sum or Brunner-Munzel for two groups; Kruskal-Wallis or Mood's median test for three or more; the signed-rank test for one sample.</li>
+      <li><strong>Add a permutation test if you want one.</strong> tick the permutation option to get a p-value built by reshuffling the data.</li>
+      <li><strong>Read and export.</strong> the rank-based statistic, the effect size and the report, to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The tests, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Two independent groups:</strong> Mann-Whitney U · Wilcoxon Rank-Sum · Brunner-Munzel.</p>
+    <p><strong>Three or more groups:</strong> Kruskal-Wallis · Mood's median test.</p>
+    <p><strong>One sample:</strong> Wilcoxon signed-rank.</p>
+    <p><strong>Repeated measures:</strong> Friedman (three or more conditions); Wilcoxon signed-rank (two conditions).</p>
+    <p><strong>Permutation test:</strong> available for the two-sample and one-way routes, with the number of permutations reported.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Non-parametric questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>When should I use a non-parametric test?</h3>
+    <p>When the data are ordinal, strongly skewed, or dominated by outliers, or when the sample is too small for the normality assumption to be credible. If the data are roughly normal, a parametric test uses more of the information and is usually the better choice — using a rank test by reflex discards power you already have.</p>
+    <h3>Should I transform the data instead?</h3>
+    <p>A transformation can make a parametric test appropriate, but it changes the scale and therefore the meaning of the estimate, and it is not a cure for everything. A rank-based test is a cleaner statement about the data as measured. The app offers both routes so the decision is explicit.</p>
+    <h3>Mann-Whitney or Brunner-Munzel?</h3>
+    <p>Mann-Whitney compares locations when the two distributions have a similar shape. Brunner-Munzel is the safer choice when the distributions differ in shape as well, because it does not assume equal variances in the rank sense.</p>
+    <h3>Can I get a p-value by permutation?</h3>
+    <p>Yes. The permutation test builds the null distribution by reshuffling the group labels and is reported next to the formula-based result, which is a useful check when the sample is small or the distribution is uncertain.</p>
+    <h3>Does it still report an effect size?</h3>
+    <p>Yes. The multi-group case reports eta-squared, omega-squared and epsilon-squared; the two-group case reports Cohen's d with a confidence interval built by bootstrap or normal approximation. An effect size belongs with any test, not only with the parametric ones.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/t-test/" class="btn btn-ghost">t-test &rarr;</a>
+  <a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/post-hoc-tests/" class="btn btn-ghost">Post-hoc tests &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

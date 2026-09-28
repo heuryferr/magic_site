@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canonical correlation software — run cancor without coding | Magic Stat</title>
+<meta name="description" content="Run canonical correlation without coding: canonical correlations, coefficients, loadings and Wilks&#x27; lambda tests from two variable sets.">
+<link rel="canonical" href="https://getmagicstat.com/canonical-correlation/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Canonical correlation without coding">
+<meta property="og:description" content="Canonical correlation between two sets of variables — canonical correlations, coefficients, loadings and Wilks&#x27; lambda tests.">
+<meta property="og:url" content="https://getmagicstat.com/canonical-correlation/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Canonical correlation", "item": "https://getmagicstat.com/canonical-correlation/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many canonical correlations will I get?", "acceptedAnswer": {"@type": "Answer", "text": "As many as the smaller of the two variable sets. The first is always the largest; each later root is uncorrelated with the ones before it and explains what is left."}}, {"@type": "Question", "name": "What does Wilks' lambda test?", "acceptedAnswer": {"@type": "Answer", "text": "It tests the set of roots from a given point on: the first p-value tests all roots together, the next tests all but the first, and so on. A small p does not tell you which variables drive the relationship — the loadings do that."}}, {"@type": "Question", "name": "The signs of my coefficients vary — is something broken?", "acceptedAnswer": {"@type": "Answer", "text": "No. Canonical variates are defined up to a sign flip, so coefficients and loadings can appear with either sign, and two runs on the same data can legitimately differ in sign. Interpret magnitudes and loadings, not signed coefficients."}}, {"@type": "Question", "name": "Canonical correlation or CCA?", "acceptedAnswer": {"@type": "Answer", "text": "The names overlap badly. Canonical correlation (this page) relates two blocks of continuous variables symmetrically. CCA on our other page is canonical correspondence analysis, a constrained ordination of a count table. Choose by the data, not by the acronym."}}, {"@type": "Question", "name": "What does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "US$990 per year, with a free 48-hour trial and no card required. If you already work in R, stats::cancor and the CCP package reproduce this analysis and offer the same tests."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Canonical correlation</span>
+    <h1 class="hero-title">Canonical correlation analysis <span class="grad">between two variable sets</span></h1>
+    <p class="hero-sub">Canonical correlation asks a symmetric question: given two blocks of measured variables, how strongly do they relate, axis by axis? Magic Stat runs the classic cancor analysis from two spreadsheets and reports the correlations, the loadings and the significance tests.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What canonical correlation is, and <span class="grad">how to read it honestly</span></h2>
+  </div>
+  <div class="container">
+    <p>Canonical correlation takes two sets of continuous variables — call them X and Y — and finds the pair of linear combinations, one from each set, that correlate most strongly. It then repeats the process on the residuals, giving a sequence of canonical correlations, each orthogonal to the last.</p>
+    <p>This is a symmetric method. There is no response and no predictor: it describes how two blocks of measurements relate. That framing matters, because as soon as one block is meant to explain the other, a regression or a constrained ordination such as RDA is usually the more interpretable tool.</p>
+    <p>It is also a method with a deserved reputation for awkwardness. The raw coefficients are sensitive to collinearity, their signs can flip under trivial changes to the data, and with many variables relative to observations the solution is unstable. Read the canonical correlations and the structure loadings — the correlation of each original variable with the canonical scores — and treat the raw coefficients with caution.</p>
+    <p>The implementation here is the classic one: mean-centred X and Y, the generalised eigenvalue problem solved through the same SVD approach the reference implementation uses, raw coefficients, structure loadings, and the Wilks' lambda with Bartlett chi-square tests per root.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">canonical correlation</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>The canonical correlations</strong> for every root, with the number of roots set by the smaller of the two variable sets.</li>
+      <li><strong>Wilks' lambda with the Bartlett chi-square test</strong> per root — chi-square, degrees of freedom and p-value — the same significance framework as the classic reference implementations.</li>
+      <li><strong>Raw canonical coefficients</strong> for applying the transformation to centred data, and <strong>structure loadings</strong> that are far easier to interpret.</li>
+      <li><strong>Canonical scores</strong> for both sets, so the relationship can be plotted and inspected.</li>
+      <li><strong>Clear guards</strong>: constant columns, non-numeric columns, unequal row counts, singular matrices and too-few observations are reported with a readable message instead of a cryptic failure.</li>
+      <li><strong>No code, no command line</strong> — and the analysis is written into the report (.docx, .html, .md).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Two blocks to <span class="grad">canonical correlations</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> both variable sets as columns of the same spreadsheet, one row per observation.</li>
+      <li><strong>Pick Canonical Corr.</strong> Statistics → Multivariate → Canonical Corr.</li>
+      <li><strong>Select X and Y.</strong> at least two numeric variables in each set, with no variable shared between the two.</li>
+      <li><strong>Run it.</strong> Magic Stat centres both sets, solves for the canonical roots and runs the Wilks and Bartlett tests.</li>
+      <li><strong>Read and export.</strong> correlations, coefficients, loadings and test statistics in the results tables; the summary goes into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Two blocks of continuous variables:</strong> at least two in X and at least two in Y, the same number of rows, and more observations than variables in each block.</p>
+    <p><strong>No transformation step:</strong> the method centres X and Y exactly as the classic implementation does, so the transformation menu does not apply here. Missing values are handled by dropping incomplete rows consistently across both sets.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Canonical correlation questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How many canonical correlations will I get?</h3>
+    <p>As many as the smaller of the two variable sets. The first is always the largest; each later root is uncorrelated with the ones before it and explains what is left.</p>
+    <h3>What does Wilks' lambda test?</h3>
+    <p>It tests the set of roots from a given point on: the first p-value tests all roots together, the next tests all but the first, and so on. A small p does not tell you which variables drive the relationship — the loadings do that.</p>
+    <h3>The signs of my coefficients vary — is something broken?</h3>
+    <p>No. Canonical variates are defined up to a sign flip, so coefficients and loadings can appear with either sign, and two runs on the same data can legitimately differ in sign. Interpret magnitudes and loadings, not signed coefficients.</p>
+    <h3>Canonical correlation or CCA?</h3>
+    <p>The names overlap badly. Canonical correlation (this page) relates two blocks of continuous variables symmetrically. CCA on our other page is canonical correspondence analysis, a constrained ordination of a count table. Choose by the data, not by the acronym.</p>
+    <h3>What does it cost?</h3>
+    <p>US$990 per year, with a free 48-hour trial and no card required. If you already work in R, stats::cancor and the CCP package reproduce this analysis and offer the same tests.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/cca/" class="btn btn-ghost">Canonical correspondence analysis &rarr;</a>
+  <a href="/rda/" class="btn btn-ghost">Redundancy analysis &rarr;</a>
+  <a href="/correlation/" class="btn btn-ghost">Correlation analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

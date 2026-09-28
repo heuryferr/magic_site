@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear regression software — simple and multiple OLS without coding | Magic Stat</title>
+<meta name="description" content="Simple and multiple linear regression with ANOVA, VIF and residual diagnostics, plus Model II error-in-both-variables fits. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/linear-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linear regression without coding">
+<meta property="og:description" content="Ordinary least squares with coefficients, confidence intervals, VIF, residual diagnostics and prediction intervals — and Model II regression for error in both variables.">
+<meta property="og:url" content="https://getmagicstat.com/linear-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Linear regression", "item": "https://getmagicstat.com/linear-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When should I use multiple instead of simple regression?", "acceptedAnswer": {"@type": "Answer", "text": "When you want the effect of each predictor holding the others fixed — for example the effect of age while controlling for sex. Fitting separate simple regressions does not do that, and the coefficients can even change sign when predictors are correlated."}}, {"@type": "Question", "name": "What if the diagnostics flag a problem?", "acceptedAnswer": {"@type": "Answer", "text": "Changing variance or non-normal residuals often improves with a transformation or by using robust standard errors. Outliers that dominate the fit are better handled by robust regression, which Magic Stat also provides."}}, {"@type": "Question", "name": "What is Model II regression for?", "acceptedAnswer": {"@type": "Answer", "text": "Ordinary least squares assumes the error is only in Y. When both variables are measured with error — two field instruments, two assays — the slope from OLS is biased toward zero. Model II regression (MA, SMA, RMA) estimates the line under error in both variables."}}, {"@type": "Question", "name": "Should I trust stepwise selection?", "acceptedAnswer": {"@type": "Answer", "text": "Treat it as a tool, not an oracle. Stepwise selection reacts to noise in the sample and its p-values are optimistic. It is useful for narrowing a large set, but the final model should be interpreted with care."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. If you use R comfortably, keep it. The value here is that the fit, the diagnostics, the Model II line and the report come out of one dialog."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Linear regression</span>
+    <h1 class="hero-title">Simple and multiple linear regression <span class="grad">from a spreadsheet</span></h1>
+    <p class="hero-sub">Ordinary least squares is the most used and most misapplied regression there is. Magic Stat runs simple and multiple linear regression from your spreadsheet and, instead of hiding the assumptions, prints the diagnostics that tell you whether the straight line was a fair choice.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">OLS assumes the error is in Y. <span class="grad">Check that it is.</span></h2>
+  </div>
+  <div class="container">
+    <p>Ordinary least squares finds the line that minimises the squared vertical distances from the points. It estimates a slope for each predictor with a standard error, a t statistic and a confidence interval, and an overall F test for whether the model explains anything. Magic Stat reports all of that, plus an ANOVA table and the coefficients with their variance inflation factors.</p>
+    <p>The method carries assumptions: the relationship is linear, the residuals are independent and roughly constant in spread, and — for the tests — approximately normal. These are checkable, and Magic Stat checks them: Shapiro–Wilk on the residuals for normality, Breusch–Pagan for changing variance, and Durbin–Watson for autocorrelation.</p>
+    <p>Two situations call for a different tool. If X is also measured with error, OLS understates the slope — that is what Model II regression is for, and it is in the same dialog. If a few points dominate the fit, the honest answer is robust regression, also in Magic Stat.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">linear regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Simple and multiple OLS</strong> — one predictor, or a model with several entered together.</li>
+      <li><strong>Coefficients with standard errors, t, p and confidence intervals</strong>, plus R² and adjusted R².</li>
+      <li><strong>An ANOVA table</strong> for the model, as a table rather than console output.</li>
+      <li><strong>Residual diagnostics</strong>: Shapiro–Wilk normality, Breusch–Pagan for heteroscedasticity, and Durbin–Watson for autocorrelation.</li>
+      <li><strong>Variance inflation factors</strong> for multicollinearity, computed against the intercept as in R's <code>car::vif</code>.</li>
+      <li><strong>Model II regression</strong> (OLS / MA / SMA / RMA) for when X and Y are both measured with error, matching R's <code>lmodel2</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Fit the line, <span class="grad">then read the diagnostics</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> outcome and predictors as columns.</li>
+      <li><strong>Choose the analysis.</strong> Statistics → Correlation and Linear Regression.</li>
+      <li><strong>Select predictors and outcome.</strong> one X gives a simple regression, several give one multiple model.</li>
+      <li><strong>Run it.</strong> coefficients, ANOVA and diagnostics appear together — no separate check step.</li>
+      <li><strong>Export.</strong> the fitted line, the tables and the interpretation go into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">not buried in a summary call</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Model:</strong> simple (one predictor), multiple (all predictors entered), or stepwise selection forward and backward with entry and removal p-value thresholds.</p>
+    <p><strong>Model II:</strong> OLS · MA (major axis) · SMA (standardised major axis) · RMA (reduced major axis), for regression when both variables carry measurement error.</p>
+    <p><strong>Output:</strong> coefficient table with intervals, ANOVA, VIF, residual diagnostics, and prediction intervals from the model.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Linear regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>When should I use multiple instead of simple regression?</h3>
+    <p>When you want the effect of each predictor holding the others fixed — for example the effect of age while controlling for sex. Fitting separate simple regressions does not do that, and the coefficients can even change sign when predictors are correlated.</p>
+    <h3>What if the diagnostics flag a problem?</h3>
+    <p>Changing variance or non-normal residuals often improves with a transformation or by using robust standard errors. Outliers that dominate the fit are better handled by robust regression, which Magic Stat also provides.</p>
+    <h3>What is Model II regression for?</h3>
+    <p>Ordinary least squares assumes the error is only in Y. When both variables are measured with error — two field instruments, two assays — the slope from OLS is biased toward zero. Model II regression (MA, SMA, RMA) estimates the line under error in both variables.</p>
+    <h3>Should I trust stepwise selection?</h3>
+    <p>Treat it as a tool, not an oracle. Stepwise selection reacts to noise in the sample and its p-values are optimistic. It is useful for narrowing a large set, but the final model should be interpreted with care.</p>
+    <h3>Do I need R?</h3>
+    <p>No. If you use R comfortably, keep it. The value here is that the fit, the diagnostics, the Model II line and the report come out of one dialog.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/correlation/" class="btn btn-ghost">Correlation analysis &rarr;</a>
+  <a href="/polynomial-regression/" class="btn btn-ghost">Polynomial regression &rarr;</a>
+  <a href="/robust-regression/" class="btn btn-ghost">Robust regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

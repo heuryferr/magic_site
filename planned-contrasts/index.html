@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planned contrasts software — custom contrasts and polynomial trend without coding | Magic Stat</title>
+<meta name="description" content="Run planned contrasts and polynomial trend tests without coding: custom weights per group, L, SE, t, df, p and SS. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/planned-contrasts/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Planned contrasts without coding">
+<meta property="og:description" content="Custom linear contrasts with weights per group, and polynomial trend analysis for ordered groups, with L, SE, t, df, p and SS.">
+<meta property="og:url" content="https://getmagicstat.com/planned-contrasts/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Planned contrasts", "item": "https://getmagicstat.com/planned-contrasts/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Planned contrasts or post-hoc tests?", "acceptedAnswer": {"@type": "Answer", "text": "Planned contrasts when you specified the comparison before seeing the data — they have more power because they test fewer hypotheses. Post-hoc tests when you need all pairwise differences or did not pre-specify the contrast. Choosing a contrast after inspecting the data and reporting it as planned is the practice pre-specification exists to prevent."}}, {"@type": "Question", "name": "Do the weights have to sum to zero?", "acceptedAnswer": {"@type": "Answer", "text": "Σ cᵢ = 0 is what makes the estimate a contrast in which the grand mean cancels. If the weights do not sum to zero, the estimate is still a valid linear combination but now includes the grand mean, and the app says so in a note rather than refusing — the same behaviour as R and emmeans."}}, {"@type": "Question", "name": "Can I run several contrasts at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — one per column. If they are orthogonal, their sums of squares add up to the between-groups sum of squares, which the app reports so you can confirm the decomposition is complete."}}, {"@type": "Question", "name": "Trend or contrasts?", "acceptedAnswer": {"@type": "Answer", "text": "Trend when the groups are ordered (doses, times) and the hypothesis is about the shape of the response — linear, curved, and so on. Custom contrasts when the question is a specific comparison, such as a control against the average of the treatments."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The computation runs locally; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Planned contrasts</span>
+    <h1 class="hero-title">Planned contrasts and trend analysis <span class="grad">with custom weights</span></h1>
+    <p class="hero-sub">When you knew the hypothesis before collecting the data, testing all pairs is both wasteful and a little dishonest. A planned contrast tests the specific comparison you had in mind, with more power, and a trend analysis asks whether the outcome changes monotonically across ordered groups. Both are in one dialog.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What a contrast is, and <span class="grad">what the weights mean</span></h2>
+  </div>
+  <div class="container">
+    <p>A planned contrast is a single linear combination of the group means, defined by a weight for each group. For example, weights of (−1, 1, 0) compare the second group against the first and ignore the third. The estimate L is the weighted sum of the group means, and the test asks whether L differs from zero. A set of contrasts that partition the between-groups variation lets you decompose the overall effect into the specific questions you care about.</p>
+    <p>The convention is that the weights of a contrast sum to zero (Σ cᵢ = 0); that makes the estimate a genuine comparison in which the grand mean cancels out. Magic Stat accepts weights that do not sum to zero as well, because the estimate is still a legitimate linear combination — but it flags the row and explains that the estimate now includes the grand mean, instead of silently returning a number with a different meaning. It also flags whether the design is balanced for that contrast (Σ nᵢ cᵢ = 0), which is what makes orthogonal contrasts add up to the between-groups sum of squares.</p>
+    <p>Trend analysis is the special case where the groups are ordered — doses, times, concentrations — and the contrast weights are the polynomial coefficients for linear, quadratic and cubic components. One F and p per degree tell you whether the outcome rises (or falls) linearly, bends, or does both. This is the same decomposition R produces with summary(aov) and a split.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">planned contrasts</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Custom contrasts with weights per group.</strong> One contrast per column; enter the weights for each factor level and run as many as you need.</li>
+      <li><strong>Per-contrast output.</strong> L (the estimate), SE, t, df, p and the contrast sum of squares, for each row.</li>
+      <li><strong>Orthogonal decomposition.</strong> When the contrasts are orthogonal, their sums of squares add up to the between-groups sum of squares — the check that the decomposition is complete.</li>
+      <li><strong>Trend analysis for ordered groups.</strong> Linear, quadratic, cubic and higher polynomial components, one F and p per degree, capped at the number of groups minus one.</li>
+      <li><strong>Honest flags instead of refusals.</strong> Each contrast reports is_contrast (do the weights sum to zero?) and balanced_design (Σ nᵢ cᵢ = 0?), plus explanatory notes — the computation still runs.</li>
+      <li><strong>Numerical parity with R.</strong> L, SE, t, df and p match emmeans::contrast, and the trend components match summary(aov) with a split.</li>
+      <li><strong>Results table and report,</strong> exportable to .docx/.html/.md — no code, no weights to type into a console.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Weights in, <span class="grad">contrast out</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> the response variable and the grouping factor whose level order defines the group order (first appearance in the data).</li>
+      <li><strong>Open Statistics → Planned Contrasts & Trend.</strong> the dialog holds both modes.</li>
+      <li><strong>Choose the mode.</strong> Custom contrasts, or Trend analysis (ordered groups).</li>
+      <li><strong>Enter the weights or the degree.</strong> one column of weights per contrast, or the maximum polynomial degree (linear = 1, quadratic = 2, cubic = 3…).</li>
+      <li><strong>Read and export.</strong> L, SE, t, df, p and SS per contrast, or one F/p per polynomial degree; then export the report to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Custom contrasts:</strong> one contrast per column, one weight per factor level; weights that sum to zero are a proper contrast.</p>
+    <p><strong>Trend analysis:</strong> maximum polynomial degree (1 = linear, 2 = quadratic, 3 = cubic…), capped at the number of groups minus one.</p>
+    <p><strong>Reported per contrast:</strong> L (estimate), SE, t, df, p and SS, plus the flags is_contrast and balanced_design and any explanatory notes.</p>
+    <p><strong>Reported per degree (trend):</strong> component name, SS, F, df and p.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Planned contrast questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Planned contrasts or post-hoc tests?</h3>
+    <p>Planned contrasts when you specified the comparison before seeing the data — they have more power because they test fewer hypotheses. Post-hoc tests when you need all pairwise differences or did not pre-specify the contrast. Choosing a contrast after inspecting the data and reporting it as planned is the practice pre-specification exists to prevent.</p>
+    <h3>Do the weights have to sum to zero?</h3>
+    <p>Σ cᵢ = 0 is what makes the estimate a contrast in which the grand mean cancels. If the weights do not sum to zero, the estimate is still a valid linear combination but now includes the grand mean, and the app says so in a note rather than refusing — the same behaviour as R and emmeans.</p>
+    <h3>Can I run several contrasts at once?</h3>
+    <p>Yes — one per column. If they are orthogonal, their sums of squares add up to the between-groups sum of squares, which the app reports so you can confirm the decomposition is complete.</p>
+    <h3>Trend or contrasts?</h3>
+    <p>Trend when the groups are ordered (doses, times) and the hypothesis is about the shape of the response — linear, curved, and so on. Custom contrasts when the question is a specific comparison, such as a control against the average of the treatments.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The computation runs locally; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/post-hoc-tests/" class="btn btn-ghost">Post-hoc tests &rarr;</a>
+  <a href="/power-analysis/" class="btn btn-ghost">Power analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

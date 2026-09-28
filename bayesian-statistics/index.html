@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bayesian statistics software — Bayes factors and posteriors | Magic Stat</title>
+<meta name="description" content="Bayes factors and posterior estimates without coding: JZS t-tests, correlation, ANOVA and regression, with HDI and ROPE. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/bayesian-statistics/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bayesian analysis without coding">
+<meta property="og:description" content="JZS Bayes factors, posterior estimates with HDI and ROPE, and a BF robustness plot, from a spreadsheet.">
+<meta property="og:url" content="https://getmagicstat.com/bayesian-statistics/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Bayesian statistics", "item": "https://getmagicstat.com/bayesian-statistics/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a Bayes factor of 5 mean?", "acceptedAnswer": {"@type": "Answer", "text": "The data are about five times more likely under the alternative than under the null. The app labels it with the Jeffreys scale (anecdotal, moderate, strong, very strong, decisive). It is evidence, not a decision — the threshold is yours, and the ROPE gives a practical answer instead."}}, {"@type": "Question", "name": "Is the Bayes factor exact?", "acceptedAnswer": {"@type": "Answer", "text": "For the t family (JZS) it is computed by numerical integration of the exact model, and for correlation it is exact. For one-way ANOVA and contingency tables it is the BIC approximation (Wagenmakers 2007) — useful and honest, but approximate, and the app says so on the results."}}, {"@type": "Question", "name": "Why is there no MCMC?", "acceptedAnswer": {"@type": "Answer", "text": "For these conjugate designs the posterior can be sampled directly, which is fast and deterministic. A general-purpose sampler is what you need for hierarchical or bespoke models, and those are outside this module — Stan or JASP are the tools there."}}, {"@type": "Question", "name": "Should I use the Bayes factor instead of a p-value?", "acceptedAnswer": {"@type": "Answer", "text": "They answer different questions. A p-value addresses whether the data are surprising under the null; a Bayes factor compares two hypotheses and can favour the null. Where a reviewer demands a p-value, the frequentist tests elsewhere in the app provide it."}}, {"@type": "Question", "name": "Does everything run locally?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The computations run locally; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Bayesian statistics</span>
+    <h1 class="hero-title">Bayes factors and posteriors <span class="grad">without a modelling language</span></h1>
+    <p class="hero-sub">A Bayesian analysis reports how much the data should move your belief — a Bayes factor, or a posterior distribution with an interval — rather than a p-value that only says whether a result is surprising under a null. Magic Stat computes the JZS Bayes factor and the posterior for the standard designs.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What you get, and <span class="grad">which kind of Bayesian</span></h2>
+  </div>
+  <div class="container">
+    <p>The default output is a Bayes factor: the evidence in the data for one hypothesis against another, on a scale where 1 is no evidence and larger values favour the alternative. For the t-test family this is the JZS factor (Rouder et al. 2009), computed by numerical integration with a Cauchy prior on the effect size. For correlation there is an exact factor; for one-way ANOVA and contingency the factor is the BIC approximation.</p>
+    <p>Alongside the factor, Magic Stat estimates the posterior distribution of the effect by direct sampling from the conjugate model — no MCMC — and summarises it with the highest-density interval (HDI), a ROPE decision and the probability of direction. A robustness plot shows how the Bayes factor moves as the prior width changes, so you can see whether the conclusion depends on that choice.</p>
+    <p>This is accessible Bayesian statistics, not a general Bayesian modelling language. There is no prior on every parameter, no hierarchical structure you design yourself, and the factor for ANOVA and contingency is approximate. If your question needs a bespoke Bayesian model, Stan or JASP's more general modules are the right tools.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">Bayesian analysis</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>JZS Bayes factors (BF10)</strong> for one-sample, paired and independent two-sample t-tests, by numerical integration (Rouder et al. 2009), with a qualitative label on the Jeffreys scale.</li>
+      <li><strong>An exact Bayes factor for Pearson correlation</strong> and a BIC-approximation factor for one-way ANOVA and contingency tables, with the approximation stated where it applies.</li>
+      <li><strong>Posterior estimates by direct sampling</strong>, no MCMC: mean, median, 95% HDI, a ROPE decision (effect, no practical effect, or inconclusive) and the probability of direction.</li>
+      <li><strong>Regression and repeated-measures posteriors</strong> for one or several predictors and for within-subject designs with two or more time points.</li>
+      <li><strong>Posterior, forest and fit plots, plus a BF robustness plot</strong> showing BF10 against the prior width, in the JASP style.</li>
+      <li><strong>Everything enters the report automatically</strong>, with the summary table and the figures, exportable to .docx, .html or .md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to <span class="grad">a Bayes factor and a posterior</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data and choose a mode.</strong> from two-sample t to regression, correlation, repeated measures or contingency.</li>
+      <li><strong>Select the columns.</strong> and, where relevant, the prior scale and the ROPE width.</li>
+      <li><strong>Run.</strong> the Bayes factor, and the posterior sample when the design allows it, are computed.</li>
+      <li><strong>Read the summary.</strong> the factor with its label, and the posterior mean, HDI, ROPE decision and probability of direction.</li>
+      <li><strong>Check robustness.</strong> the BF robustness plot shows whether the conclusion survives a different prior width; export the tables and figures.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Modes:</strong> two-sample t · paired t · one-sample t · one-way ANOVA (factor + pairwise) · Pearson correlation · linear regression (one or multiple predictors) · repeated measures (2+ time points) · contingency (BIC approximation).</p>
+    <p><strong>Prior:</strong> JZS Cauchy prior on the effect size, widened or narrowed through the prior scale.</p>
+    <p><strong>Posterior summary:</strong> 95% HDI by default, ROPE width selectable, probability of direction reported.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Bayesian questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>What does a Bayes factor of 5 mean?</h3>
+    <p>The data are about five times more likely under the alternative than under the null. The app labels it with the Jeffreys scale (anecdotal, moderate, strong, very strong, decisive). It is evidence, not a decision — the threshold is yours, and the ROPE gives a practical answer instead.</p>
+    <h3>Is the Bayes factor exact?</h3>
+    <p>For the t family (JZS) it is computed by numerical integration of the exact model, and for correlation it is exact. For one-way ANOVA and contingency tables it is the BIC approximation (Wagenmakers 2007) — useful and honest, but approximate, and the app says so on the results.</p>
+    <h3>Why is there no MCMC?</h3>
+    <p>For these conjugate designs the posterior can be sampled directly, which is fast and deterministic. A general-purpose sampler is what you need for hierarchical or bespoke models, and those are outside this module — Stan or JASP are the tools there.</p>
+    <h3>Should I use the Bayes factor instead of a p-value?</h3>
+    <p>They answer different questions. A p-value addresses whether the data are surprising under the null; a Bayes factor compares two hypotheses and can favour the null. Where a reviewer demands a p-value, the frequentist tests elsewhere in the app provide it.</p>
+    <h3>Does everything run locally?</h3>
+    <p>Yes. The computations run locally; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/t-test/" class="btn btn-ghost">t-test &rarr;</a>
+  <a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/correlation/" class="btn btn-ghost">Correlation analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

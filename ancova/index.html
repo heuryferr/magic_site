@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANCOVA software — analysis of covariance with adjusted means without coding | Magic Stat</title>
+<meta name="description" content="Run ANCOVA without coding: Type III sums of squares, least-squares adjusted means and a parallelism test. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/ancova/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ANCOVA without coding">
+<meta property="og:description" content="Analysis of covariance with Type III SS, adjusted (least-squares) means and a homogeneity-of-slopes test.">
+<meta property="og:url" content="https://getmagicstat.com/ancova/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "ANCOVA", "item": "https://getmagicstat.com/ancova/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "ANCOVA or a mixed model?", "acceptedAnswer": {"@type": "Answer", "text": "ANCOVA handles one between-subjects factor with numeric covariates. If your design is repeated measures, has a random grouping structure, or has missing data by design, a mixed model is usually the more honest answer — ANCOVA assumes independent observations."}}, {"@type": "Question", "name": "What does the parallelism test tell me?", "acceptedAnswer": {"@type": "Answer", "text": "It tests whether the covariate's slope is the same in every group. A non-significant result supports the plain ANCOVA; a significant one means the slopes differ and the single adjusted comparison is questionable, so you should model the interaction or analyse the groups separately."}}, {"@type": "Question", "name": "Should I report adjusted or raw means?", "acceptedAnswer": {"@type": "Answer", "text": "Report the adjusted (least-squares) means whenever the groups differ on the covariates, because those are the means that answer the question the ANCOVA asks. The raw group means are still useful descriptively, but they are not the comparison the model tests."}}, {"@type": "Question", "name": "Why Type III and not Type I?", "acceptedAnswer": {"@type": "Answer", "text": "With unbalanced groups or correlated covariates, Type I sums of squares change with the order the terms enter the model, which makes the factor's p depend on an arbitrary ordering. Type III adjusts each term for all the others, which is the reference for the factor-after-covariates question."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No — the analysis runs locally, and the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">ANCOVA</span>
+    <h1 class="hero-title">ANCOVA with Type III sums of squares and <span class="grad">adjusted means</span></h1>
+    <p class="hero-sub">ANCOVA compares group means after the influence of one or more continuous covariates has been removed. It is the right tool when the groups started out unequal on something that predicts the outcome — and the wrong tool when the covariate acts differently in each group, which is exactly what the parallelism test is there to catch.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What ANCOVA adjusts, and <span class="grad">the assumption that trips people up</span></h2>
+  </div>
+  <div class="container">
+    <p>Analysis of covariance fits a model in which the outcome depends on the grouping factor and on one or more numeric covariates, then asks whether the groups still differ once the covariates are held constant. It reports adjusted (least-squares) means — the group means you would have seen if every group had the same covariate value. The classic covariate is a baseline or pretest measurement of the very outcome being studied.</p>
+    <p>The design decision that matters is the type of sums of squares. With unbalanced groups or correlated covariates, the sequential (Type I) sums of squares depend on the order the terms enter the model. ANCOVA here uses Type III (marginal) sums of squares — each term adjusted for all the others — which is the correct reference for the question "does the factor explain the outcome after the covariates", and it matches R's car::Anova with type = 3 and sum-to-zero contrasts.</p>
+    <p>The assumption that trips people up is homogeneity of slopes: ANCOVA assumes the covariate has the same effect in every group. If the factor-by-covariate interaction is significant, that assumption is violated and the single adjusted-means comparison is questionable. Magic Stat runs the parallelism test and reports it, instead of letting a hidden interaction invalidate the result.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">ANCOVA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Type III (marginal) sums of squares.</strong> Each term adjusted for all the others, which is the correct reference for unbalanced designs and correlated covariates.</li>
+      <li><strong>Adjusted (least-squares) means per group.</strong> The model prediction with every covariate fixed at its global mean — the comparison to report, not the raw means, when the groups differ on the covariates.</li>
+      <li><strong>The homogeneity-of-slopes (parallelism) test.</strong> The factor-by-covariate interaction per covariate and jointly, so a violated assumption is visible before the conclusion is drawn.</li>
+      <li><strong>Partial eta-squared for the factor,</strong> reported with the Type III table.</li>
+      <li><strong>A graceful note, not a failure,</strong> when the sample is too small to fit the interaction model: the ANCOVA and the adjusted means are still computed and the parallelism test explains what it would need.</li>
+      <li><strong>Publication-ready tables</strong> with copy, Excel and CSV export, integrated into the report (.docx/.html/.md).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Covariates in, <span class="grad">adjusted means out</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> the outcome, the grouping factor and one or more numeric covariates in the same spreadsheet.</li>
+      <li><strong>Open Statistics → ANCOVA (Analysis of Covariance).</strong> the dialog collects the design in one place.</li>
+      <li><strong>Select the DV, the factor and the covariates.</strong> the factor needs two or more levels; select one or more numeric covariates (Ctrl+click or drag).</li>
+      <li><strong>Run the analysis.</strong> it fits the Type III model and fills three tabs: the ANCOVA table, the adjusted means and the parallelism test.</li>
+      <li><strong>Read and export.</strong> check the factor row in the ANCOVA tab and the parallelism tab, then export the report to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Design:</strong> one between-subjects factor (2+ levels) and one or more numeric covariates.</p>
+    <p><strong>ANCOVA table:</strong> Type III sums of squares, F and p for each covariate and for the factor after adjustment, plus partial eta-squared for the factor.</p>
+    <p><strong>Adjusted means:</strong> least-squares means per group, with each covariate fixed at its global mean.</p>
+    <p><strong>Parallelism:</strong> the factor-by-covariate interaction per covariate and the joint test, with an explanatory note when the model cannot be fit.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">ANCOVA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>ANCOVA or a mixed model?</h3>
+    <p>ANCOVA handles one between-subjects factor with numeric covariates. If your design is repeated measures, has a random grouping structure, or has missing data by design, a mixed model is usually the more honest answer — ANCOVA assumes independent observations.</p>
+    <h3>What does the parallelism test tell me?</h3>
+    <p>It tests whether the covariate's slope is the same in every group. A non-significant result supports the plain ANCOVA; a significant one means the slopes differ and the single adjusted comparison is questionable, so you should model the interaction or analyse the groups separately.</p>
+    <h3>Should I report adjusted or raw means?</h3>
+    <p>Report the adjusted (least-squares) means whenever the groups differ on the covariates, because those are the means that answer the question the ANCOVA asks. The raw group means are still useful descriptively, but they are not the comparison the model tests.</p>
+    <h3>Why Type III and not Type I?</h3>
+    <p>With unbalanced groups or correlated covariates, Type I sums of squares change with the order the terms enter the model, which makes the factor's p depend on an arbitrary ordering. Type III adjusts each term for all the others, which is the reference for the factor-after-covariates question.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No — the analysis runs locally, and the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/planned-contrasts/" class="btn btn-ghost">Planned contrasts &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERMANOVA software — permutational MANOVA (Adonis) without coding | Magic Stat</title>
+<meta name="description" content="Run PERMANOVA (Adonis) without coding: pseudo-F, R² and a permutation p-value from any dissimilarity measure. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/permanova/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PERMANOVA without coding">
+<meta property="og:description" content="Permutational multivariate analysis of variance — pseudo-F, R² and a permutation p on your choice of dissimilarity measure.">
+<meta property="og:url" content="https://getmagicstat.com/permanova/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "PERMANOVA", "item": "https://getmagicstat.com/permanova/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "PERMANOVA or MANOVA?", "acceptedAnswer": {"@type": "Answer", "text": "MANOVA assumes multivariate normal responses and uses parametric test statistics. PERMANOVA makes no such assumption and works from distances. If your variables are roughly normal and on comparable scales, MANOVA has more power; otherwise PERMANOVA is the safer test. The same dialog reports both."}}, {"@type": "Question", "name": "Do I need to check dispersion?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, whenever a significant result could plausibly come from groups differing in spread rather than in position. Run a homogeneity-of-dispersion test — the ecology module has one — and report it next to the PERMANOVA. A significant PERMANOVA with unequal dispersion is a result that needs care in the wording."}}, {"@type": "Question", "name": "Which dissimilarity should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Match it to the data and state it: Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables. The ordination you report should use the same measure."}}, {"@type": "Question", "name": "How many permutations?", "acceptedAnswer": {"@type": "Answer", "text": "More is better within reason; 999 is the common convention and the default here. With very few samples the minimum achievable p is bounded by the number of permutations, which is worth stating in the methods."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No — the analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">PERMANOVA</span>
+    <h1 class="hero-title">PERMANOVA <span class="grad">from a distance matrix</span></h1>
+    <p class="hero-sub">PERMANOVA tests whether groups differ in multivariate space without assuming multivariate normality. Magic Stat runs it from a dissimilarity matrix — Euclidean in the mean-comparison dialog, any of the common ecological measures in the ecology module — and reports pseudo-F, R² and a permutation p.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What PERMANOVA tests, and <span class="grad">what it does not</span></h2>
+  </div>
+  <div class="container">
+    <p>PERMANOVA — permutational multivariate analysis of variance, also called Adonis — partitions the total sum of squared distances between samples into a between-group and a within-group part, and tests the ratio with permutations. The test statistic is a pseudo-F, and the effect size is R²: the share of multivariate variation the grouping explains.</p>
+    <p>It is used so widely because it makes no normality assumption and works from any dissimilarity measure. It is misused just as widely because a significant result can mean a difference in group location, a difference in group dispersion, or both — and PERMANOVA does not distinguish them. If dispersion could differ between groups, a test of homogeneity of dispersion (such as PERMDISP) is needed alongside, and the ecology module runs that test too.</p>
+    <p>The choice of dissimilarity is not cosmetic: Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables. Changing the measure changes the question.</p>
+    <p>PERMANOVA is a test, not a picture. It is normally reported next to an ordination — PCoA or NMDS — computed from the same dissimilarity measure, so that the figure and the test describe the same thing.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">PERMANOVA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Pseudo-F, R² and a permutation p-value</strong>, with the number of permutations reported alongside the result.</li>
+      <li><strong>Any of the common dissimilarities</strong> in the ecology module — Bray–Curtis, Euclidean, Manhattan, Canberra, Jaccard, Sorensen and Horn–Morisita — and Euclidean distances in the mean-comparison dialog.</li>
+      <li><strong>A configurable number of permutations</strong> in the ecology module, defaulting to the conventional value, so p is not reported from a handful of reshuffles.</li>
+      <li><strong>R² as the effect size</strong>, because a significant p on a tiny effect is not an interesting result.</li>
+      <li><strong>Companion distance-based tests</strong> in the same module — ANOSIM, Mantel and a test of homogeneity of dispersion — so dispersion is checked, not assumed.</li>
+      <li><strong>The result enters the report automatically</strong>, exportable to .docx, .html or .md; the analysis runs locally with no code.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Groups and a dissimilarity to a <span class="grad">p-value</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> samples in rows, the variables in columns, and a categorical column holding the groups.</li>
+      <li><strong>Pick the entry point.</strong> the MANOVA/PERMANOVA tab of the mean-comparison tests for Euclidean data, or the ecology module's beta-diversity section for a chosen dissimilarity.</li>
+      <li><strong>Choose the dissimilarity and the permutations.</strong> match the measure to the data; Bray–Curtis and 999 permutations are the usual starting points.</li>
+      <li><strong>Run it.</strong> Magic Stat partitions the sum of squared distances and builds the null distribution by reshuffling the group labels.</li>
+      <li><strong>Read and export.</strong> pseudo-F, R² and p in the results table; the report entry and, where requested, a dissimilarity heatmap.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Dissimilarity measures (ecology module):</strong> Bray–Curtis · Euclidean · Manhattan · Canberra · Jaccard · Sorensen · Horn–Morisita. The mean-comparison dialog runs PERMANOVA on Euclidean distances.</p>
+    <p><strong>Permutations:</strong> a spinner in the ecology module (99 to 9999, default 999); the mean-comparison dialog uses its standard number. Missing values are dropped from the selected columns before the distance matrix is built.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">PERMANOVA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>PERMANOVA or MANOVA?</h3>
+    <p>MANOVA assumes multivariate normal responses and uses parametric test statistics. PERMANOVA makes no such assumption and works from distances. If your variables are roughly normal and on comparable scales, MANOVA has more power; otherwise PERMANOVA is the safer test. The same dialog reports both.</p>
+    <h3>Do I need to check dispersion?</h3>
+    <p>Yes, whenever a significant result could plausibly come from groups differing in spread rather than in position. Run a homogeneity-of-dispersion test — the ecology module has one — and report it next to the PERMANOVA. A significant PERMANOVA with unequal dispersion is a result that needs care in the wording.</p>
+    <h3>Which dissimilarity should I use?</h3>
+    <p>Match it to the data and state it: Bray–Curtis for abundance, Jaccard or Sorensen for presence/absence, Euclidean for standardised continuous variables. The ordination you report should use the same measure.</p>
+    <h3>How many permutations?</h3>
+    <p>More is better within reason; 999 is the common convention and the default here. With very few samples the minimum achievable p is bounded by the number of permutations, which is worth stating in the methods.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No — the analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/nmds/" class="btn btn-ghost">NMDS analysis &rarr;</a>
+  <a href="/pcoa/" class="btn btn-ghost">PCoA analysis &rarr;</a>
+  <a href="/cluster-analysis/" class="btn btn-ghost">Cluster analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

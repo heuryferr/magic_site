@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log-linear model software — multi-way categorical tables without coding | Magic Stat</title>
+<meta name="description" content="Fit a log-linear model to a multi-way count table without coding: G² and Pearson tests, sum-to-zero coefficients and fitted values. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/log-linear-models/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Log-linear models without coding">
+<meta property="og:description" content="Model the counts of a multi-way categorical table — G² and Pearson tests, coefficients and deviance residuals.">
+<meta property="og:url" content="https://getmagicstat.com/log-linear-models/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Log-linear models", "item": "https://getmagicstat.com/log-linear-models/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is a large p good here?", "acceptedAnswer": {"@type": "Answer", "text": "Because the test compares your model against the saturated one. A large p means the simpler model is not significantly worse — the terms you chose already reproduce the table. This is the opposite of an ANOVA or a t-test, and it is the single most common way to misread a log-linear result."}}, {"@type": "Question", "name": "Why can't I include a continuous variable?", "acceptedAnswer": {"@type": "Answer", "text": "The model explains counts of a categorical cross-table, so the factors must be categorical. A continuous predictor changes the question into a Poisson regression, which is a different model with a response. The app keeps the two separate."}}, {"@type": "Question", "name": "How does this differ from the contingency table analysis?", "acceptedAnswer": {"@type": "Answer", "text": "The contingency-table analysis tests independence between two variables. A log-linear model generalises that to three or more variables and lets you specify which interactions to include, rather than only testing the all-independent model."}}, {"@type": "Question", "name": "How are the coefficients scaled?", "acceptedAnswer": {"@type": "Answer", "text": "They follow MASS::loglm: sum-to-zero constraints per index, on the log scale, with the intercept the mean of the log expected counts. exp(coefficient) is the multiplicative effect on the expected count. A Poisson GLM would fit the same cells but parameterise the coefficients differently (treatment contrasts), so the coefficients are not directly comparable to a GLM summary."}}, {"@type": "Question", "name": "Does the fit run here or on a server?", "acceptedAnswer": {"@type": "Answer", "text": "Here, locally, by iterative proportional fitting. The only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Log-linear models</span>
+    <h1 class="hero-title">Log-linear models for multi-way tables <span class="grad">with the loglm conventions</span></h1>
+    <p class="hero-sub">A log-linear model explains the counts in a multi-way table of categorical variables, and the way to read it is the opposite of almost every other test in the app: here a large p is good. Magic Stat fits the model by iterative proportional fitting and reports the same quantities as R's loglm.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Modelling counts, <span class="grad">and reading p backwards</span></h2>
+  </div>
+  <div class="container">
+    <p>There is no response variable in a log-linear model. Every variable is categorical, the numbers being modelled are the cell counts of their cross-table, and the model describes how those counts depend on the margins. A model containing the right interaction terms reproduces the table closely; the test compares your chosen model against the saturated model, so a non-significant result — a large p — means the terms you specified are enough. A small p means the counts need a higher-order interaction.</p>
+    <p>Magic Stat fits the model by iterative proportional fitting, the same algorithm as stats::loglin, and reports G² (likelihood ratio) and Pearson's X² against the saturated model, with the degrees of freedom and both p-values. Coefficients follow the sum-to-zero convention of MASS::loglm, and the fitted values with their deviance residuals are shown cell by cell.</p>
+    <p>This is the right tool for counts in a table of three or more categorical variables. If one variable is really a response and the others are predictors, a Poisson GLM is the honest framing; if you have only two variables, the contingency-table analysis already answers the independence question.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">log-linear models</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Models by terms</strong>: presets for independence, all two-way interactions, all three-way interactions and the saturated model, or a custom set of terms chosen with checkboxes (the model can stay hierarchical).</li>
+      <li><strong>The loglm tests</strong>: G² (likelihood ratio) and Pearson's X² against the saturated model, each with its df and p, plus the number of cells and the parameter count.</li>
+      <li><strong>Coefficients in the loglm convention</strong>: sum-to-zero log-scale effects, where exp(effect) multiplies the expected count.</li>
+      <li><strong>Fitted values and deviance residuals per cell</strong>, so you can see where the model fits badly.</li>
+      <li><strong>An optional count column</strong>, or one row per observation when your data are already in long form.</li>
+      <li><strong>A visible reminder about the direction of p</strong>: a large p is good here, and the app says so in the dialog and again on the results.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a multi-way table to <span class="grad">a fitted model</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Select two or more categorical variables.</strong> three or more is the classic multi-way case; continuous variables do not belong here.</li>
+      <li><strong>Choose the count column or count rows.</strong> if your table is already aggregated, point at the counts column.</li>
+      <li><strong>Pick the model.</strong> start from independence, add two-way terms, or build the terms yourself.</li>
+      <li><strong>Run.</strong> the iterative proportional fitting returns G² and Pearson X² with df and p, coefficients and fitted values.</li>
+      <li><strong>Read p backwards.</strong> a large p means the chosen terms suffice; a small p means you are missing a higher-order interaction. Export the tables and the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Input:</strong> categorical factors only, plus an optional count column (or one row per observation).</p>
+    <p><strong>Model presets:</strong> independence · all two-way · all three-way · saturated · custom terms by checkbox.</p>
+    <p><strong>Fit:</strong> iterative proportional fitting; the convergence tolerance and iteration limit follow the loglm defaults.</p>
+    <p><strong>Reported:</strong> G² and Pearson X² with df and p · sum-to-zero coefficients · fitted values and deviance residuals.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Log-linear model questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Why is a large p good here?</h3>
+    <p>Because the test compares your model against the saturated one. A large p means the simpler model is not significantly worse — the terms you chose already reproduce the table. This is the opposite of an ANOVA or a t-test, and it is the single most common way to misread a log-linear result.</p>
+    <h3>Why can't I include a continuous variable?</h3>
+    <p>The model explains counts of a categorical cross-table, so the factors must be categorical. A continuous predictor changes the question into a Poisson regression, which is a different model with a response. The app keeps the two separate.</p>
+    <h3>How does this differ from the contingency table analysis?</h3>
+    <p>The contingency-table analysis tests independence between two variables. A log-linear model generalises that to three or more variables and lets you specify which interactions to include, rather than only testing the all-independent model.</p>
+    <h3>How are the coefficients scaled?</h3>
+    <p>They follow MASS::loglm: sum-to-zero constraints per index, on the log scale, with the intercept the mean of the log expected counts. exp(coefficient) is the multiplicative effect on the expected count. A Poisson GLM would fit the same cells but parameterise the coefficients differently (treatment contrasts), so the coefficients are not directly comparable to a GLM summary.</p>
+    <h3>Does the fit run here or on a server?</h3>
+    <p>Here, locally, by iterative proportional fitting. The only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/contingency-tables/" class="btn btn-ghost">Contingency tables &rarr;</a>
+  <a href="/goodness-of-fit/" class="btn btn-ghost">Goodness-of-fit test &rarr;</a>
+  <a href="/poisson-regression/" class="btn btn-ghost">Poisson regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

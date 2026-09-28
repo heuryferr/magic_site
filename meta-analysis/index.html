@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta-analysis software — pooled effects, forest and funnel plots | Magic Stat</title>
+<meta name="description" content="Run a meta-analysis without coding: pooled effects with fixed and random models, forest and funnel plots, Egger test. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/meta-analysis/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Meta-analysis without coding">
+<meta property="og:description" content="Pool studies from a spreadsheet — effect sizes, τ², I², forest and funnel plots, Egger&#x27;s test.">
+<meta property="og:url" content="https://getmagicstat.com/meta-analysis/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Meta-analysis", "item": "https://getmagicstat.com/meta-analysis/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Fixed or random effects?", "acceptedAnswer": {"@type": "Answer", "text": "Random effects if the studies are a sample of a broader population and their true effects plausibly differ — which is almost always. Fixed effect is only defensible when the studies share one true effect. Both are computed so you can see the difference, but the random-effects estimate is the one to report."}}, {"@type": "Question", "name": "Which Hedges' g convention is used?", "acceptedAnswer": {"@type": "Answer", "text": "The metafor convention: the exact Hedges correction (a gamma ratio) for the point estimate and the Hedges (1982) variance. meta and Borenstein et al. use slightly different variances; all three are legitimate, and Magic Stat follows metafor because it is the most cited reference in R."}}, {"@type": "Question", "name": "Do you offer REML or Paule–Mandel?", "acceptedAnswer": {"@type": "Answer", "text": "No — the random-effects estimator here is DerSimonian–Laird. If you want REML or Paule–Mandel with their respective confidence intervals, metafor in R is the right tool, and the app does not pretend to be a substitute."}}, {"@type": "Question", "name": "What does the Egger test actually tell me?", "acceptedAnswer": {"@type": "Answer", "text": "It regresses the study effects on their precision to look for funnel asymmetry, with the caveat that asymmetry can come from heterogeneity as well as from publication bias. With few studies the test has low power, so a non-significant result is not evidence that there is no bias."}}, {"@type": "Question", "name": "Does the analysis upload my studies?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything is computed locally from the table you enter; nothing but an anonymous installation counter is transmitted."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Meta-analysis</span>
+    <h1 class="hero-title">Meta-analysis <span class="grad">from a table of studies</span></h1>
+    <p class="hero-sub">A meta-analysis is only as good as its bookkeeping: turning each study into a comparable effect size, weighting them, and being honest about how much they disagree. Magic Stat computes the effect sizes from the numbers in your table, fits fixed and random-effects models, and draws the forest and funnel plots.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What it pools, and <span class="grad">which estimate it uses</span></h2>
+  </div>
+  <div class="container">
+    <p>You give the app one row per study in the form the paper reports — means and SDs, events and totals, a correlation, an F, a chi-square, a hazard ratio, or a ready effect size with its confidence interval — and it converts each to a common scale: Hedges' g or mean difference, log odds ratio, log risk ratio, risk difference, Fisher's z, and more. It then combines them with fixed-effect (inverse-variance) and random-effects (DerSimonian–Laird) models, reporting τ², Cochran's Q, I², H² and a prediction interval.</p>
+    <p>The random-effects estimate is the one to read when the studies are not measuring exactly the same thing — which is the usual case. I² tells you how much of the spread is real heterogeneity rather than chance, and the prediction interval says where a future study's effect might fall, which the pooled confidence interval does not.</p>
+    <p>Two honest limits. The random-effects estimator is DerSimonian–Laird only; REML or Paule–Mandel are not offered, and metafor in R is the tool if you need them. And the publication-bias tools — funnel plot and Egger's regression — are diagnostics, not proof: with few studies they have little power, so a non-significant test is not evidence that there is no bias.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">meta-analysis</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Effect sizes from the reported numbers</strong>: Hedges' g and mean difference (continuous), log odds ratio, log risk ratio and risk difference (binary), Fisher's z (correlation), an r from an ANOVA F, φ/Cramér's V from a chi-square, a logit proportion, a log hazard ratio, or a given effect size with CI. Hedges' g follows the metafor convention (exact correction, LS variance).</li>
+      <li><strong>Fixed and random-effects pooling</strong> with τ² (DerSimonian–Laird), Cochran's Q and its p, I², H² and the prediction interval.</li>
+      <li><strong>A forest plot</strong> with the per-study effects and both fixed and random diamonds, in an editable appearance panel.</li>
+      <li><strong>Publication-bias diagnostics</strong>: a funnel plot and Egger's regression test, whose p is reported with the caveat that it needs enough studies to mean anything.</li>
+      <li><strong>Sensitivity analysis</strong>: leave-one-out (jackknife) showing how the pooled effect changes as each study is removed in turn.</li>
+      <li><strong>Subgroup analysis</strong>, with the between-group Q, its df and p, and a per-subgroup I².</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a study table to <span class="grad">a forest plot</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Pick the input type.</strong> continuous, binary, correlation, ANOVA F, chi-square, proportion, hazard ratio, or a ready effect size with CI.</li>
+      <li><strong>Type or paste one row per study.</strong> the table columns change to match the type; an optional Subgroup column is always last.</li>
+      <li><strong>Choose how to pool.</strong> random effects for the usual case, fixed effect when the studies are genuinely homogeneous.</li>
+      <li><strong>Read the panel.</strong> the pooled effect with CI, τ², Q, I², H² and the prediction interval, plus the per-study weights.</li>
+      <li><strong>Check bias and robustness.</strong> inspect the funnel and Egger's test, then the leave-one-out table; export the forest plot and the summary.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Input types:</strong> Continuous (mean ± SD) · Multiple groups (ANOVA F) · Binary (events/total) · Correlation (r) · Chi-square association (φ/V) · Proportion (events/total) · Survival (HR + CI) · Effect size + CI.</p>
+    <p><strong>Effect measure:</strong> Hedges' g or mean difference · odds ratio, risk ratio or risk difference · Fisher's z · logit proportion · log hazard ratio · given effect size.</p>
+    <p><strong>Model:</strong> random effects (DerSimonian–Laird) or fixed effect (inverse variance); both are always computed so the forest can show both diamonds.</p>
+    <p><strong>Extras:</strong> funnel plot + Egger test · leave-one-out · subgroup analysis with the between-group Q.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Meta-analysis questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Fixed or random effects?</h3>
+    <p>Random effects if the studies are a sample of a broader population and their true effects plausibly differ — which is almost always. Fixed effect is only defensible when the studies share one true effect. Both are computed so you can see the difference, but the random-effects estimate is the one to report.</p>
+    <h3>Which Hedges' g convention is used?</h3>
+    <p>The metafor convention: the exact Hedges correction (a gamma ratio) for the point estimate and the Hedges (1982) variance. meta and Borenstein et al. use slightly different variances; all three are legitimate, and Magic Stat follows metafor because it is the most cited reference in R.</p>
+    <h3>Do you offer REML or Paule–Mandel?</h3>
+    <p>No — the random-effects estimator here is DerSimonian–Laird. If you want REML or Paule–Mandel with their respective confidence intervals, metafor in R is the right tool, and the app does not pretend to be a substitute.</p>
+    <h3>What does the Egger test actually tell me?</h3>
+    <p>It regresses the study effects on their precision to look for funnel asymmetry, with the caveat that asymmetry can come from heterogeneity as well as from publication bias. With few studies the test has low power, so a non-significant result is not evidence that there is no bias.</p>
+    <h3>Does the analysis upload my studies?</h3>
+    <p>No. Everything is computed locally from the table you enter; nothing but an anonymous installation counter is transmitted.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/combine-p-values/" class="btn btn-ghost">Combine p-values &rarr;</a>
+  <a href="/medical-statistics/" class="btn btn-ghost">Medical statistics &rarr;</a>
+  <a href="/power-analysis/" class="btn btn-ghost">Power analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

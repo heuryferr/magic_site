@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-hoc test software — Tukey, Games-Howell, Dunn and Dunnett without coding | Magic Stat</title>
+<meta name="description" content="Run post-hoc tests without coding: Tukey, Bonferroni, Dunn-Sidak, Games-Howell, Dunn, Conover-Iman and Dunnett, with a letter display. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/post-hoc-tests/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Post-hoc tests without coding">
+<meta property="og:description" content="Tukey HSD, Games-Howell, Dunn, Conover-Iman and Dunnett from a spreadsheet, with a compact letter display and observed power.">
+<meta property="og:url" content="https://getmagicstat.com/post-hoc-tests/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Post-hoc tests", "item": "https://getmagicstat.com/post-hoc-tests/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Tukey or Games-Howell?", "acceptedAnswer": {"@type": "Answer", "text": "Tukey if the variances are similar and the design is balanced. Games-Howell if the spreads or the group sizes differ, because it does not assume equal variances — the same reasoning as Welch's versus Student's t for two groups."}}, {"@type": "Question", "name": "Why not just run all the pairwise t-tests?", "acceptedAnswer": {"@type": "Answer", "text": "Because each one carries its own false-positive risk, and with several groups those risks accumulate. A post-hoc method controls the error rate for the whole family of comparisons; that control is the reason the test exists."}}, {"@type": "Question", "name": "What does the compact letter display mean?", "acceptedAnswer": {"@type": "Answer", "text": "Groups that share at least one letter are not significantly different; groups with no letter in common are. It is a compact summary of the pairwise results, and the algorithm used here guarantees that a significant pair never shares a letter — unlike a greedy lettering scheme, which can imply significance the test did not find."}}, {"@type": "Question", "name": "I tested many variables at once.", "acceptedAnswer": {"@type": "Answer", "text": "The Means Comparison dialog also carries a batch correction — Benjamini-Hochberg (FDR, the default), Bonferroni, Holm or Hochberg — for the set of tests run together, on top of the within-test post-hoc correction."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your machine; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Post-hoc tests</span>
+    <h1 class="hero-title">Post-hoc comparisons with a <span class="grad">compact letter display</span></h1>
+    <p class="hero-sub">A significant ANOVA says that some group means differ; it does not say which. Post-hoc tests answer that question while keeping the error rate under control — and Magic Stat reports the statistic each method actually uses, plus a compact letter display that reads like the ones in ecology and agriculture papers.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What a post-hoc test controls, and <span class="grad">when it is the wrong choice</span></h2>
+  </div>
+  <div class="container">
+    <p>Running every pairwise t-test after a significant omnibus test inflates the chance of at least one false positive — with several groups, badly. A post-hoc test adjusts the comparisons so that the family-wise error rate is held at the level you chose, at the cost of some power. That trade is the whole point of the method.</p>
+    <p>The methods differ in what they assume and in the statistic they use. Tukey HSD uses the studentized range with a pooled variance and assumes equal variances and a balanced design. Games-Howell uses the studentized range but does not assume equal variances, so it is the default when the spreads or the sample sizes differ. Bonferroni and Dunn-Sidak are conservative and work in any design. Dunn's test and Conover-Iman are the rank-based methods used after Kruskal-Wallis. Dunnett compares every group only against a control, which has more power than all-pairs when that is the actual question.</p>
+    <p>Where post-hoc is the wrong choice: when you had specific hypotheses before seeing the data, planned contrasts test them directly and with more power. Discovering the hypothesis after looking at the data and then testing it as if it had been planned is the practice that pre-specification exists to prevent.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">post-hoc tests</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Seven methods from the dialog:</strong> Tukey HSD · Bonferroni · Dunn-Sidak · Games-Howell · Dunn's test · Conover-Iman · Dunnett (vs control).</li>
+      <li><strong>A compact letter display (CLD).</strong> Groups that share a letter are not significantly different, using the Piepho insertion algorithm so that a significant pair never shares a letter.</li>
+      <li><strong>The right statistic for each method,</strong> labelled honestly: q for Tukey and Games-Howell, t for Bonferroni, Dunn-Sidak and Conover-Iman, z for Dunn — not one column called "t" for every test.</li>
+      <li><strong>The rank-based route kept honest.</strong> When the omnibus test is Kruskal-Wallis, the parametric method you picked is converted to its rank-based equivalent; the app never runs Tukey on ranks.</li>
+      <li><strong>Observed power for the observed effect size,</strong> reported with the comparisons as a post-hoc quantity.</li>
+      <li><strong>A dedicated Post-hoc tab</strong> in the results window, with the pairwise table and the letters, plus the report (.docx/.html/.md).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a significant omnibus to <span class="grad">the pairs that differ</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Run the omnibus first.</strong> a one-way ANOVA or Kruskal-Wallis in Statistics → Means Comparison Tests, scope Multiple Means.</li>
+      <li><strong>Tick "Perform post-hoc tests".</strong> it is on by default in the dialog.</li>
+      <li><strong>Choose the method.</strong> match it to the design — equal variances, unequal variances, or a rank-based omnibus.</li>
+      <li><strong>Read the comparisons.</strong> the Post-hoc tab lists each pair with its statistic and adjusted p, and the compact letter display summarises them.</li>
+      <li><strong>Export.</strong> the pairwise table and the letters go into the report, exportable to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The methods, <span class="grad">and what they assume</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Tukey HSD:</strong> the studentized range with a pooled variance — equal variances, balanced design.</p>
+    <p><strong>Games-Howell:</strong> the studentized range without the equal-variance assumption — unequal variances or unequal group sizes.</p>
+    <p><strong>Bonferroni and Dunn-Sidak:</strong> conservative corrections for any design.</p>
+    <p><strong>Dunn's test (with Bonferroni) and Conover-Iman:</strong> rank-based, used after Kruskal-Wallis.</p>
+    <p><strong>Dunnett (vs control):</strong> every group compared only against a control — the sharper test when that is the question.</p>
+    <p><strong>Compact letter display:</strong> computed with the Piepho insertion algorithm.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Post-hoc questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Tukey or Games-Howell?</h3>
+    <p>Tukey if the variances are similar and the design is balanced. Games-Howell if the spreads or the group sizes differ, because it does not assume equal variances — the same reasoning as Welch's versus Student's t for two groups.</p>
+    <h3>Why not just run all the pairwise t-tests?</h3>
+    <p>Because each one carries its own false-positive risk, and with several groups those risks accumulate. A post-hoc method controls the error rate for the whole family of comparisons; that control is the reason the test exists.</p>
+    <h3>What does the compact letter display mean?</h3>
+    <p>Groups that share at least one letter are not significantly different; groups with no letter in common are. It is a compact summary of the pairwise results, and the algorithm used here guarantees that a significant pair never shares a letter — unlike a greedy lettering scheme, which can imply significance the test did not find.</p>
+    <h3>I tested many variables at once.</h3>
+    <p>The Means Comparison dialog also carries a batch correction — Benjamini-Hochberg (FDR, the default), Bonferroni, Holm or Hochberg — for the set of tests run together, on top of the within-test post-hoc correction.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your machine; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/nonparametric-tests/" class="btn btn-ghost">Non-parametric tests &rarr;</a>
+  <a href="/planned-contrasts/" class="btn btn-ghost">Planned contrasts &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

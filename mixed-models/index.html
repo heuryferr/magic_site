@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixed model software — random intercepts without coding | Magic Stat</title>
+<meta name="description" content="Fit a linear mixed model with random intercepts without coding: fixed effects, variance components, AIC/BIC and a forest plot. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/mixed-models/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mixed models without coding">
+<meta property="og:description" content="Random-intercept mixed models from a spreadsheet — fixed effects, variance components and a forest plot.">
+<meta property="og:url" content="https://getmagicstat.com/mixed-models/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Mixed models", "item": "https://getmagicstat.com/mixed-models/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Mixed model or ordinary regression?", "acceptedAnswer": {"@type": "Answer", "text": "If every row is independent, ordinary regression is simpler and sufficient. Use a mixed model when rows are grouped — repeated measures, nested units — because the grouping is real and ignoring it biases the standard errors. A mixed model is not a way to add complexity for its own sake."}}, {"@type": "Question", "name": "Why only random intercepts?", "acceptedAnswer": {"@type": "Answer", "text": "That is what this dialog fits, and it covers the common nested design. Random slopes, crossed effects and multiple grouping factors are genuinely possible but belong in lme4; Magic Stat does not claim to do them here."}}, {"@type": "Question", "name": "Can my fixed effects be categorical?", "acceptedAnswer": {"@type": "Answer", "text": "No — fixed predictors must be numeric in this model. A categorical predictor would need dummy coding and a different reading of the terms; if that is your design, R or JASP handle it."}}, {"@type": "Question", "name": "Why REML, and why report AIC/BIC?", "acceptedAnswer": {"@type": "Answer", "text": "REML gives less biased variance components. The AIC/BIC are computed on the REML criterion (as lme4 reports them) so the numbers are comparable; comparing models that differ in their fixed effects under REML is not valid, and the app does not pretend otherwise."}}, {"@type": "Question", "name": "Does my data leave the machine?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is fitted locally; the only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Mixed models</span>
+    <h1 class="hero-title">Linear mixed models with random intercepts <span class="grad">without lme4 syntax</span></h1>
+    <p class="hero-sub">A mixed model is the honest way to analyse data whose rows are not independent — repeated measurements, students within schools, plots within sites. Magic Stat fits the random-intercept model from your spreadsheet and reports the fixed effects, the variance components and a forest plot, without a formula you have to type.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What this mixed model does — <span class="grad">and what it deliberately does not</span></h2>
+  </div>
+  <div class="container">
+    <p>A linear mixed model separates the variation into a fixed part (the effects you want to report — slopes and intercepts) and a random part (the grouping structure: each group gets its own random shift of the intercept). Modelling that grouping is what makes the standard errors correct; running an ordinary regression on clustered data instead understates uncertainty and inflates significance.</p>
+    <p>The fit here uses REML, the standard for variance components, and is a random-intercepts model: one grouping factor, a random offset per level. Guards are enforced rather than silent — at least 3 groups, at least 20 complete rows, no constant predictor and no constant outcome. A singular design is reported as an error, never dressed up as a result.</p>
+    <p>It is not everything a mixed model can be. Random slopes, crossed or multiple random effects, non-Gaussian outcomes and categorical fixed effects are outside this dialog. If your design needs those, lme4 in R (or a GLMM package) is the right tool, and saying so is more useful than pretending otherwise.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">mixed models</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Fixed effects with honest inference</strong>: β, standard error, z, p and a 95% confidence interval for each term.</li>
+      <li><strong>Variance components</strong>: the between-group variance and the residual variance, so you can see how much of the outcome the grouping explains.</li>
+      <li><strong>Fit indices</strong>: log-likelihood, AIC and BIC computed on the REML criterion (the lme4 convention), not silently omitted.</li>
+      <li><strong>A forest plot of the fixed effects</strong> — β with its 95% CI per term, a zero line drawn, exported at publication quality.</li>
+      <li><strong>Input that fits mixed models</strong>: fixed predictors must be numeric, the grouping factor is a single column, and the model is assembled from a design matrix so column names with spaces or accents do not break it.</li>
+      <li><strong>The fit joins the report</strong> with the formula, N, group count, variance components and fit indices, exportable to .docx, .html or .md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From clustered rows to <span class="grad">a forest plot</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> one row per observation, with a column identifying the group each row belongs to.</li>
+      <li><strong>Choose the outcome.</strong> a continuous response.</li>
+      <li><strong>Pick the fixed effects.</strong> the numeric predictors whose effects you want to report.</li>
+      <li><strong>Pick the random-intercept column.</strong> the grouping factor; the dialog reports how many groups and their sizes before you run.</li>
+      <li><strong>Read and export.</strong> fixed effects, variance components and the forest plot go into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Model:</strong> linear mixed model with a random intercept per level of one grouping factor.</p>
+    <p><strong>Estimation:</strong> REML.</p>
+    <p><strong>Fixed effects:</strong> numeric predictors only, entered as a design matrix.</p>
+    <p><strong>Requirements checked up front:</strong> ≥ 3 groups · ≥ 20 complete rows · no constant predictor · no constant outcome.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Mixed model questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Mixed model or ordinary regression?</h3>
+    <p>If every row is independent, ordinary regression is simpler and sufficient. Use a mixed model when rows are grouped — repeated measures, nested units — because the grouping is real and ignoring it biases the standard errors. A mixed model is not a way to add complexity for its own sake.</p>
+    <h3>Why only random intercepts?</h3>
+    <p>That is what this dialog fits, and it covers the common nested design. Random slopes, crossed effects and multiple grouping factors are genuinely possible but belong in lme4; Magic Stat does not claim to do them here.</p>
+    <h3>Can my fixed effects be categorical?</h3>
+    <p>No — fixed predictors must be numeric in this model. A categorical predictor would need dummy coding and a different reading of the terms; if that is your design, R or JASP handle it.</p>
+    <h3>Why REML, and why report AIC/BIC?</h3>
+    <p>REML gives less biased variance components. The AIC/BIC are computed on the REML criterion (as lme4 reports them) so the numbers are comparable; comparing models that differ in their fixed effects under REML is not valid, and the app does not pretend otherwise.</p>
+    <h3>Does my data leave the machine?</h3>
+    <p>No. The model is fitted locally; the only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/gee/" class="btn btn-ghost">GEE analysis &rarr;</a>
+  <a href="/repeated-measures-anova/" class="btn btn-ghost">Repeated measures ANOVA &rarr;</a>
+  <a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

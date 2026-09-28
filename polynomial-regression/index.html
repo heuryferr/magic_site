@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polynomial regression software — fit curves up to degree 6 without coding | Magic Stat</title>
+<meta name="description" content="Polynomial regression up to degree 6, with coefficients, R², ANOVA and prediction intervals — fitted from a normal spreadsheet. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/polynomial-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Polynomial regression without coding">
+<meta property="og:description" content="Fit y = b0 + b1·x + b2·x² + … up to degree 6, with coefficients, confidence intervals, R² and prediction intervals.">
+<meta property="og:url" content="https://getmagicstat.com/polynomial-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Polynomial regression", "item": "https://getmagicstat.com/polynomial-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I choose the degree?", "acceptedAnswer": {"@type": "Answer", "text": "Start at 2. Add a higher power only when it captures a feature the lower-degree fit visibly misses and the extra term is worth its loss of degrees of freedom. Chasing the highest R² is a reliable way to overfit."}}, {"@type": "Question", "name": "Is polynomial regression a nonlinear model?", "acceptedAnswer": {"@type": "Answer", "text": "No. The curve is nonlinear in the predictor, but the model is linear in the coefficients, which is why ordinary least-squares inference — the t tests, the F test, the intervals — applies directly."}}, {"@type": "Question", "name": "Can I extrapolate beyond my data?", "acceptedAnswer": {"@type": "Answer", "text": "You should not. High powers diverge outside the observed range of the predictor, so a prediction there is an artefact of the equation, not a finding. Keep interpretation inside the data range."}}, {"@type": "Question", "name": "Polynomial or nonlinear regression?", "acceptedAnswer": {"@type": "Answer", "text": "If a mechanistic equation describes the process — Michaelis–Menten, exponential, logistic — nonlinear regression gives a model whose parameters mean something. Use a polynomial when you want a flexible curve and have no mechanism to propose."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Polynomial regression</span>
+    <h1 class="hero-title">Polynomial regression <span class="grad">for curved relationships</span></h1>
+    <p class="hero-sub">When a relationship curves but you do not have a mechanistic equation for it, a polynomial is a pragmatic fit. Magic Stat estimates polynomials up to degree 6, with the coefficient table, the R², the F test and prediction intervals that let you judge whether the curve is justified.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">A polynomial fits curvature. <span class="grad">It does not explain it.</span></h2>
+  </div>
+  <div class="container">
+    <p>Polynomial regression adds powers of the predictor — x, x², x³ and so on — and fits them by least squares. It is still a linear model: linear in the coefficients, which is why the usual coefficient table, confidence intervals and F test apply. What it buys is curvature: a single-peaked response, a U-shape, a saturating trend.</p>
+    <p>The trap is degree. A higher degree will always fit the sample a little better, and past a point it is fitting noise. Magic Stat lets you go from degree 2 to degree 6, but the honest advice, printed in no uncertain terms, is to start low and only add a term when the data justify it.</p>
+    <p>Polynomials also extrapolate badly. Outside the range of the observed predictor, powers can swing to values that have no basis in the data. If your relationship has a mechanism, nonlinear regression usually gives a more defensible model than a high-degree polynomial.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">polynomial regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Degrees 2 to 6</strong>, chosen in the dialog — no <code>poly()</code> call or term-by-term formula to write.</li>
+      <li><strong>One predictor or several</strong>: with several, Magic Stat fits one model with a polynomial block per predictor rather than a separate curve each.</li>
+      <li><strong>A coefficient table</strong> with standard errors, t statistics, p values and confidence intervals for every term.</li>
+      <li><strong>R², adjusted R² and the ANOVA F test</strong> for the model as a whole.</li>
+      <li><strong>Prediction intervals</strong> from the fitted model, so a new value comes with an honest range.</li>
+      <li><strong>The curve and the report</strong> — figure to the gallery, analysis into the report with its settings.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Choose the degree, <span class="grad">watch the fit</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> the predictor and the outcome as columns.</li>
+      <li><strong>Choose Polynomial Regression.</strong> Statistics → Polynomial Regression.</li>
+      <li><strong>Select X and Y.</strong> one X gives a simple polynomial; several give one model with a polynomial block per predictor.</li>
+      <li><strong>Set the degree.</strong> start at 2 and increase only when the data call for it.</li>
+      <li><strong>Export.</strong> the fitted curve and the coefficient table go into the figure and the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Polynomial degree:</strong> 2 to 6, set with a spin box.</p>
+    <p><strong>Several predictors:</strong> each predictor contributes its own polynomial block (y ~ x1 + x1² + x2 + x2² + …) in a single model — not one curve per predictor.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Polynomial regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How do I choose the degree?</h3>
+    <p>Start at 2. Add a higher power only when it captures a feature the lower-degree fit visibly misses and the extra term is worth its loss of degrees of freedom. Chasing the highest R² is a reliable way to overfit.</p>
+    <h3>Is polynomial regression a nonlinear model?</h3>
+    <p>No. The curve is nonlinear in the predictor, but the model is linear in the coefficients, which is why ordinary least-squares inference — the t tests, the F test, the intervals — applies directly.</p>
+    <h3>Can I extrapolate beyond my data?</h3>
+    <p>You should not. High powers diverge outside the observed range of the predictor, so a prediction there is an artefact of the equation, not a finding. Keep interpretation inside the data range.</p>
+    <h3>Polynomial or nonlinear regression?</h3>
+    <p>If a mechanistic equation describes the process — Michaelis–Menten, exponential, logistic — nonlinear regression gives a model whose parameters mean something. Use a polynomial when you want a flexible curve and have no mechanism to propose.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs locally. The only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/nonlinear-regression/" class="btn btn-ghost">Nonlinear regression &rarr;</a>
+  <a href="/gam/" class="btn btn-ghost">GAM analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cluster analysis software — hierarchical clustering and k-means without coding | Magic Stat</title>
+<meta name="description" content="Cluster your data without coding: hierarchical clustering (a faithful hclust port) with a dendrogram, or k-means with silhouette. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/cluster-analysis/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cluster analysis without coding">
+<meta property="og:description" content="Hierarchical clustering with a dendrogram and a k-cluster cut, or k-means with a silhouette — from a normal spreadsheet.">
+<meta property="og:url" content="https://getmagicstat.com/cluster-analysis/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Cluster analysis", "item": "https://getmagicstat.com/cluster-analysis/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many clusters should I use?", "acceptedAnswer": {"@type": "Answer", "text": "There is no automatic answer, and the dialog will not pretend otherwise. Use the silhouette value, the shape of the dendrogram and the merge heights, and — most importantly — whether the clusters mean something in your field. Report the criterion you used."}}, {"@type": "Question", "name": "Do I need to standardise the variables?", "acceptedAnswer": {"@type": "Answer", "text": "If they are on different scales, yes — otherwise a variable measured in large numbers dominates the distance. The dialog does not standardise for you, so scale the columns first if that is what your question needs."}}, {"@type": "Question", "name": "Hierarchical or k-means?", "acceptedAnswer": {"@type": "Answer", "text": "Use hierarchical when you want a tree and do not want to fix k in advance, and k-means when you have a reason to fix k and want a fast, tidy partition. They often agree; when they do not, the disagreement is itself worth reporting."}}, {"@type": "Question", "name": "Will it find clusters even in random data?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — every clustering method partitions whatever you give it. A dendrogram is not evidence that groups exist. Checking stability and using an independent criterion is what turns a partition into a finding."}}, {"@type": "Question", "name": "What does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "US$990 per year with a free 48-hour trial and no card. If your analysis needs methods that are not here — fuzzy clustering, model-based clustering, or the very large-n optimisations — R's cluster and mclust packages are the right place to look."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Cluster analysis</span>
+    <h1 class="hero-title">Cluster analysis <span class="grad">without writing a script</span></h1>
+    <p class="hero-sub">Cluster analysis finds groups in data when no grouping is given. Magic Stat runs both families: hierarchical clustering with a dendrogram and a k-cluster cut, and k-means with a fixed seed and a silhouette diagnostic.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Two families of clustering, and <span class="grad">when each is the right one</span></h2>
+  </div>
+  <div class="container">
+    <p>Hierarchical clustering builds a tree: at every step it merges the two closest clusters, using a linkage rule such as Ward, complete, average or single linkage, and the result is a dendrogram you cut at k clusters. It assumes nothing about the shape of the groups, but it is greedy — an early wrong merge is never undone.</p>
+    <p>K-means does the opposite: you fix k in advance, and the algorithm iterates assignments and centroids to minimise the total within-cluster sum of squares. It is fast and gives a tidy partition, but it assumes roughly spherical clusters of similar size, and it is sensitive to the starting points — which is why the seed is fixed here and the run is reproducible.</p>
+    <p>The linkage and distance choices in hierarchical clustering are not neutral. Ward linkage on Euclidean distances behaves differently from average linkage on Bray–Curtis, and a poor pairing can manufacture groups that are not there. The dialog makes both choices explicit.</p>
+    <p>Clustering is exploratory. It will return clusters even from structureless data, so the number of clusters and the stability of the solution deserve as much attention as the dendrogram. If you already have groups and want to know whether they differ, that is a different job — PERMANOVA or discriminant analysis.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">clustering</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Hierarchical clustering that mirrors R:</strong> the linkage update is a faithful port of the same algorithm the hclust implementation uses, and the k-cluster cut follows the same rule, so the partition matches the reference.</li>
+      <li><strong>Seven linkage methods</strong> — ward.D2, complete, average, single, centroid, median and mcquitty — on a distance matrix in Bray–Curtis, Euclidean, Manhattan or Canberra.</li>
+      <li><strong>K-means with a fixed seed</strong>, so the same data give the same partition every run, reported with the within-cluster sums of squares and the between-cluster sum.</li>
+      <li><strong>A silhouette table</strong> as a numerical diagnostic of how well the clusters are separated.</li>
+      <li><strong>A dendrogram or a k-means score plot</strong> (points coloured by cluster with their centroids), exported as PNG, SVG, PDF, JPEG or TIFF — plus the assignment table and, for hierarchical clustering, the merge heights and the cophenetic matrix.</li>
+      <li><strong>No code, no command line</strong>, and the analysis and its settings go into the report (.docx, .html, .md).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to a <span class="grad">partition</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> observations in rows, numeric variables in columns; incomplete rows are removed with a warning.</li>
+      <li><strong>Pick Cluster.</strong> and choose hierarchical clustering or k-means.</li>
+      <li><strong>Set the options.</strong> for hierarchical, the linkage and the distance measure; for k-means, the number of clusters and the seed.</li>
+      <li><strong>Choose k.</strong> the number of clusters for the cut, or for k-means directly.</li>
+      <li><strong>Read and export.</strong> the assignment table, the silhouette and the plot; the result goes into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Hierarchical:</strong> linkage method (ward.D2 · complete · average · single · centroid · median · mcquitty) and distance measure (Bray–Curtis · Euclidean · Manhattan · Canberra), cut at k clusters.</p>
+    <p><strong>K-means:</strong> number of clusters and a random seed (fixed by default for reproducibility); the Lloyd algorithm is used, matching the classic reference implementation. The variables are used as given, so standardise them beforehand if they are on different scales.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Cluster analysis questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How many clusters should I use?</h3>
+    <p>There is no automatic answer, and the dialog will not pretend otherwise. Use the silhouette value, the shape of the dendrogram and the merge heights, and — most importantly — whether the clusters mean something in your field. Report the criterion you used.</p>
+    <h3>Do I need to standardise the variables?</h3>
+    <p>If they are on different scales, yes — otherwise a variable measured in large numbers dominates the distance. The dialog does not standardise for you, so scale the columns first if that is what your question needs.</p>
+    <h3>Hierarchical or k-means?</h3>
+    <p>Use hierarchical when you want a tree and do not want to fix k in advance, and k-means when you have a reason to fix k and want a fast, tidy partition. They often agree; when they do not, the disagreement is itself worth reporting.</p>
+    <h3>Will it find clusters even in random data?</h3>
+    <p>Yes — every clustering method partitions whatever you give it. A dendrogram is not evidence that groups exist. Checking stability and using an independent criterion is what turns a partition into a finding.</p>
+    <h3>What does it cost?</h3>
+    <p>US$990 per year with a free 48-hour trial and no card. If your analysis needs methods that are not here — fuzzy clustering, model-based clustering, or the very large-n optimisations — R's cluster and mclust packages are the right place to look.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/pca/" class="btn btn-ghost">PCA analysis &rarr;</a>
+  <a href="/nmds/" class="btn btn-ghost">NMDS analysis &rarr;</a>
+  <a href="/discriminant-analysis/" class="btn btn-ghost">Discriminant analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

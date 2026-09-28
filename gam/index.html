@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAM software — generalized additive models without coding | Magic Stat</title>
+<meta name="description" content="Fit a GAM without coding: cubic regression spline smooth, canonical-link families and GCV/UBRE selection, checked against mgcv. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/gam/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GAM without coding">
+<meta property="og:description" content="Fit a penalized smooth plus parametric terms, read edf and the smooth test, and export the s(x) curve.">
+<meta property="og:url" content="https://getmagicstat.com/gam/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "GAM analysis", "item": "https://getmagicstat.com/gam/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "GAM or a linear model?", "acceptedAnswer": {"@type": "Answer", "text": "If the effect is plausibly a straight line, use a linear model or GLM: the coefficient is simpler to report and easier to interpret. Reach for a GAM when the data show curvature you cannot justify with a polynomial, and read the smooth's edf — near 1 means the smoother collapsed towards a line."}}, {"@type": "Question", "name": "Why GCV and not REML?", "acceptedAnswer": {"@type": "Answer", "text": "Magic Stat follows mgcv's method = \"GCV.Cp\". Modern mgcv defaults to REML, which selects a slightly different λ, so to reproduce a Magic Stat fit in R you set method = \"GCV.Cp\" explicitly. The results are close, not identical, and the difference is stated rather than hidden."}}, {"@type": "Question", "name": "How do I know the smooth is real?", "acceptedAnswer": {"@type": "Answer", "text": "The smooth test (Wood 2013, exact Davies p) answers whether s(x) explains variation beyond a constant, and edf tells you how curved it is. A significant smooth with edf close to 1 is barely distinguishable from a line."}}, {"@type": "Question", "name": "Can I include categorical predictors?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, alongside the smooth and with treatment contrasts (first category alphabetically as reference), the coding R uses. Non-canonical links are not offered; each family uses its canonical link only."}}, {"@type": "Question", "name": "Does the analysis run locally?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The fit runs on your computer; nothing but an anonymous installation counter leaves the machine."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">GAM analysis</span>
+    <h1 class="hero-title">Generalized additive models <span class="grad">without the mgcv boilerplate</span></h1>
+    <p class="hero-sub">A GAM is the answer when the effect of a predictor is not a straight line but you do not want to guess a polynomial. Magic Stat fits a penalized cubic regression spline to the smooth term, chooses the smoothing by GCV/UBRE the way mgcv does, and gives you the curve with its uncertainty.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What a GAM is, and <span class="grad">when it beats a straight line</span></h2>
+  </div>
+  <div class="container">
+    <p>A generalized additive model is a GLM in which the effect of a predictor is allowed to curve. Instead of one coefficient per variable, the model fits a smooth s(x) — here a cubic regression spline with a penalty on curvature — and lets the data decide how wiggly that curve may be. The penalty is what keeps it from chasing noise: the smoothing parameter λ is selected by GCV when the scale is estimated (gaussian, Gamma) or UBRE when it is fixed (poisson, binomial), the same criterion mgcv uses with method="GCV.Cp".</p>
+    <p>The numbers to read are the effective degrees of freedom (edf) of the smooth — near 1 means the curve is essentially a line — and the smooth's own test. Magic Stat reports edf, edf1, ref.df, the Wood (2013) smooth test with the exact Davies p, the deviance explained and the adjusted R², then draws s(x) with ±2SE bands.</p>
+    <p>It is not always the right model. If the relationship is plausibly linear, a standard GLM is simpler, easier to report and its coefficient is directly interpretable. If your data are clustered or repeated, the dependence belongs in a mixed model or GEE, not in a smoother. And the reproduction caveat is worth stating: current mgcv defaults to REML, which selects a slightly different λ — to match Magic Stat in R you set method="GCV.Cp".</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">GAM</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>A penalized cubic regression spline</strong> (mgcv's bs = "cr") with knots at the quantiles of the smooth variable, on a single s(var) term, at a basis size you set (k, default 10, reduced automatically when the variable has fewer unique values, with a note in the report).</li>
+      <li><strong>Four families with their canonical links</strong>: gaussian → identity, poisson → log, binomial → logit, Gamma → inverse. Non-canonical links are deliberately not offered — a 1:1 replica of mgcv's non-canonical branch would need different fitting machinery.</li>
+      <li><strong>Parametric terms, numeric and categorical</strong>, entered alongside the smooth. Categorical predictors use treatment contrasts with the first category (alphabetical) as reference, the model matrix R builds.</li>
+      <li><strong>The gam summary, laid out as tables</strong>: parametric coefficients (coef, SE, t or z, p), total edf, smooth edf, edf1, ref.df, smoothing parameter λ, scale, deviance, null deviance, deviance explained %, adjusted R², GCV/UBRE score, residual df and convergence.</li>
+      <li><strong>The smooth test itself</strong>: the Wood (2013) statistic with the exact Davies p, reported as F when the scale is estimated and Chi.sq when it is fixed.</li>
+      <li><strong>The s(x) curve with ±2SE</strong>, exported at publication quality (PNG, SVG, PDF, JPEG, TIFF) and editable in a large window, with the fitted values and the whole model written into the report.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From outcome and smooth to <span class="grad">the curve</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> one row per observation; the outcome, the smooth variable and any parametric predictors are ordinary columns.</li>
+      <li><strong>Choose the response and family.</strong> the family's canonical link is applied — counts suggest poisson, 0/1 suggests binomial.</li>
+      <li><strong>Set the smooth term.</strong> pick the variable to smooth and the basis size k (leave it at 10 unless you have a reason).</li>
+      <li><strong>Add parametric terms.</strong> optional numeric or categorical predictors that enter with a linear effect.</li>
+      <li><strong>Read and export.</strong> edf and the smooth's p tell you whether the curve is real; the plot goes to the gallery and the model to the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Families:</strong> gaussian · poisson · binomial · Gamma — canonical link in each case.</p>
+    <p><strong>Smooth:</strong> one s(var) term (cubic regression spline, bs = "cr") · basis size k (3–50, default 10).</p>
+    <p><strong>Smoothing selection:</strong> GCV when the scale is estimated · UBRE when it is fixed — mgcv's method = "GCV.Cp".</p>
+    <p><strong>Parametric predictors:</strong> any mix of numeric and categorical columns; categorical entry uses treatment contrasts with the first category as reference.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">GAM questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>GAM or a linear model?</h3>
+    <p>If the effect is plausibly a straight line, use a linear model or GLM: the coefficient is simpler to report and easier to interpret. Reach for a GAM when the data show curvature you cannot justify with a polynomial, and read the smooth's edf — near 1 means the smoother collapsed towards a line.</p>
+    <h3>Why GCV and not REML?</h3>
+    <p>Magic Stat follows mgcv's method = "GCV.Cp". Modern mgcv defaults to REML, which selects a slightly different λ, so to reproduce a Magic Stat fit in R you set method = "GCV.Cp" explicitly. The results are close, not identical, and the difference is stated rather than hidden.</p>
+    <h3>How do I know the smooth is real?</h3>
+    <p>The smooth test (Wood 2013, exact Davies p) answers whether s(x) explains variation beyond a constant, and edf tells you how curved it is. A significant smooth with edf close to 1 is barely distinguishable from a line.</p>
+    <h3>Can I include categorical predictors?</h3>
+    <p>Yes, alongside the smooth and with treatment contrasts (first category alphabetically as reference), the coding R uses. Non-canonical links are not offered; each family uses its canonical link only.</p>
+    <h3>Does the analysis run locally?</h3>
+    <p>Yes. The fit runs on your computer; nothing but an anonymous installation counter leaves the machine.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/glm/" class="btn btn-ghost">Generalized linear models &rarr;</a>
+  <a href="/nonlinear-regression/" class="btn btn-ghost">Nonlinear regression &rarr;</a>
+  <a href="/mixed-models/" class="btn btn-ghost">Mixed models &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

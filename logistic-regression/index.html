@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logistic regression software — binary outcome, odds ratios and ROC | Magic Stat</title>
+<meta name="description" content="Binary logistic regression with odds ratios, McFadden pseudo-R², ROC/AUC (DeLong CI) and a classification table. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/logistic-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Binary logistic regression without coding">
+<meta property="og:description" content="Odds ratios with confidence intervals, McFadden pseudo-R², a classification table and a ROC curve with AUC, from a normal spreadsheet.">
+<meta property="og:url" content="https://getmagicstat.com/logistic-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Logistic regression", "item": "https://getmagicstat.com/logistic-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is the outcome coded?", "acceptedAnswer": {"@type": "Answer", "text": "A 0/1 column is used directly, with 1 as the event. For a two-level text column, the levels are ordered and the second is treated as the event. The dialog prints the reference and the event level so the odds ratios are unambiguous."}}, {"@type": "Question", "name": "What does an odds ratio mean?", "acceptedAnswer": {"@type": "Answer", "text": "An odds ratio above 1 means the odds of the event rise as the predictor rises; below 1, the odds fall. It is a multiplicative effect on the odds, not on the probability — for a common outcome the two differ substantially."}}, {"@type": "Question", "name": "The model refused to fit. Why?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always perfect separation or a constant predictor. When a predictor splits the outcome groups completely, the maximum-likelihood estimates do not exist and cannot be reported. Magic Stat identifies the offending predictor so you can remove it or reconsider the model."}}, {"@type": "Question", "name": "How much data do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Logistic regression needs enough events, not just enough rows — a handful of events against many predictors gives unstable estimates. Magic Stat requires at least 20 complete rows as a floor, but that is a minimum, not a target."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. The fit is a maximum-likelihood logistic model, and the AUC confidence interval uses the DeLong method. If you need penalised or mixed-effects logistic models, those live in other tools and in Magic Stat's other analyses."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Logistic regression</span>
+    <h1 class="hero-title">Binary logistic regression <span class="grad">without the syntax</span></h1>
+    <p class="hero-sub">When the outcome is yes or no, a straight line will predict probabilities below zero and above one. Logistic regression models the log-odds instead. Magic Stat fits it from your spreadsheet and returns odds ratios, a ROC curve with its AUC, and a classification table, in one dialog.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Logistic regression models odds, <span class="grad">not the probability directly</span></h2>
+  </div>
+  <div class="container">
+    <p>Logistic regression predicts the probability of a binary event through the log-odds, which keeps predictions between 0 and 1 and lets each predictor's effect be written as an odds ratio. An odds ratio of 2 means the odds of the event double per one-unit increase in the predictor, holding the others fixed. Magic Stat reports each coefficient, its odds ratio and their confidence intervals.</p>
+    <p>How the outcome is encoded matters. A column of 0/1 is used as is; a two-category text column is figured out automatically, with the second level in order treated as the event. The dialog states which level is the event, so the odds ratios cannot be read backwards.</p>
+    <p>Logistic regression has a specific failure mode: perfect separation, when a predictor splits the two outcome groups completely. Then the maximum-likelihood estimates do not exist, and software that returns huge coefficients with tiny standard errors is reporting an artefact. Magic Stat refuses to present such estimates and names the predictor responsible.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">logistic regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Coefficients on the log-odds scale</strong> with standard errors, z and p values.</li>
+      <li><strong>Odds ratios with 95% confidence intervals</strong>, so the effect size is reported, not only its significance.</li>
+      <li><strong>McFadden's pseudo-R² and AIC/BIC</strong> for the fitted model.</li>
+      <li><strong>A classification table at the 0.5 threshold</strong>, with accuracy, sensitivity, specificity, PPV and NPV.</li>
+      <li><strong>A ROC curve with its AUC and a DeLong confidence interval</strong>, in a window you can edit and export.</li>
+      <li><strong>A quality guard</strong>: perfect separation or a constant predictor produces a clear error naming the cause, never a table of invalid estimates.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Outcome and predictors, <span class="grad">then the odds ratios</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> a binary outcome column and numeric predictors.</li>
+      <li><strong>Choose Logistic Regression.</strong> Statistics → Regression Models → Multinomial & Logistic Regression (binary outcome).</li>
+      <li><strong>Select the outcome and predictors.</strong> the dialog shows which level is treated as the event.</li>
+      <li><strong>Run it.</strong> coefficients, odds ratios, classification table and AUC appear together.</li>
+      <li><strong>Open the S-curve and the ROC.</strong> in their own windows for editing and export, then add the analysis to the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Outcome:</strong> a column with two categories or 0/1; the event level is stated explicitly.</p>
+    <p><strong>Predictors:</strong> one or more numeric columns, selected together.</p>
+    <p><strong>Plots:</strong> the predicted-probability S-curve and the ROC curve open in their own editable windows.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Logistic regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How is the outcome coded?</h3>
+    <p>A 0/1 column is used directly, with 1 as the event. For a two-level text column, the levels are ordered and the second is treated as the event. The dialog prints the reference and the event level so the odds ratios are unambiguous.</p>
+    <h3>What does an odds ratio mean?</h3>
+    <p>An odds ratio above 1 means the odds of the event rise as the predictor rises; below 1, the odds fall. It is a multiplicative effect on the odds, not on the probability — for a common outcome the two differ substantially.</p>
+    <h3>The model refused to fit. Why?</h3>
+    <p>Almost always perfect separation or a constant predictor. When a predictor splits the outcome groups completely, the maximum-likelihood estimates do not exist and cannot be reported. Magic Stat identifies the offending predictor so you can remove it or reconsider the model.</p>
+    <h3>How much data do I need?</h3>
+    <p>Logistic regression needs enough events, not just enough rows — a handful of events against many predictors gives unstable estimates. Magic Stat requires at least 20 complete rows as a floor, but that is a minimum, not a target.</p>
+    <h3>Do I need R?</h3>
+    <p>No. The fit is a maximum-likelihood logistic model, and the AUC confidence interval uses the DeLong method. If you need penalised or mixed-effects logistic models, those live in other tools and in Magic Stat's other analyses.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/multinomial-regression/" class="btn btn-ghost">Multinomial logistic regression &rarr;</a>
+  <a href="/glm/" class="btn btn-ghost">Generalized linear models &rarr;</a>
+  <a href="/medical-statistics/" class="btn btn-ghost">Medical statistics &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

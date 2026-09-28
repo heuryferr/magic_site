@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contingency table software — crosstabs, chi-square and exact tests | Magic Stat</title>
+<meta name="description" content="Build a crosstab without coding: chi-square, likelihood ratio, Fisher and Fisher–Freeman–Halton, effect sizes and residual post-hoc. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/contingency-tables/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Contingency tables without coding">
+<meta property="og:description" content="Crosstabs with chi-square, exact tests, effect sizes and residual post-hoc, from two categorical columns.">
+<meta property="og:url" content="https://getmagicstat.com/contingency-tables/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Contingency tables", "item": "https://getmagicstat.com/contingency-tables/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Chi-square or Fisher's exact?", "acceptedAnswer": {"@type": "Answer", "text": "Use chi-square when the expected counts are all reasonably large (roughly ≥ 5). When they are not, its p-value is approximate and Fisher's exact — or, for tables larger than 2×2, the Fisher–Freeman–Halton Monte Carlo exact test — is the right choice. The app flags the assumption so you can make that call."}}, {"@type": "Question", "name": "What does the likelihood-ratio G-test add?", "acceptedAnswer": {"@type": "Answer", "text": "It tests the same independence hypothesis with a different statistic. The two usually agree; they can diverge with small counts, and having both lets you see whether the conclusion depends on the specific test."}}, {"@type": "Question", "name": "How do I know which cells are responsible?", "acceptedAnswer": {"@type": "Answer", "text": "Look at the adjusted standardized residuals and the cell contributions on the post-hoc tabs. A cell with a large adjusted residual departs from independence more than chance would explain, after the correction you selected."}}, {"@type": "Question", "name": "Why can a small association be significant?", "acceptedAnswer": {"@type": "Answer", "text": "Because the chi-square grows with sample size. A significant test with a small Cramér's V means the association is real but weak — report the effect size, not only the p-value."}}, {"@type": "Question", "name": "Is the Fisher Monte Carlo result stable?", "acceptedAnswer": {"@type": "Answer", "text": "The r×c exact test is estimated by Monte Carlo simulation with fixed margins, so the p-value is an estimate rather than an exact enumeration. It is the standard approach for tables where exact enumeration is infeasible, and it is reported as a Monte Carlo result."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Contingency tables</span>
+    <h1 class="hero-title">Contingency tables and crosstabs <span class="grad">with the tests that belong to them</span></h1>
+    <p class="hero-sub">Two categorical columns, and a table of counts. The interesting part is not building the table but choosing the right test for it — chi-square when expected counts are healthy, an exact test when they are not — and then finding out which cells drive the association.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">The right test depends on <span class="grad">the counts, not the variable types</span></h2>
+  </div>
+  <div class="container">
+    <p>A contingency table crosses two categorical variables and counts the observations in each cell. Pearson's chi-square tests whether the row and column variables are independent. When the expected counts are small, that test's p-value is unreliable, so the app offers the alternatives: Fisher's exact test for 2×2 tables, the Fisher–Freeman–Halton exact test (Monte Carlo) for larger tables, and the likelihood-ratio G-test. It warns you when expected counts fall below 5 rather than quietly reporting a chi-square anyway.</p>
+    <p>A significant test says there is an association but not where. For that, Magic Stat reports post-hoc work by cell: adjusted standardized residuals (with a multiple-comparison correction), each cell's chi-square contribution, and Freeman–Tukey deviates. A table with a significant chi-square and no cell analysis is half an answer.</p>
+    <p>Effect size matters as much as the p-value, because with a large N a trivial association can be significant. Cramér's V, the phi coefficient (2×2) and the contingency coefficient are reported alongside, so the size of the association is visible and not left to the p-value to imply.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">contingency tables</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>The full table</strong>: observed frequencies with expected counts under independence, plus row, column and total percentages.</li>
+      <li><strong>Association tests</strong>: Pearson's chi-square (with optional Yates' correction for 2×2), the likelihood-ratio G-test, Fisher's exact test for 2×2, the Fisher–Freeman–Halton Monte Carlo exact test for larger tables (with a chi-square approximation fallback), and the Mantel–Haenszel linear-by-linear test.</li>
+      <li><strong>Effect sizes</strong>: Cramér's V, phi (2×2) and the contingency coefficient, each with an interpretation.</li>
+      <li><strong>Post-hoc by cell</strong>: adjusted standardized residuals, per-cell chi-square contributions and Freeman–Tukey deviates, on their own tabs.</li>
+      <li><strong>Choice of correction for the post-hoc</strong>: Bonferroni, Holm–Bonferroni, Benjamini–Hochberg FDR (default), Benjamini–Yekutieli FDR, or none.</li>
+      <li><strong>An assumption warning</strong> when the minimum expected count is below 5, so the chi-square is not used blindly.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From two categorical columns to <span class="grad">the cells that matter</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data and pick the row and column variables.</strong> both categorical, with at least two categories each.</li>
+      <li><strong>Set the options.</strong> Yates' correction for 2×2, the post-hoc correction, and whether to show percentages and expected counts.</li>
+      <li><strong>Run.</strong> the table and every applicable test are computed in one step.</li>
+      <li><strong>Check the assumptions.</strong> if the expected counts are small, read the exact test instead of the chi-square.</li>
+      <li><strong>Read the cells.</strong> use the residuals and contributions to say which categories drive the association, then export the tables and the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Tests run:</strong> Pearson chi-square · likelihood ratio (G) · Fisher exact (2×2) · Fisher–Freeman–Halton Monte Carlo (r×c) · Mantel–Haenszel linear-by-linear.</p>
+    <p><strong>Yates' correction:</strong> on or off, for 2×2 tables only (on by default).</p>
+    <p><strong>Post-hoc correction:</strong> Bonferroni · Holm–Bonferroni · Benjamini–Hochberg FDR · Benjamini–Yekutieli FDR · None.</p>
+    <p><strong>Display:</strong> row %, column % and expected counts, each toggleable.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Contingency table questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Chi-square or Fisher's exact?</h3>
+    <p>Use chi-square when the expected counts are all reasonably large (roughly ≥ 5). When they are not, its p-value is approximate and Fisher's exact — or, for tables larger than 2×2, the Fisher–Freeman–Halton Monte Carlo exact test — is the right choice. The app flags the assumption so you can make that call.</p>
+    <h3>What does the likelihood-ratio G-test add?</h3>
+    <p>It tests the same independence hypothesis with a different statistic. The two usually agree; they can diverge with small counts, and having both lets you see whether the conclusion depends on the specific test.</p>
+    <h3>How do I know which cells are responsible?</h3>
+    <p>Look at the adjusted standardized residuals and the cell contributions on the post-hoc tabs. A cell with a large adjusted residual departs from independence more than chance would explain, after the correction you selected.</p>
+    <h3>Why can a small association be significant?</h3>
+    <p>Because the chi-square grows with sample size. A significant test with a small Cramér's V means the association is real but weak — report the effect size, not only the p-value.</p>
+    <h3>Is the Fisher Monte Carlo result stable?</h3>
+    <p>The r×c exact test is estimated by Monte Carlo simulation with fixed margins, so the p-value is an estimate rather than an exact enumeration. It is the standard approach for tables where exact enumeration is infeasible, and it is reported as a Monte Carlo result.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/goodness-of-fit/" class="btn btn-ghost">Goodness-of-fit test &rarr;</a>
+  <a href="/log-linear-models/" class="btn btn-ghost">Log-linear models &rarr;</a>
+  <a href="/multinomial-regression/" class="btn btn-ghost">Multinomial logistic regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

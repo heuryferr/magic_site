@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descriptive statistics software — publication-ready table | Magic Stat</title>
+<meta name="description" content="Mean (SD), median (IQR), frequencies, normality and outlier tests, and a descriptive table ready for the paper. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/descriptive-statistics/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Descriptive statistics for a paper">
+<meta property="og:description" content="Descriptives per variable plus a publication-ready table with mean (SD), median (IQR), normality and group comparisons.">
+<meta property="og:url" content="https://getmagicstat.com/descriptive-statistics/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Descriptive statistics", "item": "https://getmagicstat.com/descriptive-statistics/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which normality test should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Shapiro–Wilk for most samples up to a few thousand cases; D'Agostino-Pearson as an omnibus test for larger samples; Kolmogorov–Smirnov with Lilliefors when that is the convention in your field, and Anderson–Darling when you want more weight on the tails. Reporting more than one is defensible; picking the one that gives the answer you want is not."}}, {"@type": "Question", "name": "Which outlier rule should I report?", "acceptedAnswer": {"@type": "Answer", "text": "Say which one you used, and report all of them if they disagree. IQR is the conventional rule; Grubbs and Rosner are formal tests; Dixon's Q only applies to small samples. The module computes them all so the choice stays visible rather than hidden."}}, {"@type": "Question", "name": "Can the table be split by group, as in a Table 1?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose a grouping variable and the descriptive table shows each statistic per group, with a chi-squared or Fisher's exact test for the categorical variables."}}, {"@type": "Question", "name": "Is it worth using this just for descriptives?", "acceptedAnswer": {"@type": "Answer", "text": "Honestly, only if the formatted table saves you real time. A spreadsheet will compute means and medians. The value here is the table that is ready for the manuscript and the outlier and normality battery in the same place."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Descriptive statistics</span>
+    <h1 class="hero-title">Descriptive statistics and <span class="grad">a table ready for the paper</span></h1>
+    <p class="hero-sub">Every paper opens with a table of the sample. Magic Stat produces it: mean (SD), median (IQR), frequencies, normality and outliers per variable, and a descriptive table — with optional group columns and tests — that goes into Word without retyping.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Describing the data, and <span class="grad">the table you actually need</span></h2>
+  </div>
+  <div class="container">
+    <p>The descriptive module reports, for each numeric variable, the mean and standard deviation, the median and interquartile range, the minimum and maximum, skewness and kurtosis, the result of a normality test and the number of flagged outliers; for categorical variables it gives the frequency table. Histograms with a fitted distribution come with it.</p>
+    <p>The separate Descriptive Table for Paper turns those numbers into the table that opens a manuscript: n, mean (SD), median (IQR), range, skewness, kurtosis, normality and a 95% confidence interval, for the variables you select, optionally split by a grouping variable with the group test alongside.</p>
+    <p>This is the least glamorous part of statistics, and the honest position is that almost any software does descriptive statistics. The reason to use Magic Stat here is the table: it comes out formatted for the paper, with the grouping and the tests already in place, instead of being assembled by hand in Word. If descriptives are all you need, a spreadsheet is a fair choice.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">descriptives</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Per-variable descriptives:</strong> mean, SD, median, IQR, min, max, skewness, kurtosis, the normality p-value and the number of outliers.</li>
+      <li><strong>Normality tests</strong> to choose from — Shapiro–Wilk, D'Agostino-Pearson, Kolmogorov–Smirnov (with Lilliefors correction) and Anderson–Darling.</li>
+      <li><strong>Outlier detection</strong> by several rules, so you can see whether a flag is an artefact of the method: IQR, Z-score, MAD, Grubbs, Dixon's Q (for small samples) and Rosner's ESD.</li>
+      <li><strong>Frequency tables</strong> for categorical variables, and high-quality histograms with the fitted distribution curve.</li>
+      <li><strong>A publication-ready table</strong> with n, mean (SD), median (IQR), range, skewness, kurtosis, normality and 95% CI — continuous and categorical sections, and an optional grouping variable with the group comparison (chi-squared or Fisher's exact for categorical variables).</li>
+      <li><strong>Tables that paste, and files that export:</strong> copy straight into Word or Excel, or export to Excel/CSV.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From raw columns to <span class="grad">the opening table</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> the variables you want described; numeric and categorical columns are treated accordingly.</li>
+      <li><strong>Choose the variables.</strong> for the explorer, or for the paper table — you select the subset to describe.</li>
+      <li><strong>Set the statistics and the normality test.</strong> n, mean (SD), median (IQR), range, skewness, kurtosis, normality and 95% CI, each toggled on or off.</li>
+      <li><strong>Add a grouping variable if you need one.</strong> the table then shows the statistics per group, with the test between them.</li>
+      <li><strong>Copy or export.</strong> paste the table into Word or Excel, or export the data to a file.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Statistics to include:</strong> n · mean (SD) · median (IQR) · min–max · skewness · kurtosis · normality test · 95% CI. <strong>Normality method:</strong> Shapiro–Wilk (recommended, n ≤ 5000) · D'Agostino-Pearson (omnibus, n ≥ 20) · Kolmogorov–Smirnov with Lilliefors · Anderson–Darling.</p>
+    <p><strong>Grouping:</strong> none (overall statistics) or a categorical column, with chi-squared or Fisher's exact for the categorical variables. <strong>Outliers</strong> in the explorer can be flagged by IQR, Z-score, MAD, Grubbs, Dixon's Q or Rosner ESD.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Descriptive-statistics questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Which normality test should I use?</h3>
+    <p>Shapiro–Wilk for most samples up to a few thousand cases; D'Agostino-Pearson as an omnibus test for larger samples; Kolmogorov–Smirnov with Lilliefors when that is the convention in your field, and Anderson–Darling when you want more weight on the tails. Reporting more than one is defensible; picking the one that gives the answer you want is not.</p>
+    <h3>Which outlier rule should I report?</h3>
+    <p>Say which one you used, and report all of them if they disagree. IQR is the conventional rule; Grubbs and Rosner are formal tests; Dixon's Q only applies to small samples. The module computes them all so the choice stays visible rather than hidden.</p>
+    <h3>Can the table be split by group, as in a Table 1?</h3>
+    <p>Yes. Choose a grouping variable and the descriptive table shows each statistic per group, with a chi-squared or Fisher's exact test for the categorical variables.</p>
+    <h3>Is it worth using this just for descriptives?</h3>
+    <p>Honestly, only if the formatted table saves you real time. A spreadsheet will compute means and medians. The value here is the table that is ready for the manuscript and the outlier and normality battery in the same place.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/t-test/" class="btn btn-ghost">t-test &rarr;</a>
+  <a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/correlation/" class="btn btn-ghost">Correlation analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

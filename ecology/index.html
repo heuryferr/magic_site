@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community ecology software — diversity, ordination, PERMANOVA | Magic Stat</title>
+<meta name="description" content="Community ecology from a spreadsheet: alpha and beta diversity, PERMANOVA, ordination, functional diversity and IndVal. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/ecology/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Community ecology without scripts">
+<meta property="og:description" content="Diversity indices, PERMANOVA/ANOSIM/Mantel, ordination, functional and phylogenetic diversity and indicator species.">
+<meta property="og:url" content="https://getmagicstat.com/ecology/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Community ecology", "item": "https://getmagicstat.com/ecology/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this a replacement for vegan?", "acceptedAnswer": {"@type": "Answer", "text": "No. vegan in R is the reference for distance-based ecology and has more indices and options. Magic Stat covers the common workflow end to end from a spreadsheet and writes the report; if your analyses already live in vegan scripts, keep them."}}, {"@type": "Question", "name": "Which dissimilarity should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Bray–Curtis is the convention for abundance data, Jaccard or Sørensen for presence/absence, and Euclidean for standardised continuous variables. Whatever you choose for the ordination, use the same one for PERMANOVA so the figure and the test describe the same thing."}}, {"@type": "Question", "name": "What is the difference between rarefaction and accumulation curves?", "acceptedAnswer": {"@type": "Answer", "text": "Rarefaction rescales every sample to a common number of individuals, so sites with different sampling effort can be compared; accumulation shows how observed richness grows as samples or individuals are added in order. Both are computed in the accumulation tab, for richness and for the other indices."}}, {"@type": "Question", "name": "Can I use the figures in a paper?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — figures export as PNG, SVG, PDF, JPEG or TIFF with the legends outside the plot and scientific palettes, and the analysis is written into a report with its settings."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your computer; the only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Community ecology</span>
+    <h1 class="hero-title">Community ecology and biodiversity <span class="grad">from a spreadsheet</span></h1>
+    <p class="hero-sub">Community ecology is a sequence of decisions — how to transform the abundance table, how to measure diversity, whether groups differ, and which species drive the difference. Magic Stat puts that sequence in one dialog, from the transformations through to the indicator species, with figures ready for the manuscript.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">The community-ecology workflow, and <span class="grad">what it is not</span></h2>
+  </div>
+  <div class="container">
+    <p>The module follows the way an ecologist actually works through a community matrix: transform it (Hellinger, chord, Wisconsin, presence/absence, logs and roots), summarise it (alpha diversity, accumulation and rarefaction curves), compare groups (PERMANOVA, ANOSIM, PERMDISP, Mantel), ordinate it (PCA, PCoA, NMDS, CA, DCA, RDA, CCA), and go further with functional diversity, phylogenetic diversity, indicator species, TWINSPAN and variation partitioning.</p>
+    <p>The reference implementations for most of these live in vegan and its companions in R. If your lab already works in vegan, the honest advice is to stay there — the indices are the same, and vegan has more of them. Magic Stat matters when you want the analysis, the figures and the methods paragraph to come out of the same spreadsheet without a script, and when the person doing the analysis is not the person who wrote the script.</p>
+    <p>The module stops at the community matrix — the species and the sites. Everything downstream of that it covers: how the matrix is transformed, how it is summarised and compared, how it is ordinated, and how the result is written up. If what you need falls outside that boundary, the module will not pretend otherwise.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">community ecology</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Data transformations</strong> before anything else: log, log(1+x), log10, z-score, range 0–1, maximum scaling, Wisconsin double standardisation, Hellinger, chord, chi-square, square root, fourth root, total-sum scaling and presence/absence.</li>
+      <li><strong>Alpha diversity:</strong> Shannon–Wiener, Simpson (D, 1−D, 1/D), Chao1, ACE, Fisher's alpha, Pielou's evenness, Margalef, Menhinick, Good's coverage, Jackknife 1 and 2, plus rarefaction and accumulation curves (richness, Shannon, Simpson, Chao1, Jackknife).</li>
+      <li><strong>Beta diversity and group tests:</strong> Bray–Curtis, Jaccard, Sørensen, Horn–Morisita, Euclidean, Manhattan and Canberra dissimilarities, with PERMANOVA, ANOSIM, Mantel and PERMDISP.</li>
+      <li><strong>Ordination:</strong> PCA, PCoA, NMDS, CA, DCA, RDA and CCA, with the ordination figure and the variability or stress that goes with it.</li>
+      <li><strong>Functional and phylogenetic diversity:</strong> FRic, FEve, FDiv, FDis and Rao's Q; Faith's PD, MPD, MNTD, their standardised effect sizes and the NRI/NTI indices.</li>
+      <li><strong>Classification and indicators:</strong> IndVal indicator species, SIMPER, TWINSPAN, variation partitioning between two predictor sets, and a PC-ORD-style outlier screen.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a community matrix to <span class="grad">a result</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the matrix.</strong> sites in rows, species in columns — the abundances as they are; the transformation is a setting.</li>
+      <li><strong>Transform if needed.</strong> Hellinger and chord are the usual starting points for abundance data; the whole list is in the dialog.</li>
+      <li><strong>Choose the analysis.</strong> alpha, beta, ordination, functional, phylogenetic or indicator — each tab has its own variables and options.</li>
+      <li><strong>Compare groups.</strong> with PERMANOVA, ANOSIM or PERMDISP when you have a grouping factor, using the same dissimilarity as the ordination.</li>
+      <li><strong>Export.</strong> figures to the gallery, and the analysis with its settings and interpretation into the report (.docx, .html or .md).</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Dissimilarities:</strong> Bray–Curtis · Jaccard · Sørensen · Horn–Morisita · Euclidean · Manhattan · Canberra. <strong>Ordination methods:</strong> PCA · PCoA · NMDS · CA · DCA · RDA · CCA.</p>
+    <p><strong>Permutations</strong> are set in the dialog for the permutation-based tests. With a grouping column, alpha indices are also compared between groups (ANOVA or Kruskal–Wallis per index, with FDR correction).</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Community-ecology questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Is this a replacement for vegan?</h3>
+    <p>No. vegan in R is the reference for distance-based ecology and has more indices and options. Magic Stat covers the common workflow end to end from a spreadsheet and writes the report; if your analyses already live in vegan scripts, keep them.</p>
+    <h3>Which dissimilarity should I use?</h3>
+    <p>Bray–Curtis is the convention for abundance data, Jaccard or Sørensen for presence/absence, and Euclidean for standardised continuous variables. Whatever you choose for the ordination, use the same one for PERMANOVA so the figure and the test describe the same thing.</p>
+    <h3>What is the difference between rarefaction and accumulation curves?</h3>
+    <p>Rarefaction rescales every sample to a common number of individuals, so sites with different sampling effort can be compared; accumulation shows how observed richness grows as samples or individuals are added in order. Both are computed in the accumulation tab, for richness and for the other indices.</p>
+    <h3>Can I use the figures in a paper?</h3>
+    <p>Yes — figures export as PNG, SVG, PDF, JPEG or TIFF with the legends outside the plot and scientific palettes, and the analysis is written into a report with its settings.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your computer; the only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/nmds/" class="btn btn-ghost">NMDS analysis &rarr;</a>
+  <a href="/permanova/" class="btn btn-ghost">PERMANOVA &rarr;</a>
+  <a href="/cluster-analysis/" class="btn btn-ghost">Cluster analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medical statistics software — ROC, survival, agreement | Magic Stat</title>
+<meta name="description" content="ROC/AUC with DeLong CI, Bland-Altman, Kaplan-Meier with log-rank and Cox, Cohen&#x27;s kappa and diagnostic tests. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/medical-statistics/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Medical statistics without code">
+<meta property="og:description" content="ROC, agreement, survival and diagnostic accuracy from a spreadsheet, with publication-ready figures.">
+<meta property="og:url" content="https://getmagicstat.com/medical-statistics/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Medical statistics", "item": "https://getmagicstat.com/medical-statistics/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this enough for a clinical paper?", "acceptedAnswer": {"@type": "Answer", "text": "For the standard analyses — ROC/AUC, agreement, survival with log-rank and Cox, kappa and diagnostic accuracy — yes. If the paper needs competing risks, time-varying covariates or a full survival modelling strategy, use R (survival, cmprsk) or Stata instead."}}, {"@type": "Question", "name": "How is the AUC confidence interval computed?", "acceptedAnswer": {"@type": "Answer", "text": "The AUC uses the DeLong method for its confidence interval and reports the Youden index. The point estimate is shown as well, since some journals still report that alone."}}, {"@type": "Question", "name": "Can I do survival analysis here?", "acceptedAnswer": {"@type": "Answer", "text": "Yes: Kaplan–Meier with the log-rank test, and Cox proportional hazards for hazard ratios. It does not cover competing risks or time-varying covariates — those need a dedicated survival package."}}, {"@type": "Question", "name": "Does it replace MedCalc or a biostatistician?", "acceptedAnswer": {"@type": "Answer", "text": "No. It replaces the script plumbing for the common analyses. Interpretation, study design and the decision about which test is appropriate remain your responsibility — the software reports, it does not decide."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No — patient data stays on your machine. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Medical statistics</span>
+    <h1 class="hero-title">Clinical and diagnostic statistics <span class="grad">without the code</span></h1>
+    <p class="hero-sub">Clinical papers ask for a small number of specific analyses: a ROC curve with its AUC, agreement between two measurements, a survival curve with a log-rank test, a kappa between two raters, and the sensitivity and specificity of a test. Magic Stat does those from a spreadsheet, with the confidence intervals the journal expects.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">The analyses a clinical paper needs, and <span class="grad">their limits</span></h2>
+  </div>
+  <div class="container">
+    <p>The module gathers the analyses that recur in clinical and diagnostic research: ROC curves and the area under them, Bland–Altman agreement, Kaplan–Meier survival with the log-rank test and Cox regression, Cohen's kappa for inter-rater agreement, and the accuracy of a diagnostic test (sensitivity, specificity, predictive values and likelihood ratios).</p>
+    <p>Each one reports what it should. The ROC gives the AUC with a DeLong confidence interval and the Youden index; Bland–Altman gives the limits of agreement with their uncertainty and tests for trend and proportional bias; the survival tab gives the product-limit curve, the log-rank test and hazard ratios.</p>
+    <p>It is not a regulatory or comprehensive survival package. If you need competing risks, time-varying covariates or repeated events, R (survival, cmprsk) or Stata is the right tool. Magic Stat is for the standard analyses a clinical paper reports, done without a script.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">medical statistics</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>ROC curves</strong> with the AUC, its DeLong confidence interval and the Youden index — the version of the AUC a reviewer will ask about, not just the point estimate.</li>
+      <li><strong>Bland–Altman analysis</strong> of agreement between two measurements, with the limits of agreement (± t·SE) and tests for trend and proportional bias.</li>
+      <li><strong>Kaplan–Meier survival</strong> (product-limit estimate) with the log-rank test for two or more groups, and <strong>Cox proportional hazards</strong> with hazard ratios.</li>
+      <li><strong>Cohen's kappa</strong> for agreement between two raters, unweighted or with linear or quadratic weights.</li>
+      <li><strong>Diagnostic test accuracy:</strong> sensitivity, specificity, positive and negative predictive values and likelihood ratios.</li>
+      <li><strong>Figures and report:</strong> each analysis produces a publication-quality figure and a report entry with the settings and the interpretation, exportable to .docx, .html or .md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a clinical table to <span class="grad">a result</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the clinical data.</strong> one row per patient or subject, with the columns the analysis needs.</li>
+      <li><strong>Pick the analysis.</strong> ROC, Bland–Altman, Kaplan–Meier, Cohen's kappa or the diagnostic test — each has its own tab.</li>
+      <li><strong>Set the columns.</strong> outcome status and score for ROC and diagnostic accuracy; time, event and optional group for survival; the two raters for kappa.</li>
+      <li><strong>Read the result.</strong> AUC and Youden, limits of agreement and bias tests, the survival curve with the log-rank, kappa with its interpretation, or the accuracy measures.</li>
+      <li><strong>Export.</strong> the figure to the gallery and the analysis to the report with its interpretation.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The columns each analysis needs, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>ROC and diagnostic:</strong> a status column (0/1) and a score or test-result column. <strong>Bland–Altman:</strong> two measurement columns. <strong>Kappa:</strong> two rater columns, unweighted or weighted.</p>
+    <p><strong>Survival:</strong> a time column, an event column (0/1) and an optional grouping column; Cox regression takes its predictors from the dialog.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Medical-statistics questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Is this enough for a clinical paper?</h3>
+    <p>For the standard analyses — ROC/AUC, agreement, survival with log-rank and Cox, kappa and diagnostic accuracy — yes. If the paper needs competing risks, time-varying covariates or a full survival modelling strategy, use R (survival, cmprsk) or Stata instead.</p>
+    <h3>How is the AUC confidence interval computed?</h3>
+    <p>The AUC uses the DeLong method for its confidence interval and reports the Youden index. The point estimate is shown as well, since some journals still report that alone.</p>
+    <h3>Can I do survival analysis here?</h3>
+    <p>Yes: Kaplan–Meier with the log-rank test, and Cox proportional hazards for hazard ratios. It does not cover competing risks or time-varying covariates — those need a dedicated survival package.</p>
+    <h3>Does it replace MedCalc or a biostatistician?</h3>
+    <p>No. It replaces the script plumbing for the common analyses. Interpretation, study design and the decision about which test is appropriate remain your responsibility — the software reports, it does not decide.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No — patient data stays on your machine. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/logistic-regression/" class="btn btn-ghost">Logistic regression &rarr;</a>
+  <a href="/power-analysis/" class="btn btn-ghost">Power analysis &rarr;</a>
+  <a href="/nonparametric-tests/" class="btn btn-ghost">Non-parametric tests &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

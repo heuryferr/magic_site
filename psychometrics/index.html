@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychometrics software — alpha, omega, EFA, CFA and IRT | Magic Stat</title>
+<meta name="description" content="Reliability, EFA, CFA and IRT graded response from a normal spreadsheet — alpha, omega, loadings, fit indices and DIF. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/psychometrics/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Psychometrics without code">
+<meta property="og:description" content="Cronbach&#x27;s alpha, McDonald&#x27;s omega, EFA, CFA, IRT graded response and DIF from a spreadsheet.">
+<meta property="og:url" content="https://getmagicstat.com/psychometrics/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Psychometrics", "item": "https://getmagicstat.com/psychometrics/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I report alpha or omega?", "acceptedAnswer": {"@type": "Answer", "text": "Omega is the more defensible coefficient when items differ in their loadings, because alpha assumes equal loadings. Magic Stat reports both, plus split-half, so you can show more than one and explain the choice."}}, {"@type": "Question", "name": "Which IRT model does it fit?", "acceptedAnswer": {"@type": "Answer", "text": "The unidimensional graded response model (Samejima) for ordered items, estimated by marginal maximum likelihood. It is the standard model for Likert scales. For dichotomous 2PL/3PL or multidimensional models, use mirt in R."}}, {"@type": "Question", "name": "Can I use it for a paper?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — the tables (reliability, loadings, fit, HTMT) and the figures are written into a report with the settings, exportable to .docx, .html or .md, so the method section can be described accurately."}}, {"@type": "Question", "name": "Is this better than jamovi or JASP?", "acceptedAnswer": {"@type": "Answer", "text": "For basic reliability and EFA they are quicker to open and entirely adequate. Magic Stat's difference is having reliability, CFA, IRT and DIF in one place with the same report; if you only need alpha, jamovi or JASP is a fair choice."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Psychometrics</span>
+    <h1 class="hero-title">Reliability, factor analysis and IRT <span class="grad">in one dialog</span></h1>
+    <p class="hero-sub">Scale work has a sequence: check reliability, look for structure, test the structure, then look at the items themselves. Magic Stat keeps the whole sequence in one dialog — reliability coefficients, exploratory and confirmatory factor analysis, item response theory and DIF — so you are not moving the same columns between four scripts.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What the module covers, and <span class="grad">where R still wins</span></h2>
+  </div>
+  <div class="container">
+    <p>The psychometrics module answers the ordinary questions of scale construction: is the scale internally consistent (Cronbach's alpha, McDonald's omega, split-half), how many factors does the item set actually have (exploratory factor analysis with parallel analysis), does the hypothesised structure hold (confirmatory factor analysis with fit indices), and are the items functioning as intended (item response theory).</p>
+    <p>It is not the whole of psychometrics. The IRT engine here is the unidimensional graded response model for ordered (Likert-type) items — it does not do multidimensional IRT, dichotomous 2PL/3PL models or test equating. If you need those, mirt in R is the answer. For the full range of extraction and rotation options, psych and lavaan remain the reference.</p>
+    <p>Where the module is useful is the workflow: reliability, EFA, CFA, IRT and DIF share the same data, the same variable picker and the same report, so the numbers a reviewer asks for come from one place instead of being assembled by hand.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">psychometrics</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Reliability:</strong> Cronbach's alpha, McDonald's omega, split-half reliability (Spearman-Brown and Guttman), corrected item-total correlations, alpha if each item is deleted, and the inter-item correlation matrix.</li>
+      <li><strong>Exploratory factor analysis:</strong> KMO and Bartlett's test, parallel analysis to decide the number of factors, principal-axis or maximum-likelihood extraction, varimax / promax / oblimin rotation, rotated loadings, communalities, variance explained and a scree plot.</li>
+      <li><strong>Confirmatory factor analysis:</strong> model fit (chi-square, CFI, TLI, RMSEA, SRMR and more), factor loadings with standard errors, the factor correlation matrix and modification indices.</li>
+      <li><strong>Construct validity:</strong> Pearson or Spearman correlations between construct scores, the Fornell-Larcker criterion with AVE and composite reliability, and the HTMT ratio.</li>
+      <li><strong>Item response theory:</strong> the Samejima graded response model for ordinal items, calibrated by marginal maximum likelihood — discrimination and threshold parameters with standard errors, item and category characteristic curves, item and test information, conditional standard error and EAP person scores.</li>
+      <li><strong>Differential item functioning:</strong> ordinal-logistic DIF by group with uniform and non-uniform tests, FDR correction, anchor purification and impact (observed and latent means per group).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">The scale workflow, <span class="grad">tab by tab</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the item data.</strong> one column per item, respondents in rows.</li>
+      <li><strong>Check reliability.</strong> alpha, omega and split-half, with item-total statistics to spot the item that is hurting the scale.</li>
+      <li><strong>Explore the structure.</strong> KMO and Bartlett, parallel analysis for the number of factors, then the rotated loading matrix.</li>
+      <li><strong>Confirm the structure.</strong> define the factors and their items and read the fit indices and loadings.</li>
+      <li><strong>Look at the items.</strong> calibrate the graded response model, or run DIF between groups; everything is written into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>EFA rotation:</strong> varimax · promax · oblimin · none. <strong>Extraction:</strong> principal axis · maximum likelihood.</p>
+    <p><strong>IRT:</strong> items coded as ordinal integers (1, 2, 3, …); complete cases are used, and the dialog warns when the sample is small.</p>
+    <p><strong>DIF:</strong> the grouping variable can be categorical (e.g., sex) or continuous (e.g., age), with FDR correction and anchor purification.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Psychometrics questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Should I report alpha or omega?</h3>
+    <p>Omega is the more defensible coefficient when items differ in their loadings, because alpha assumes equal loadings. Magic Stat reports both, plus split-half, so you can show more than one and explain the choice.</p>
+    <h3>Which IRT model does it fit?</h3>
+    <p>The unidimensional graded response model (Samejima) for ordered items, estimated by marginal maximum likelihood. It is the standard model for Likert scales. For dichotomous 2PL/3PL or multidimensional models, use mirt in R.</p>
+    <h3>Can I use it for a paper?</h3>
+    <p>Yes — the tables (reliability, loadings, fit, HTMT) and the figures are written into a report with the settings, exportable to .docx, .html or .md, so the method section can be described accurately.</p>
+    <h3>Is this better than jamovi or JASP?</h3>
+    <p>For basic reliability and EFA they are quicker to open and entirely adequate. Magic Stat's difference is having reliability, CFA, IRT and DIF in one place with the same report; if you only need alpha, jamovi or JASP is a fair choice.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs locally; the only automatic signal is an anonymous installation counter with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/sem/" class="btn btn-ghost">Structural equation modeling &rarr;</a>
+  <a href="/jasp-alternative/" class="btn btn-ghost">JASP alternative &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

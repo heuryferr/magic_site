@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLS-DA software — PLS discriminant analysis without coding | Magic Stat</title>
+<meta name="description" content="Run PLS-DA without coding: latent components, VIP scores, a confusion matrix and a cross-validated accuracy. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/plsda/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PLS-DA without coding">
+<meta property="og:description" content="Partial least squares discriminant analysis — scores, VIP scores, a confusion matrix and a cross-validated accuracy.">
+<meta property="og:url" content="https://getmagicstat.com/plsda/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "PLS-DA", "item": "https://getmagicstat.com/plsda/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "PLS-DA or discriminant analysis?", "acceptedAnswer": {"@type": "Answer", "text": "Discriminant analysis assumes normal predictors within groups and equal covariance, and is stable only when you have many more samples than variables. PLS-DA handles many correlated variables and small samples, which is why it dominates metabolomics and chemometrics. Use discriminant analysis when its assumptions hold."}}, {"@type": "Question", "name": "Why two accuracies?", "acceptedAnswer": {"@type": "Answer", "text": "The fit accuracy is resubstitution — computed on the data the model was trained on — and is optimistic. The cross-validated accuracy comes from a stratified k-fold split and is the more honest estimate of how the model would perform on new samples. Report both, and lead with the second."}}, {"@type": "Question", "name": "How many components?", "acceptedAnswer": {"@type": "Answer", "text": "As few as gets the job done. More components always fit the training data better and often generalise worse. Increase the number only while the cross-validated accuracy improves, and state how you chose it."}}, {"@type": "Question", "name": "Is VIP > 1 a significance test?", "acceptedAnswer": {"@type": "Answer", "text": "No. VIP is a ranking of variable importance with no p-value. Values around or above one are conventionally treated as worth attention, but they do not establish that a variable matters. Permutation testing of VIP, or formal selection with cross-validation, is beyond this dialog — mixOmics in R is the tool for it."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your machine. The only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">PLS-DA</span>
+    <h1 class="hero-title">PLS discriminant analysis <span class="grad">with honest validation</span></h1>
+    <p class="hero-sub">PLS-DA is the supervised method for many correlated variables and few samples — the classic situation in metabolomics and chemometrics. Magic Stat runs it from a normal spreadsheet, reports VIP scores and a confusion matrix, and gives you a cross-validated accuracy next to the optimistic fit one.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What PLS-DA is, and <span class="grad">the overfitting trap</span></h2>
+  </div>
+  <div class="container">
+    <p>PLS discriminant analysis fits partial least squares regression against a dummy matrix of the group labels. The components are chosen to maximise the covariance between the measured variables and the groups, which is why it works well when the variables are many, correlated and noisy — the situation where ordinary discriminant analysis becomes unstable.</p>
+    <p>The trap is that PLS-DA can fit almost any grouping if you give it enough components, and a resubstitution accuracy will look excellent while meaning very little. That is why this dialog reports two accuracies side by side: the fit accuracy and a cross-validated one from a stratified k-fold split. The cross-validated number is the one to believe.</p>
+    <p>The other useful output is the importance of each variable. The VIP score condenses a variable's contribution across the components; the usual heuristic is that VIP above roughly one marks a variable worth attention. It is a ranking device, not a significance test — there is no p-value attached to a VIP, and this dialog does not pretend there is.</p>
+    <p>PLS-DA assumes there are groups to separate and that the variables carry enough signal to separate them. If your sample size is small and your variables are many, the honest move is to treat the model as exploratory and to validate it on independent data. When you need orthogonal partial least squares (OPLS-DA), permutation testing of the model, or formal variable selection, R's mixOmics package is the appropriate tool.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">PLS-DA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>A scores plot</strong> for the first two components, coloured by group, with the percentage of X variance each component carries.</li>
+      <li><strong>VIP scores</strong> for every variable, ranking them by their contribution across the components.</li>
+      <li><strong>Loadings and weights</strong>, plus the variance in X explained by each component, so the model is not read from the scores alone.</li>
+      <li><strong>A confusion matrix</strong> of predicted versus true class, with both the fit accuracy and a <strong>cross-validated accuracy</strong> from a stratified k-fold split.</li>
+      <li><strong>A reproducible model</strong>: the number of components is chosen explicitly (up to eight, capped by your data), and the cross-validation seed is fixed.</li>
+      <li><strong>No code, no command line</strong>, exports to spreadsheet formats, and the analysis joins the report (.docx, .html, .md).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Groups and variables to a <span class="grad">validated model</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> one row per sample, numeric variables in columns, plus a categorical column holding the groups.</li>
+      <li><strong>Pick PLS-DA.</strong> and choose the grouping variable.</li>
+      <li><strong>Select the variables.</strong> two or more numeric variables; more variables than samples is exactly what the method is for.</li>
+      <li><strong>Choose the number of components.</strong> start small and increase only while the cross-validated accuracy improves.</li>
+      <li><strong>Read and export.</strong> scores, VIP, loadings, the confusion matrix and both accuracies; the scores plot and report entry follow.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Grouping variable:</strong> a categorical column with two or more levels. <strong>Variables:</strong> two or more numeric columns.</p>
+    <p><strong>Number of components:</strong> one to eight, capped by the data at min(n−1, p). The variables are standardised internally by the algorithm, and the cross-validation uses a stratified split with a fixed seed, so the reported accuracy is reproducible.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">PLS-DA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>PLS-DA or discriminant analysis?</h3>
+    <p>Discriminant analysis assumes normal predictors within groups and equal covariance, and is stable only when you have many more samples than variables. PLS-DA handles many correlated variables and small samples, which is why it dominates metabolomics and chemometrics. Use discriminant analysis when its assumptions hold.</p>
+    <h3>Why two accuracies?</h3>
+    <p>The fit accuracy is resubstitution — computed on the data the model was trained on — and is optimistic. The cross-validated accuracy comes from a stratified k-fold split and is the more honest estimate of how the model would perform on new samples. Report both, and lead with the second.</p>
+    <h3>How many components?</h3>
+    <p>As few as gets the job done. More components always fit the training data better and often generalise worse. Increase the number only while the cross-validated accuracy improves, and state how you chose it.</p>
+    <h3>Is VIP > 1 a significance test?</h3>
+    <p>No. VIP is a ranking of variable importance with no p-value. Values around or above one are conventionally treated as worth attention, but they do not establish that a variable matters. Permutation testing of VIP, or formal selection with cross-validation, is beyond this dialog — mixOmics in R is the tool for it.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your machine. The only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/discriminant-analysis/" class="btn btn-ghost">Discriminant analysis &rarr;</a>
+  <a href="/pca/" class="btn btn-ghost">PCA analysis &rarr;</a>
+  <a href="/logistic-regression/" class="btn btn-ghost">Logistic regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

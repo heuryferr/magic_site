@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correlation software — Pearson, Spearman and Kendall without coding | Magic Stat</title>
+<meta name="description" content="Pearson, Spearman and Kendall correlation with confidence intervals and partial correlation, from a normal spreadsheet — no code. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/correlation/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Correlation analysis without coding">
+<meta property="og:description" content="Pearson, Spearman and Kendall correlation with confidence intervals, partial correlation, and a clear statement of what the coefficient does not tell you.">
+<meta property="og:url" content="https://getmagicstat.com/correlation/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Correlation analysis", "item": "https://getmagicstat.com/correlation/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which coefficient should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Pearson if both variables are continuous and the relationship is roughly linear. Spearman if the relationship is monotonic but not linear, or the data are skewed or ordinal. Kendall if there are many ties or the sample is small and you want a coefficient defined in terms of concordant pairs."}}, {"@type": "Question", "name": "What value counts as a strong correlation?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal threshold, and treating one as if there were is a common mistake. What matters is the coefficient together with its confidence interval and the sample size. Magic Stat labels the strength for convenience, but the interval is the honest part."}}, {"@type": "Question", "name": "Does correlation imply causation?", "acceptedAnswer": {"@type": "Answer", "text": "No, and no software can make it. If you suspect a third variable drives both, use partial correlation to hold it constant — that still does not establish a causal direction."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. If you already work in R and it serves you, keep it — R's <code>cor.test</code> is the reference this dialog is built to match. The value here is the interval, the partial correlation and the report in one place."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Correlation analysis</span>
+    <h1 class="hero-title">Correlation analysis <span class="grad">without writing a script</span></h1>
+    <p class="hero-sub">A correlation coefficient is one number, and most of the real work is choosing the right coefficient and reading the interval around it. Magic Stat gives you Pearson, Spearman and Kendall with their confidence intervals, plus partial correlation — from the spreadsheet you already have.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What a correlation coefficient does <span class="grad">and does not say</span></h2>
+  </div>
+  <div class="container">
+    <p>A correlation coefficient summarises how strongly two variables move together. Pearson's r measures the strength of a <em>linear</em> relationship between two continuous variables. Spearman's rho and Kendall's tau work from the ranks instead, so they describe any monotonic relationship and are not thrown off by skew, outliers or ordinal data. That is the first decision: the coefficient has to match the shape of the data, not the other way round.</p>
+    <p>The second thing a coefficient does not say is causation — and it also does not say how precise the estimate is. Magic Stat reports the confidence interval next to every coefficient, because an r computed on a handful of pairs and the same r computed on hundreds are not the same result.</p>
+    <p>When two variables look associated only because both move with a third, the useful analysis is partial correlation: the correlation between X and Y after the linear effect of the covariates is removed. Magic Stat does that in the same dialog.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">correlation</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Pearson, Spearman and Kendall</strong> from a list, with no function argument to remember.</li>
+      <li><strong>A confidence interval for every coefficient</strong> — Fisher z for Pearson, the Bonett–Wright correction for Spearman, and a bootstrap for Kendall, which has no standard closed-form interval.</li>
+      <li><strong>The exact Spearman p-value</strong> (the permutation-based <code>prho</code> that R's <code>cor.test</code> uses), not the t approximation, when there are no ties.</li>
+      <li><strong>Partial correlation</strong> controlling for one or more covariates, computed from the residuals of X and Y on those covariates.</li>
+      <li><strong>Pairwise deletion</strong>, so a missing value in one variable never silently shortens another column.</li>
+      <li><strong>An honest qualitative reading</strong> of the coefficient beside the number, and the analysis written into the report with its settings.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Two columns in, <span class="grad">one interval out</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the spreadsheet.</strong> each variable in a column — no reformatting, no transposing.</li>
+      <li><strong>Pick the coefficient.</strong> Pearson for roughly linear continuous pairs; Spearman or Kendall for monotonic, skewed or ordinal data.</li>
+      <li><strong>Select X and Y.</strong> and, for partial correlation, the covariates to hold constant.</li>
+      <li><strong>Read the interval, not just r.</strong> the coefficient, its confidence interval, n and the p-value are shown together.</li>
+      <li><strong>Export.</strong> the analysis and its interpretation go into the report as .docx, .html or .md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The choices, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Coefficient:</strong> Pearson · Spearman · Kendall.</p>
+    <p><strong>Interval:</strong> Fisher z for Pearson, Bonett–Wright for Spearman, bootstrap for Kendall — matched automatically to the coefficient you chose.</p>
+    <p><strong>Partial correlation:</strong> choose the covariates to control for; the result is the correlation of the residuals.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Correlation questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Which coefficient should I use?</h3>
+    <p>Pearson if both variables are continuous and the relationship is roughly linear. Spearman if the relationship is monotonic but not linear, or the data are skewed or ordinal. Kendall if there are many ties or the sample is small and you want a coefficient defined in terms of concordant pairs.</p>
+    <h3>What value counts as a strong correlation?</h3>
+    <p>There is no universal threshold, and treating one as if there were is a common mistake. What matters is the coefficient together with its confidence interval and the sample size. Magic Stat labels the strength for convenience, but the interval is the honest part.</p>
+    <h3>Does correlation imply causation?</h3>
+    <p>No, and no software can make it. If you suspect a third variable drives both, use partial correlation to hold it constant — that still does not establish a causal direction.</p>
+    <h3>Do I need R?</h3>
+    <p>No. If you already work in R and it serves you, keep it — R's <code>cor.test</code> is the reference this dialog is built to match. The value here is the interval, the partial correlation and the report in one place.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/robust-regression/" class="btn btn-ghost">Robust regression &rarr;</a>
+  <a href="/descriptive-statistics/" class="btn btn-ghost">Descriptive statistics &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

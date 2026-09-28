@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goodness-of-fit software — Pearson chi-square and G-test | Magic Stat</title>
+<meta name="description" content="Run a chi-square goodness-of-fit test without coding: Pearson χ² and the likelihood-ratio G, with residuals and assumptions. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/goodness-of-fit/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chi-square goodness-of-fit">
+<meta property="og:description" content="Test whether observed counts follow equal, custom proportions or expected counts — Pearson χ² and G, with residuals.">
+<meta property="og:url" content="https://getmagicstat.com/goodness-of-fit/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Goodness-of-fit test", "item": "https://getmagicstat.com/goodness-of-fit/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When do I need the G-test as well?", "acceptedAnswer": {"@type": "Answer", "text": "You do not always. It answers the same question with a different statistic, and with healthy counts the two agree closely. It is worth reporting when the counts are small or when a reviewer expects the likelihood-ratio version; having both is cheap."}}, {"@type": "Question", "name": "Can the expected counts come from another column?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — that is the third input mode. Give an observed column and an expected column, one row per cell; if the expected counts do not sum to the observed total they are rescaled to it (as R's chisq.test does with p = e/Σe) and a note appears."}}, {"@type": "Question", "name": "What if a category has zero expected count?", "acceptedAnswer": {"@type": "Answer", "text": "Then G is infinite for that category (you cannot compute o·ln(o/0)) and the standardized residual is undefined. The app reports that honestly instead of substituting a number."}}, {"@type": "Question", "name": "Goodness-of-fit or a contingency table?", "acceptedAnswer": {"@type": "Answer", "text": "Goodness-of-fit is for one categorical variable against an expectation. To test whether two categorical variables are associated, use the contingency table analysis — those are different questions and different tests."}}, {"@type": "Question", "name": "Does it store my counts anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculation runs locally; the only signal sent is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Goodness-of-fit test</span>
+    <h1 class="hero-title">Chi-square goodness-of-fit <span class="grad">from counts or a column</span></h1>
+    <p class="hero-sub">A goodness-of-fit test asks a simple question: do the counts I observed match the counts I expected? Magic Stat computes both the Pearson chi-square and the likelihood-ratio G, with the per-category residuals, and lets you supply the expectation in three different ways.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">One variable, <span class="grad">one set of expected counts</span></h2>
+  </div>
+  <div class="container">
+    <p>The test compares a single categorical variable's observed counts with expected counts under a hypothesis. Pearson's statistic is χ² = Σ (o−e)²/e; the likelihood-ratio G is G = 2·Σ o·ln(o/e), with 0·ln 0 taken as 0. Both have k−1 degrees of freedom. They usually agree; when they diverge, the divergence itself is informative, so Magic Stat reports both rather than choosing for you.</p>
+    <p>The expectation can be uniform (every category equally likely), a set of custom proportions, a set of expected counts, or — the case that saves the most time — an already-computed expected column in your spreadsheet, one row per cell, so you compare observed against a column you did not have to type in.</p>
+    <p>This is a one-variable test. If your question is whether two categorical variables are associated, that is a contingency table, and it lives elsewhere in the app. Using a goodness-of-fit test for that question would be a category error.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">goodness-of-fit</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Both statistics</strong>: Pearson's χ² and the likelihood-ratio G, each with df = k−1 and its p-value.</li>
+      <li><strong>Three ways to give the expectation</strong>: equal proportions · custom proportions · custom expected counts — or a numeric column of expected counts paired row-by-row with an observed column.</li>
+      <li><strong>Per-category detail</strong>: observed, expected, the χ² contribution and the standardized residual, computed as R's chisq.test does, (o−e)/√(e·(1−pᵢ)).</li>
+      <li><strong>Assumption diagnostics</strong>: the minimum expected count and how many categories fall below 5, with a note when the approximation is strained.</li>
+      <li><strong>Handling of zero expectations</strong>: flagged rather than hidden — G becomes infinite where an observed count meets a zero expectation, and the residual is reported as undefined.</li>
+      <li><strong>The result enters the report</strong> with the statistic, df, p and the per-category table, exportable to .docx, .html or .md.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From counts to <span class="grad">observed versus expected</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Choose the input tab.</strong> a categorical column, manual counts, or two numeric columns (observed and expected).</li>
+      <li><strong>Set the expectation.</strong> equal, custom proportions, custom counts, or an expected column.</li>
+      <li><strong>Run the active tab.</strong> both the Pearson χ² and the G statistic are computed.</li>
+      <li><strong>Read the diagnostics.</strong> check the minimum expected count and the cells-below-5 note before trusting the p.</li>
+      <li><strong>Inspect the categories.</strong> the contributions and standardized residuals show which categories depart from the expectation; export the table and the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">out in the open</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Input modes:</strong> From column · Manual entry (optional category labels) · Two columns (observed × expected).</p>
+    <p><strong>Expected under H0:</strong> equal proportions · custom proportions · custom expected counts.</p>
+    <p><strong>Statistics:</strong> Pearson χ² and likelihood-ratio G, both with df = k−1.</p>
+    <p><strong>Parity note:</strong> the χ² follows R's chisq.test without a continuity correction (which does not apply to the one-variable test), and the G follows the uncorrected G = 2·Σ o·ln(o/e).</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Goodness-of-fit questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>When do I need the G-test as well?</h3>
+    <p>You do not always. It answers the same question with a different statistic, and with healthy counts the two agree closely. It is worth reporting when the counts are small or when a reviewer expects the likelihood-ratio version; having both is cheap.</p>
+    <h3>Can the expected counts come from another column?</h3>
+    <p>Yes — that is the third input mode. Give an observed column and an expected column, one row per cell; if the expected counts do not sum to the observed total they are rescaled to it (as R's chisq.test does with p = e/Σe) and a note appears.</p>
+    <h3>What if a category has zero expected count?</h3>
+    <p>Then G is infinite for that category (you cannot compute o·ln(o/0)) and the standardized residual is undefined. The app reports that honestly instead of substituting a number.</p>
+    <h3>Goodness-of-fit or a contingency table?</h3>
+    <p>Goodness-of-fit is for one categorical variable against an expectation. To test whether two categorical variables are associated, use the contingency table analysis — those are different questions and different tests.</p>
+    <h3>Does it store my counts anywhere?</h3>
+    <p>No. The calculation runs locally; the only signal sent is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/contingency-tables/" class="btn btn-ghost">Contingency tables &rarr;</a>
+  <a href="/log-linear-models/" class="btn btn-ghost">Log-linear models &rarr;</a>
+  <a href="/multinomial-regression/" class="btn btn-ghost">Multinomial logistic regression &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

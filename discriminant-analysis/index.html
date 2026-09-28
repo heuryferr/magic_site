@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discriminant analysis software — canonical LDA without coding | Magic Stat</title>
+<meta name="description" content="Run discriminant analysis without coding: canonical functions, loadings, group means and a classification table, no scripts. Free 48-hour trial.">
+<link rel="canonical" href="https://getmagicstat.com/discriminant-analysis/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Discriminant analysis without coding">
+<meta property="og:description" content="Canonical linear discriminant analysis — discriminant functions, structure loadings, group means and a classification table.">
+<meta property="og:url" content="https://getmagicstat.com/discriminant-analysis/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Discriminant analysis", "item": "https://getmagicstat.com/discriminant-analysis/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Discriminant analysis or MANOVA?", "acceptedAnswer": {"@type": "Answer", "text": "They share the same mathematics but ask different questions. MANOVA tests whether group means differ on a set of variables; discriminant analysis describes how they differ and classifies observations. If you want the test, run MANOVA; if you want the functions and the classification, run discriminant analysis."}}, {"@type": "Question", "name": "Discriminant analysis or logistic regression?", "acceptedAnswer": {"@type": "Answer", "text": "Discriminant analysis assumes normal predictors within groups and equal covariance; logistic regression assumes neither and gives you odds ratios. For two groups with non-normal predictors, logistic regression is often the better fit. Use discriminant analysis when its assumptions hold or when you specifically want the canonical functions."}}, {"@type": "Question", "name": "Is the accuracy figure honest?", "acceptedAnswer": {"@type": "Answer", "text": "The classification table is resubstitution — fitted and evaluated on the same data — so it is optimistic. Treat it as a measure of separation, not of future performance, and prefer a cross-validated estimate when you need to claim predictive accuracy."}}, {"@type": "Question", "name": "What about unequal group covariances?", "acceptedAnswer": {"@type": "Answer", "text": "This dialog fits pooled covariance; if the groups differ in spread, that assumption is violated and a quadratic model (MASS::qda in R) is more appropriate. The app also offers PLS-DA, which makes no distributional assumption about the predictors."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only automatic signal is an anonymous installation counter, with no data in it."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Discriminant analysis</span>
+    <h1 class="hero-title">Discriminant analysis <span class="grad">from labelled groups</span></h1>
+    <p class="hero-sub">Discriminant analysis is what you run when the groups already exist and you want to know how — and how well — your measurements separate them. Magic Stat runs canonical linear discriminant analysis and reports the functions, the loadings, the group means and the classification accuracy.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What linear discriminant analysis does, and <span class="grad">its assumptions</span></h2>
+  </div>
+  <div class="container">
+    <p>Linear discriminant analysis takes a set of numeric measurements and a categorical grouping, and finds the linear combinations of the measurements that separate the groups most strongly. The result is a small number of discriminant functions — at most one fewer than the number of groups — each a weighted mixture of your variables.</p>
+    <p>It answers three practical questions at once: do the groups separate at all, which variables drive the separation, and how well can an observation be assigned to its group. The output here covers all three — functions with their eigenvalues and a test of significance, standardised coefficients and structure loadings, group means, and a classification table with the overall accuracy.</p>
+    <p>The assumptions are real: multivariate normal measurements within each group, and equal covariance across groups (the pooled covariance). When groups clearly differ in spread or in shape, linear boundaries are the wrong model. This dialog fits linear discriminant analysis; for a quadratic boundary, use the qda function in R's MASS package.</p>
+    <p>One warning about the accuracy figure. The classification table here is built from the same data used to fit the model — resubstitution — which is optimistic. It describes how separable these groups are, not how a classifier would perform on new samples. For an honest generalisation estimate, use cross-validation, or the cross-validated accuracy that the PLS-DA dialog reports.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">discriminant analysis</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Discriminant functions</strong> with their eigenvalues, the proportion of trace, the canonical correlation and Wilks' lambda with Rao's F test.</li>
+      <li><strong>Standardised coefficients and structure loadings</strong>, so you can see both the model weights and which variables correlate most with each function.</li>
+      <li><strong>Group means</strong> on every variable — the table that usually carries the interpretation.</li>
+      <li><strong>A classification table</strong> — predicted versus true — with the overall accuracy, using pooled covariance and proportional priors.</li>
+      <li><strong>A canonical scores plot</strong> coloured by group, exported as PNG, SVG, PDF, JPEG or TIFF, and the whole analysis written into the report (.docx, .html, .md).</li>
+      <li><strong>No code, no command line</strong>, with a numerical engine that is a faithful port of the classic R implementation rather than a black box.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Labelled groups to a <span class="grad">classification</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> one row per observation, numeric measurements in columns, plus a categorical column holding the groups.</li>
+      <li><strong>Pick Discriminant Analysis.</strong> and choose the grouping variable (two or more levels).</li>
+      <li><strong>Select the variables.</strong> at least two numeric measurements to discriminate the groups.</li>
+      <li><strong>Run it.</strong> Magic Stat fits the canonical discriminant functions and classifies every observation.</li>
+      <li><strong>Read and export.</strong> functions, coefficients and loadings, group means and the classification table in four result tabs; the figure and report entry follow.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Grouping variable:</strong> a categorical column with two or more levels. <strong>Variables:</strong> two or more numeric columns used to discriminate those groups.</p>
+    <p><strong>Conventions:</strong> proportional priors and pooled covariance, matching the classic reference implementation; eigenvalues are reported in the same convention as that implementation, and the structure loadings are invariant to the arbitrary sign of the functions.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Discriminant analysis questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Discriminant analysis or MANOVA?</h3>
+    <p>They share the same mathematics but ask different questions. MANOVA tests whether group means differ on a set of variables; discriminant analysis describes how they differ and classifies observations. If you want the test, run MANOVA; if you want the functions and the classification, run discriminant analysis.</p>
+    <h3>Discriminant analysis or logistic regression?</h3>
+    <p>Discriminant analysis assumes normal predictors within groups and equal covariance; logistic regression assumes neither and gives you odds ratios. For two groups with non-normal predictors, logistic regression is often the better fit. Use discriminant analysis when its assumptions hold or when you specifically want the canonical functions.</p>
+    <h3>Is the accuracy figure honest?</h3>
+    <p>The classification table is resubstitution — fitted and evaluated on the same data — so it is optimistic. Treat it as a measure of separation, not of future performance, and prefer a cross-validated estimate when you need to claim predictive accuracy.</p>
+    <h3>What about unequal group covariances?</h3>
+    <p>This dialog fits pooled covariance; if the groups differ in spread, that assumption is violated and a quadratic model (MASS::qda in R) is more appropriate. The app also offers PLS-DA, which makes no distributional assumption about the predictors.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only automatic signal is an anonymous installation counter, with no data in it.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/plsda/" class="btn btn-ghost">PLS-DA &rarr;</a>
+  <a href="/cluster-analysis/" class="btn btn-ghost">Cluster analysis &rarr;</a>
+  <a href="/manova/" class="btn btn-ghost">MANOVA &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

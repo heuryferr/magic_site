@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>t-test software — Student, Welch and one-sample t-tests without coding | Magic Stat</title>
+<meta name="description" content="Run Student&#x27;s, Welch&#x27;s and one-sample t-tests without coding: p-value, Cohen&#x27;s d with a confidence interval and an APA table. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/t-test/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="t-tests without coding">
+<meta property="og:description" content="Student&#x27;s, Welch&#x27;s and one-sample t-tests from a spreadsheet, with Cohen&#x27;s d, confidence intervals and an APA table.">
+<meta property="og:url" content="https://getmagicstat.com/t-test/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "t-test", "item": "https://getmagicstat.com/t-test/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Student's t or Welch's t?", "acceptedAnswer": {"@type": "Answer", "text": "Welch's is the safer default when the two groups differ in variance or in size, because Student's t pools variances it may not be entitled to pool. Student's is the classical choice when the spreads look similar and the sizes are balanced. Both are in the dialog, so the decision is yours and reversible."}}, {"@type": "Question", "name": "t-test or Mann-Whitney?", "acceptedAnswer": {"@type": "Answer", "text": "If the data are roughly normal, the t-test uses the information better and has more power. If the data are ordinal, strongly skewed, or driven by outliers, a rank-based test answers a question about distributions that may be the one you actually care about. Magic Stat reports both for two groups rather than forcing the choice."}}, {"@type": "Question", "name": "Can I run a paired t-test here?", "acceptedAnswer": {"@type": "Answer", "text": "The dialogs for independent groups and for one sample are in this window. The paired t-test fits the repeated-measures dialog, where each row is one subject and each column is one condition; there the app also reports the matched Wilcoxon signed-rank and Cohen's dz."}}, {"@type": "Question", "name": "Does it check the assumptions for me?", "acceptedAnswer": {"@type": "Answer", "text": "It reports them — Shapiro-Wilk for normality, Bartlett and Levene for homogeneity of variances — and leaves the judgment to you. Automatically switching tests based on a normality p-value is a decision with consequences that the researcher should own."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">t-test</span>
+    <h1 class="hero-title">Two-group and one-sample <span class="grad">t-tests without coding</span></h1>
+    <p class="hero-sub">The t-test is the first test most people are taught and the one most often run without its assumptions checked. Magic Stat runs it from the spreadsheet you already have and puts the effect size and a confidence interval next to the p-value, instead of leaving you to compute them elsewhere.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What a t-test does, and <span class="grad">where it stops being the right test</span></h2>
+  </div>
+  <div class="container">
+    <p>A t-test asks whether a mean differs from something: from another group's mean (two-sample), from a fixed reference value (one-sample), or from itself measured twice (paired). It is a statement about means, and it assumes the sampling distribution of that mean is roughly normal — which is usually fine with enough data and fragile with very few observations or heavy skew.</p>
+    <p>The choice that changes the answer is the variance assumption. Student's t pools the two groups' variances and is exact when they are equal and the sizes are balanced. Welch's t does not assume equal variances and is the safer default whenever the spread or the group sizes differ. Magic Stat exposes both, and reports Mann-Whitney U, Wilcoxon Rank-Sum and Brunner-Munzel next to them so the rank-based answer is one click away rather than a separate trip to another program.</p>
+    <p>Where it stops being right: more than two groups is ANOVA, and the same subjects measured twice is the paired route that lives under the repeated-measures dialog. A t-test run repeatedly over many pairs is the classic way to inflate the false-positive rate — control that with a post-hoc or planned-contrast method instead.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">t-tests</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Student's and Welch's t, side by side.</strong> Student (equal variance) and Welch (unequal variance) are both in the dialog, with the reference value μ₀ shown only for the one-sample case.</li>
+      <li><strong>The rank-based route right there.</strong> Mann-Whitney U, Wilcoxon Rank-Sum, Brunner-Munzel and the one-sample Wilcoxon signed-rank are alternatives in the same window — no second program.</li>
+      <li><strong>A permutation p-value.</strong> The permutation test can be requested for the two-sample and one-way routes, as a check that does not rely on a distributional formula.</li>
+      <li><strong>Cohen's d with a confidence interval.</strong> The effect size is reported with its sign, and the 95% CI is built either by bootstrap (percentile) or by normal approximation, your choice in the dialog.</li>
+      <li><strong>Assumption checks reported, not hidden.</strong> Shapiro-Wilk for normality and Bartlett plus Levene for homogeneity of variances come out with the result.</li>
+      <li><strong>Correction when you test many variables.</strong> Benjamini-Hochberg (FDR, the default), Bonferroni, Holm or Hochberg adjust the batch of p-values.</li>
+      <li><strong>An APA paper table and a report.</strong> The result is written up with its settings and exportable to .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong> Load the spreadsheet, choose the test, read the table.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a spreadsheet to a <span class="grad">t-test table</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> one column with the response variable and one column with the grouping factor (two categories).</li>
+      <li><strong>Open Statistics → Means Comparison Tests.</strong> and choose the scope: Two Means for independent groups, Single Mean for a test against a reference value μ₀.</li>
+      <li><strong>Select the response and the group.</strong> and, for the one-sample case, type the reference value the sample mean is compared against.</li>
+      <li><strong>Choose the test.</strong> Student (equal variance) or Welch (unequal), or a rank-based or permutation alternative; tick effect size and the confidence interval if you want them.</li>
+      <li><strong>Read the result and export.</strong> the paper table and the effect size tab go into the report, exportable to .docx/.html/.md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Parametric:</strong> Student's t-test (equal variance) · Welch's t-test (unequal variance) · One-sample t-test against μ₀.</p>
+    <p><strong>Non-parametric:</strong> Mann-Whitney U · Wilcoxon Rank-Sum · Brunner-Munzel · One-sample Wilcoxon signed-rank.</p>
+    <p><strong>Effect size:</strong> Cohen's d, with a 95% confidence interval by bootstrap (percentile) or normal approximation.</p>
+    <p><strong>Correction across variables:</strong> Benjamini-Hochberg (FDR) · Bonferroni · Holm · Hochberg.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">t-test questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Student's t or Welch's t?</h3>
+    <p>Welch's is the safer default when the two groups differ in variance or in size, because Student's t pools variances it may not be entitled to pool. Student's is the classical choice when the spreads look similar and the sizes are balanced. Both are in the dialog, so the decision is yours and reversible.</p>
+    <h3>t-test or Mann-Whitney?</h3>
+    <p>If the data are roughly normal, the t-test uses the information better and has more power. If the data are ordinal, strongly skewed, or driven by outliers, a rank-based test answers a question about distributions that may be the one you actually care about. Magic Stat reports both for two groups rather than forcing the choice.</p>
+    <h3>Can I run a paired t-test here?</h3>
+    <p>The dialogs for independent groups and for one sample are in this window. The paired t-test fits the repeated-measures dialog, where each row is one subject and each column is one condition; there the app also reports the matched Wilcoxon signed-rank and Cohen's dz.</p>
+    <h3>Does it check the assumptions for me?</h3>
+    <p>It reports them — Shapiro-Wilk for normality, Bartlett and Levene for homogeneity of variances — and leaves the judgment to you. Automatically switching tests based on a normality p-value is a decision with consequences that the researcher should own.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The analysis runs on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/anova/" class="btn btn-ghost">ANOVA &rarr;</a>
+  <a href="/nonparametric-tests/" class="btn btn-ghost">Non-parametric tests &rarr;</a>
+  <a href="/power-analysis/" class="btn btn-ghost">Power analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

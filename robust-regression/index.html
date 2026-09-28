@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robust regression software — Theil–Sen and Siegel repeated median | Magic Stat</title>
+<meta name="description" content="Theil–Sen and Siegel repeated-median regression for one predictor, Huber M-estimation for several — slopes that resist outliers. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/robust-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Robust regression without coding">
+<meta property="og:description" content="Theil–Sen and Siegel repeated-median regression for one predictor, and Huber M-estimation for several, without writing code.">
+<meta property="og:url" content="https://getmagicstat.com/robust-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Robust regression", "item": "https://getmagicstat.com/robust-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does robust regression delete outliers?", "acceptedAnswer": {"@type": "Answer", "text": "No. It changes how much each point influences the fit, using medians or down-weighting. The observations stay in the data and in the figure; they simply do not dictate the line."}}, {"@type": "Question", "name": "Theil–Sen or the Siegel repeated median?", "acceptedAnswer": {"@type": "Answer", "text": "Both are resistant; the repeated median has a higher breakdown point, meaning it tolerates a larger fraction of extreme points before the fit is distorted. Repeated median is the default in R's mblm, and it is a reasonable default here too."}}, {"@type": "Question", "name": "What if I have several predictors?", "acceptedAnswer": {"@type": "Answer", "text": "Theil–Sen and repeated median are bivariate methods and are not extended to several predictors. Magic Stat fits a robust model by M-estimation with Huber weights instead — the same approach as R's <code>MASS::rlm</code>."}}, {"@type": "Question", "name": "Why is there no R²?", "acceptedAnswer": {"@type": "Answer", "text": "The robust bivariate estimators do not produce a conventional coefficient of determination, and reporting one would be misleading. What is reported is the slope, its robust scale, and a non-parametric test and interval for it."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. If you use R, note that <code>mblm</code> and <code>MASS::rlm</code> are the references these results are built to match; for specialised robust methods beyond these, R's ecosystem is broader."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Robust regression</span>
+    <h1 class="hero-title">Robust regression <span class="grad">when one point should not decide the slope</span></h1>
+    <p class="hero-sub">A single outlier can drag an ordinary least-squares line anywhere, and the standard errors will not warn you. Robust regression gives a slope that reflects the bulk of the data. Magic Stat runs the Theil–Sen and Siegel repeated-median fits used by R's mblm, and Huber M-estimation when there is more than one predictor.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Robust means resistant, <span class="grad">not magic</span></h2>
+  </div>
+  <div class="container">
+    <p>Least squares works by squaring residuals, so a point far from the line has a disproportionate say. Robust regression replaces that with medians or with weights that shrink the influence of large residuals. The fitted line then tracks the majority of the data instead of being pulled toward a few unusual observations.</p>
+    <p>For a single predictor Magic Stat offers the two classic estimators: the Theil–Sen slope, the median of all pairwise slopes, and the Siegel repeated median, the median of the medians of slopes within each point. Both come with a robust scale (the MAD) and, following R's <code>mblm</code>, a Wilcoxon signed-rank test and confidence interval for the slope and intercept.</p>
+    <p>Theil–Sen and repeated median are inherently bivariate — there is no canonical multivariate version. When you have several predictors, Magic Stat uses M-estimation with Huber weights, the same approach as R's <code>MASS::rlm</code>. It is a different method, and it is the honest one to use there.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">robust regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Two estimators for one predictor:</strong> Theil–Sen (median of pairwise slopes) and the Siegel repeated median.</li>
+      <li><strong>A robust scale</strong> — the MAD of the slope and intercept, so you see the spread without relying on the residual variance.</li>
+      <li><strong>A non-parametric test and interval:</strong> the Wilcoxon signed-rank statistic with its confidence interval, as in R's <code>summary.mblm</code> and <code>confint.mblm</code>.</li>
+      <li><strong>Huber M-estimation for several predictors</strong>, with coefficients, standard errors, t and p values matching R's <code>MASS::rlm</code>.</li>
+      <li><strong>The fitted line over your points</strong>, exported as PNG, PDF, SVG, JPEG or TIFF.</li>
+      <li><strong>The analysis enters the report</strong> with the method, the settings and the interpretation.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Pick the estimator, <span class="grad">get a line that holds</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> X and Y in columns.</li>
+      <li><strong>Choose Robust Regression.</strong> Statistics → Robust Regression (Theil–Sen).</li>
+      <li><strong>Select X and Y.</strong> one X uses the robust medians; several X switch to Huber M-estimation automatically.</li>
+      <li><strong>Pick the estimator.</strong> repeated median (the mblm default) or the classic Theil–Sen.</li>
+      <li><strong>Export.</strong> the fitted line to the gallery, the analysis to the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Robust method (one predictor):</strong> Repeated median (Siegel — the R <code>mblm</code> default) · Theil–Sen (classic).</p>
+    <p><strong>Several predictors:</strong> M-estimation with Huber weights (tuning constant 1.345, the R default) — the Theil–Sen family does not extend to multiple predictors.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Robust regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Does robust regression delete outliers?</h3>
+    <p>No. It changes how much each point influences the fit, using medians or down-weighting. The observations stay in the data and in the figure; they simply do not dictate the line.</p>
+    <h3>Theil–Sen or the Siegel repeated median?</h3>
+    <p>Both are resistant; the repeated median has a higher breakdown point, meaning it tolerates a larger fraction of extreme points before the fit is distorted. Repeated median is the default in R's mblm, and it is a reasonable default here too.</p>
+    <h3>What if I have several predictors?</h3>
+    <p>Theil–Sen and repeated median are bivariate methods and are not extended to several predictors. Magic Stat fits a robust model by M-estimation with Huber weights instead — the same approach as R's <code>MASS::rlm</code>.</p>
+    <h3>Why is there no R²?</h3>
+    <p>The robust bivariate estimators do not produce a conventional coefficient of determination, and reporting one would be misleading. What is reported is the slope, its robust scale, and a non-parametric test and interval for it.</p>
+    <h3>Do I need R?</h3>
+    <p>No. If you use R, note that <code>mblm</code> and <code>MASS::rlm</code> are the references these results are built to match; for specialised robust methods beyond these, R's ecosystem is broader.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/nonlinear-regression/" class="btn btn-ghost">Nonlinear regression &rarr;</a>
+  <a href="/nonparametric-tests/" class="btn btn-ghost">Non-parametric tests &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

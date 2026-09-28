@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nonlinear regression software — nls models without coding | Magic Stat</title>
+<meta name="description" content="Nonlinear least squares for Michaelis–Menten, exponential, asymptotic, logistic and power models — or a custom equation. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/nonlinear-regression/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nonlinear regression without coding">
+<meta property="og:description" content="Fit Michaelis–Menten, exponential, asymptotic, logistic and power models — or write your own equation — by nonlinear least squares.">
+<meta property="og:url" content="https://getmagicstat.com/nonlinear-regression/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Nonlinear regression", "item": "https://getmagicstat.com/nonlinear-regression/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I choose the model?", "acceptedAnswer": {"@type": "Answer", "text": "From the mechanism. Michaelis–Menten for saturation, exponential for growth or decay, logistic for S-shaped growth, power for scaling. If no mechanistic form applies, a polynomial or a custom equation is the more honest route."}}, {"@type": "Question", "name": "What if the fit does not converge?", "acceptedAnswer": {"@type": "Answer", "text": "It usually means poor starting values or a model the data cannot support. Magic Stat tries the standard start and, if that fails, alternative starts. If it still fails, the parameters are not identifiable from your data — a genuine answer, not a software bug."}}, {"@type": "Question", "name": "How does this differ from polynomial regression?", "acceptedAnswer": {"@type": "Answer", "text": "A polynomial is flexible but its coefficients have no mechanistic meaning. A nonlinear model encodes the process, so parameters such as a rate or a half-saturation constant can be reported and interpreted. Use the nonlinear model when you have the equation."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. R's <code>nls</code> is the reference these results are built to match. If you need specialised variance structures or weights beyond what is here, R's modelling framework remains the broader tool."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your machine. The only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Nonlinear regression</span>
+    <h1 class="hero-title">Nonlinear regression (nls) <span class="grad">for mechanistic models</span></h1>
+    <p class="hero-sub">When the equation comes from the mechanism — a saturating enzyme, an exponential decay, a logistic growth — the right model is nonlinear and its parameters mean something. Magic Stat fits these by nonlinear least squares with the same optimum and standard errors as R's nls, and lets you write your own equation when none of the built-in ones fits.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">Nonlinear least squares <span class="grad">needs a model worth fitting</span></h2>
+  </div>
+  <div class="container">
+    <p>Nonlinear regression fits a model whose parameters enter the equation in a nonlinear way — Vmax and Km in Michaelis–Menten, or a rate and a scale in an exponential. The estimates are found by iterative search rather than in one algebraic step, and they come with standard errors, t statistics and confidence intervals, under the same asymptotic theory used by R's <code>nls</code>.</p>
+    <p>The catch is identifiability and starting values. A model whose parameters trade off against each other has no single well-defined optimum, and a poor starting point can send the search off. Magic Stat uses the same starting values as R's <code>selfStart</code> for each built-in model, and if the requested start fails it will try sensible alternatives rather than return nothing — but a model that is not supported by the data can still fail, and that is a real result.</p>
+    <p>The model comparison numbers — AIC and BIC — are computed in R's convention, so two models fitted to the same data can be compared on equal footing.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">nonlinear regression</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Built-in mechanistic models:</strong> Michaelis–Menten, exponential, asymptotic, logistic and power.</li>
+      <li><strong>A custom-formula option</strong>: write your own equation, with the independent columns as variables and any free symbol becoming a fitted parameter (for example a seasonal term).</li>
+      <li><strong>The same optimum and standard errors as R's <code>nls</code></strong> from the standard starting values.</li>
+      <li><strong>A parameter table</strong> with estimates, standard errors, t statistics and p values, plus the residual standard error and R².</li>
+      <li><strong>AIC and BIC in R's exact convention</strong>, so models on the same data are comparable.</li>
+      <li><strong>The fitted curve and the report</strong> — figure exported as PNG, PDF, SVG, JPEG or TIFF; analysis written up with its settings.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Choose the model, <span class="grad">fit the curve</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> the predictor and the outcome as columns.</li>
+      <li><strong>Choose Nonlinear Regression (nls).</strong> Statistics → Nonlinear Regression (nls).</li>
+      <li><strong>Select the model.</strong> a built-in mechanistic form, or Custom to write your own equation.</li>
+      <li><strong>Fit.</strong> estimates, standard errors and AIC/BIC come out with the fitted curve.</li>
+      <li><strong>Export.</strong> the curve to the gallery, the analysis to the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Models:</strong> Michaelis–Menten (Vm·x/(K+x)) · Exponential (a·e^(b·x)) · Asymptotic (Asym+(R0−Asym)·e^(−e^lrc·x)) · Logistic (Asym/(1+e^((xmid−x)/scal))) · Power (a·x^b).</p>
+    <p><strong>Custom formula:</strong> write the equation yourself — e.g. y = c + A*sin(2*pi*t/12 + phi) — using the selected columns as variables; free symbols become fitted parameters.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">Nonlinear regression questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How do I choose the model?</h3>
+    <p>From the mechanism. Michaelis–Menten for saturation, exponential for growth or decay, logistic for S-shaped growth, power for scaling. If no mechanistic form applies, a polynomial or a custom equation is the more honest route.</p>
+    <h3>What if the fit does not converge?</h3>
+    <p>It usually means poor starting values or a model the data cannot support. Magic Stat tries the standard start and, if that fails, alternative starts. If it still fails, the parameters are not identifiable from your data — a genuine answer, not a software bug.</p>
+    <h3>How does this differ from polynomial regression?</h3>
+    <p>A polynomial is flexible but its coefficients have no mechanistic meaning. A nonlinear model encodes the process, so parameters such as a rate or a half-saturation constant can be reported and interpreted. Use the nonlinear model when you have the equation.</p>
+    <h3>Do I need R?</h3>
+    <p>No. R's <code>nls</code> is the reference these results are built to match. If you need specialised variance structures or weights beyond what is here, R's modelling framework remains the broader tool.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your machine. The only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/polynomial-regression/" class="btn btn-ghost">Polynomial regression &rarr;</a>
+  <a href="/linear-regression/" class="btn btn-ghost">Linear regression &rarr;</a>
+  <a href="/gam/" class="btn btn-ghost">GAM analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

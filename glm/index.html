@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLM software — Gaussian, Poisson, binomial and Gamma families | Magic Stat</title>
+<meta name="description" content="Fit GLMs with Gaussian, Poisson, binomial, Gamma, inverse-Gaussian and quasi families — R-compatible IRLS, coefficients and deviance. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/glm/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Generalized linear models without coding">
+<meta property="og:description" content="One framework for Gaussian, Poisson, binomial, Gamma, inverse-Gaussian and quasi models, with the canonical link by default and R-compatible output.">
+<meta property="og:url" content="https://getmagicstat.com/glm/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Generalized linear models", "item": "https://getmagicstat.com/glm/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I choose a family?", "acceptedAnswer": {"@type": "Answer", "text": "From the outcome: counts use Poisson, proportions and 0/1 use binomial, a positive continuous quantity uses Gamma or inverse-Gaussian. Start with the canonical link and check the deviance and dispersion before trying alternatives."}}, {"@type": "Question", "name": "When is this better than the logistic or Poisson dialogs?", "acceptedAnswer": {"@type": "Answer", "text": "Those dialogs are shortcuts for the two most common cases and are the right place to start. Use the GLM dialog when you need a different family, a different link, or a quasi family for overdispersion."}}, {"@type": "Question", "name": "What does a quasi family do?", "acceptedAnswer": {"@type": "Answer", "text": "It keeps the mean–variance relationship of Poisson or Gaussian but estimates a dispersion parameter instead of fixing it at one, which widens the standard errors when the data are overdispersed. It has no AIC because the quasi-likelihood is not a true likelihood."}}, {"@type": "Question", "name": "How do I model a proportion?", "acceptedAnswer": {"@type": "Answer", "text": "Use the binomial family with the number of trials supplied as a weight column. The outcome is then the proportion, and the weights tell the model how many trials each proportion came from."}}, {"@type": "Question", "name": "Do I need R?", "acceptedAnswer": {"@type": "Answer", "text": "No. The fit follows the same IRLS algorithm and convergence rule as R's <code>glm</code>. For extensions such as negative binomial, zero-inflation, GAMs or mixed models, use the dedicated Magic Stat analyses or R."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Generalized linear models</span>
+    <h1 class="hero-title">Generalized linear models <span class="grad">without the glm() call</span></h1>
+    <p class="hero-sub">Logistic and Poisson regression are special cases of a single framework: the generalized linear model. When your outcome is a proportion, a positive continuous quantity, or shows more variance than the model assumes, the GLM dialog lets you set the family and the link yourself and read the same output R's glm would print.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">One framework, <span class="grad">chosen deliberately</span></h2>
+  </div>
+  <div class="container">
+    <p>A generalized linear model has three parts: a distribution for the outcome (the family), a function that links its mean to the predictors (the link), and a linear predictor. Choose the family and the link and you have described your model. Magic Stat offers the Gaussian, Poisson, binomial, Gamma and inverse-Gaussian families, plus the two quasi families used when you do not want to commit to a full likelihood.</p>
+    <p>The link defaults to the canonical one for each family — the identity for Gaussian, the log for Poisson, the logit for binomial — which mirrors R's behaviour and is usually the right starting point. You can change it, but the canonical link is the one with the cleanest statistical properties.</p>
+    <p>The binomial family covers two cases at once: a 0/1 outcome, or a proportion when you supply the number of trials as a weight. The quasi families estimate a dispersion parameter instead of fixing it at one, which is the standard response to overdispersion — and they carry no AIC, because a quasi-likelihood is not a true likelihood. Removing that number is deliberate.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">GLMs</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Families:</strong> Gaussian · Poisson · binomial (0/1 or proportion) · Gamma · inverse-Gaussian · quasi-Poisson · quasi.</li>
+      <li><strong>Links per family</strong>, with the canonical link pre-selected — identity, log, inverse, sqrt, logit, probit or complementary log-log.</li>
+      <li><strong>Weights</strong> for binomial data entered as proportions: the number of trials is supplied as a column.</li>
+      <li><strong>The iterative fit matched to R's <code>glm</code></strong>, with coefficients, standard errors, z or t statistics and p values, and the dispersion φ.</li>
+      <li><strong>Deviance, null deviance and AIC</strong> — with AIC correctly reported as not applicable for the quasi families.</li>
+      <li><strong>An exp(β) column only when it means something</strong>: an odds ratio for a logit link, an incidence-rate ratio for a Poisson log link, and nothing for links where the exponential is uninterpretable.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Pick a family, <span class="grad">pick a link</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> the outcome and predictors as columns.</li>
+      <li><strong>Choose Generalized Linear Model.</strong> Statistics → Regression Models → Generalized Linear Model (GLM).</li>
+      <li><strong>Set family and link.</strong> the canonical link is selected for you when the family changes.</li>
+      <li><strong>Select predictors and any weights.</strong> numeric and categorical predictors; weights for binomial proportions.</li>
+      <li><strong>Read and export.</strong> coefficients, deviance and fitted values, then the analysis goes into the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The families and links, <span class="grad">listed plainly</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Gaussian:</strong> identity · log · inverse.</p>
+    <p><strong>Poisson:</strong> log · identity · sqrt.</p>
+    <p><strong>Binomial:</strong> logit · probit · cloglog · log.</p>
+    <p><strong>Gamma:</strong> inverse · log · identity. <strong>Inverse-Gaussian:</strong> 1/mu² · inverse · log · identity.</p>
+    <p><strong>Quasi:</strong> quasi-Poisson (log · identity) and quasi (identity · log · inverse), which estimate a dispersion parameter and carry no AIC.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">GLM questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>How do I choose a family?</h3>
+    <p>From the outcome: counts use Poisson, proportions and 0/1 use binomial, a positive continuous quantity uses Gamma or inverse-Gaussian. Start with the canonical link and check the deviance and dispersion before trying alternatives.</p>
+    <h3>When is this better than the logistic or Poisson dialogs?</h3>
+    <p>Those dialogs are shortcuts for the two most common cases and are the right place to start. Use the GLM dialog when you need a different family, a different link, or a quasi family for overdispersion.</p>
+    <h3>What does a quasi family do?</h3>
+    <p>It keeps the mean–variance relationship of Poisson or Gaussian but estimates a dispersion parameter instead of fixing it at one, which widens the standard errors when the data are overdispersed. It has no AIC because the quasi-likelihood is not a true likelihood.</p>
+    <h3>How do I model a proportion?</h3>
+    <p>Use the binomial family with the number of trials supplied as a weight column. The outcome is then the proportion, and the weights tell the model how many trials each proportion came from.</p>
+    <h3>Do I need R?</h3>
+    <p>No. The fit follows the same IRLS algorithm and convergence rule as R's <code>glm</code>. For extensions such as negative binomial, zero-inflation, GAMs or mixed models, use the dedicated Magic Stat analyses or R.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/poisson-regression/" class="btn btn-ghost">Poisson regression &rarr;</a>
+  <a href="/logistic-regression/" class="btn btn-ghost">Logistic regression &rarr;</a>
+  <a href="/gam/" class="btn btn-ghost">GAM analysis &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCA software — canonical correspondence analysis without coding | Magic Stat</title>
+<meta name="description" content="Run canonical correspondence analysis without coding: constrained ordination of a species table by environmental variables, plus a permutation p.">
+<link rel="canonical" href="https://getmagicstat.com/cca/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Canonical correspondence analysis without coding">
+<meta property="og:description" content="Constrained ordination of species data by environmental variables — constrained inertia and a permutation test, no scripts.">
+<meta property="og:url" content="https://getmagicstat.com/cca/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Canonical correspondence analysis", "item": "https://getmagicstat.com/cca/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "CCA or RDA?", "acceptedAnswer": {"@type": "Answer", "text": "CCA assumes unimodal species responses, which is typical of long environmental gradients; RDA assumes linear responses and is the safer choice on short gradients. The gradient length from a DCA, if you run one, is the usual way to decide."}}, {"@type": "Question", "name": "CCA or canonical correlation?", "acceptedAnswer": {"@type": "Answer", "text": "Different methods with overlapping names. Canonical correspondence analysis is a constrained ordination of a species table by environmental variables. Canonical correlation is a symmetric analysis of two blocks of continuous variables, with no response-and-explanation split. Use the one that matches your design."}}, {"@type": "Question", "name": "How rigorous is the permutation test?", "acceptedAnswer": {"@type": "Answer", "text": "It permutes the environmental rows to build a null distribution for the overall constraint, using the dialog's standard number of permutations. If you need tests by axis or by term, partial CCA, or a specific permutation design with blocks or strata, vegan in R is the appropriate tool — we would rather point you there than overstate this one."}}, {"@type": "Question", "name": "Should I transform the species table first?", "acceptedAnswer": {"@type": "Answer", "text": "Often the raw counts are fine, because the chi-square metric is internal to CCA. If you do transform, state which transformation you used; applying a chi-square transformation on top of a chi-square method needs to be a deliberate choice."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs on your machine. The only automatic signal is an anonymous installation counter."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Canonical correspondence analysis</span>
+    <h1 class="hero-title">Canonical correspondence analysis <span class="grad">without the scripts</span></h1>
+    <p class="hero-sub">Canonical correspondence analysis is correspondence analysis constrained by a second set of measured variables. Magic Stat runs it from a species table and an environmental table, and reports the constrained inertia and a permutation p-value.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What CCA is, and <span class="grad">why the name is confusing</span></h2>
+  </div>
+  <div class="container">
+    <p>Canonical correspondence analysis is CA with a constraint: instead of finding the axes that describe the species table, it finds the axes of the species table that are linear combinations of the environmental variables. The species table is analysed on the chi-square metric, so it must be non-negative counts.</p>
+    <p>The name collides with canonical correlation analysis, which is a different method entirely. CCA here is an ordination of a species-by-sites table under a measured gradient; canonical correlation is a symmetric analysis of two blocks of continuous variables. Magic Stat runs both, under separate names, and these pages keep them apart on purpose.</p>
+    <p>The outputs that matter are the constrained inertia and its share of the total, the site and species scores, the environmental arrows in the biplot, and the permutation p-value for the overall constraint. CCA assumes unimodal responses of species to the gradient.</p>
+    <p>If your species respond linearly — a short gradient — RDA is the more appropriate constraint. If you have no environmental variables, plain CA or DCA is what you want.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">CCA</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Constrained inertia and its proportion of the total</strong>, so you can see how much of the species table the environment actually explains.</li>
+      <li><strong>Site scores, species scores and environmental biplot arrows</strong> on the constrained axes.</li>
+      <li><strong>A permutation p-value</strong> for the overall constraint, so the ordination comes with a test rather than with a picture alone.</li>
+      <li><strong>The species table and the environmental table side by side</strong> — X and Y are chosen in the same dialog and kept row-aligned.</li>
+      <li><strong>A publication-ready biplot</strong> with scientific palettes and legends outside the plot, exported as PNG, SVG, PDF, JPEG or TIFF, and a report entry in .docx, .html or .md.</li>
+      <li><strong>No code, no command line.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">Two tables to a <span class="grad">constrained ordination</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load the data.</strong> species or responses in matrix X (non-negative), environmental variables in matrix Y, on the same rows.</li>
+      <li><strong>Pick CCA.</strong> Statistics → Multivariate → CCA.</li>
+      <li><strong>Select X and Y.</strong> with at least one environmental variable that is not in X.</li>
+      <li><strong>Run it.</strong> Magic Stat fits the weighted regression of the chi-square residuals on the environment and runs the permutation test.</li>
+      <li><strong>Read and export.</strong> constrained inertia and p in the results table, the biplot in the figure, both in the report.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The settings, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Two matrices:</strong> X (non-negative species or response table) and Y (environmental variables), matched by row. Negative values in X are rejected with a pointer to the chi-square transformation.</p>
+    <p><strong>Transformations available in the dialog:</strong> None · Z-score (standardise) · ln(1+x) · ln(x) · Hellinger · Chord · Chi-square · Square root · Range 0–1. For a raw count table, None keeps the chi-square metric the method is built on.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">CCA questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>CCA or RDA?</h3>
+    <p>CCA assumes unimodal species responses, which is typical of long environmental gradients; RDA assumes linear responses and is the safer choice on short gradients. The gradient length from a DCA, if you run one, is the usual way to decide.</p>
+    <h3>CCA or canonical correlation?</h3>
+    <p>Different methods with overlapping names. Canonical correspondence analysis is a constrained ordination of a species table by environmental variables. Canonical correlation is a symmetric analysis of two blocks of continuous variables, with no response-and-explanation split. Use the one that matches your design.</p>
+    <h3>How rigorous is the permutation test?</h3>
+    <p>It permutes the environmental rows to build a null distribution for the overall constraint, using the dialog's standard number of permutations. If you need tests by axis or by term, partial CCA, or a specific permutation design with blocks or strata, vegan in R is the appropriate tool — we would rather point you there than overstate this one.</p>
+    <h3>Should I transform the species table first?</h3>
+    <p>Often the raw counts are fine, because the chi-square metric is internal to CCA. If you do transform, state which transformation you used; applying a chi-square transformation on top of a chi-square method needs to be a deliberate choice.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. Everything runs on your machine. The only automatic signal is an anonymous installation counter.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/rda/" class="btn btn-ghost">Redundancy analysis &rarr;</a>
+  <a href="/ca/" class="btn btn-ghost">Correspondence analysis &rarr;</a>
+  <a href="/canonical-correlation/" class="btn btn-ghost">Canonical correlation &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEM software — PLS-SEM and CB-SEM without writing syntax | Magic Stat</title>
+<meta name="description" content="Draw the path model and choose PLS-SEM or CB-SEM: path coefficients, fit indices, bootstrap intervals and multi-group analysis. 48-hour free trial.">
+<link rel="canonical" href="https://getmagicstat.com/sem/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SEM without writing syntax">
+<meta property="og:description" content="Draw the path model, pick PLS-SEM or CB-SEM, and read loadings, paths, fit indices and bootstrap intervals.">
+<meta property="og:url" content="https://getmagicstat.com/sem/">
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
+<link rel="stylesheet" href="/assets/css/style.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Magic Stat", "applicationCategory": "EducationalApplication", "operatingSystem": "Windows, macOS, Linux", "url": "https://getmagicstat.com/", "description": "Magic Stat — statistical analysis with publication-ready figures and APA tables, no code.", "offers": {"@type": "Offer", "price": "990", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Magic Stat", "item": "https://getmagicstat.com/"}, {"@type": "ListItem", "position": 2, "name": "Structural equation modeling", "item": "https://getmagicstat.com/sem/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I use PLS-SEM or CB-SEM?", "acceptedAnswer": {"@type": "Answer", "text": "PLS-SEM suits prediction-oriented, exploratory models with composite constructs and modest samples; CB-SEM suits confirmatory testing of a hypothesised model, because it reports fit indices you can judge. If the reviewer expects fit statistics, use CB-SEM; if they expect composite reliability and HTMT, use PLS-SEM."}}, {"@type": "Question", "name": "Is this a replacement for lavaan?", "acceptedAnswer": {"@type": "Answer", "text": "No. lavaan in R remains the reference for complex CB-SEM — equality constraints, non-standard models, multilevel structures. Magic Stat covers the common reflective model you can draw and gives you the report; if your model needs lavaan's full syntax, use lavaan."}}, {"@type": "Question", "name": "Do I need to install R?", "acceptedAnswer": {"@type": "Answer", "text": "No. The estimators run inside the app. If you already use R comfortably and it serves you, keep it — the point here is the drawing-to-report workflow, not replacing your scripts."}}, {"@type": "Question", "name": "How many groups can multi-group analysis handle?", "acceptedAnswer": {"@type": "Answer", "text": "A small number of groups, as in SmartPLS — each group is a full model estimation, so grouping by a near-continuous column is not allowed, and the dialog only lists columns with few levels."}}, {"@type": "Question", "name": "Is my data uploaded somewhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The model is estimated on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail."}}]}</script>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="/" class="brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#features">Features</a></li>
+      <li><a href="/#ai">AI Assistant</a></li>
+      <li><a href="/#gallery">Gallery</a></li>
+      <li><a href="/#pricing">Pricing</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+    </ul>
+    <a href="/#pricing" class="btn btn-primary btn-sm nav-cta">Buy now</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-inner container">
+    <span class="eyebrow">Structural equation modeling</span>
+    <h1 class="hero-title">Structural equation modeling <span class="grad">you draw, not script</span></h1>
+    <p class="hero-sub">Structural equation modeling usually means lavaan syntax, an SEM diagram drawn somewhere else, and a morning spent matching the two. Magic Stat lets you draw the model on a canvas, choose the estimator and run it — the coefficients, the fit indices and the report come out of the same dialog.</p>
+    <div class="hero-actions">
+      <a href="/#pricing" class="btn btn-primary">Buy now</a>
+      <a href="/api/download?file=windows" class="btn btn-ghost">Download for Windows</a>
+      <a href="/api/download?file=macos" class="btn btn-ghost">Download for macOS</a>
+      <a href="/api/download?file=linux" class="btn btn-ghost">Download for Linux</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="what">
+  <div class="section-head container">
+    <span class="eyebrow">The honest part</span>
+    <h2 class="section-title">What SEM does, and <span class="grad">when a regression is enough</span></h2>
+  </div>
+  <div class="container">
+    <p>SEM estimates a system of relationships at once — measurement (which observed items belong to which latent construct) and structure (which constructs predict which) — instead of fitting one equation at a time. That is what lets it separate measurement error from the relationship you care about, and what makes it appropriate when a construct is measured by several items and you want the construct, not the sum score, in the model.</p>
+    <p>It is not automatically better than regression. If you have one outcome, observed variables and no latent constructs, an ordinary regression is simpler, more transparent and easier for a reviewer to check. SEM earns its place when there are latent variables, several dependent relationships, mediators or moderators, or when you want a global fit statistic for the whole theory.</p>
+    <p>The two estimators answer different questions. PLS-SEM is variance-based and oriented to prediction with composite constructs; CB-SEM is covariance-based and gives fit indices you can compare against a hypothesised model. Magic Stat runs both, and states which one produced each number.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">What it does</span>
+    <h2 class="section-title">What Magic Stat gives you for <span class="grad">SEM</span></h2>
+  </div>
+  <div class="container">
+    <ul>
+      <li><strong>Draw the model, then estimate it.</strong> Latent and observed variables are placed on a canvas and connected with arrows; mediation and moderation are added by dropping the mediator or moderator onto the path they act on.</li>
+      <li><strong>Two estimators in one dialog.</strong> PLS-SEM (variance-based) and CB-SEM (covariance-based), switched from a single selector — CB-SEM draws the error terms on endogenous latents, PLS-SEM does not.</li>
+      <li><strong>Path coefficients with the inference you choose.</strong> Analytic or bootstrap (100 to 10,000 iterations, 90%, 95% or 99% confidence intervals) for loadings, structural paths and indirect effects.</li>
+      <li><strong>Fit indices for CB-SEM</strong> — chi-square and its p-value, chi-square/df, RMSEA with 90% CI and p-close, SRMR, GFI/AGFI, NFI/TLI/CFI, AIC/BIC and more — plus R² and adjusted R² for each endogenous latent.</li>
+      <li><strong>The validity tables reviewers ask for.</strong> Reliability and AVE (Cronbach's alpha, rhoA, rhoC, omega, AVE), discriminant validity (Fornell-Larcker and HTMT), effect sizes (f², Q²) and VIF.</li>
+      <li><strong>Multi-group analysis.</strong> Choose a grouping column and the model is estimated per group, with path coefficients, fit and R² side by side.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-head container">
+    <span class="eyebrow">How it works</span>
+    <h2 class="section-title">From a drawing to an <span class="grad">estimated model</span></h2>
+  </div>
+  <div class="container">
+    <ol>
+      <li><strong>Load your data.</strong> the indicators as columns — the same spreadsheet you would use anywhere else in the app.</li>
+      <li><strong>Draw the model.</strong> place the latent constructs and their indicators, then draw the structural paths. Ready-made examples (direct, mediation, moderation) can be opened and adapted.</li>
+      <li><strong>Choose the estimator.</strong> PLS-SEM for prediction-oriented, composite models; CB-SEM when you want covariance-based fit indices.</li>
+      <li><strong>Run it.</strong> coefficients, fit, reliability and validity tables are computed and written into the Analysis Report; figures export as PNG, SVG, PDF, JPEG or TIFF.</li>
+      <li><strong>Report it.</strong> the report carries the model, the estimator, the settings and the interpretation, and exports to .docx, .html or .md.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="section-head container">
+    <span class="eyebrow">Options</span>
+    <h2 class="section-title">The choices, <span class="grad">in the dialog</span></h2>
+  </div>
+  <div class="container">
+    <p><strong>Estimator:</strong> PLS-SEM · CB-SEM.</p>
+    <p><strong>Inference:</strong> Analytic · Bootstrap (iterations and confidence level set in the dialog).</p>
+    <p><strong>Group variable:</strong> a categorical column for multi-group analysis.</p>
+    <p><strong>Canvas:</strong> save the model as .sem.json, save the diagram as an image, reopen and re-run.</p>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-head container">
+    <span class="eyebrow">Frequently asked</span>
+    <h2 class="section-title">SEM questions, <span class="grad">answered honestly</span></h2>
+  </div>
+  <div class="container">
+    <h3>Should I use PLS-SEM or CB-SEM?</h3>
+    <p>PLS-SEM suits prediction-oriented, exploratory models with composite constructs and modest samples; CB-SEM suits confirmatory testing of a hypothesised model, because it reports fit indices you can judge. If the reviewer expects fit statistics, use CB-SEM; if they expect composite reliability and HTMT, use PLS-SEM.</p>
+    <h3>Is this a replacement for lavaan?</h3>
+    <p>No. lavaan in R remains the reference for complex CB-SEM — equality constraints, non-standard models, multilevel structures. Magic Stat covers the common reflective model you can draw and gives you the report; if your model needs lavaan's full syntax, use lavaan.</p>
+    <h3>Do I need to install R?</h3>
+    <p>No. The estimators run inside the app. If you already use R comfortably and it serves you, keep it — the point here is the drawing-to-report workflow, not replacing your scripts.</p>
+    <h3>How many groups can multi-group analysis handle?</h3>
+    <p>A small number of groups, as in SmartPLS — each group is a full model estimation, so grouping by a near-continuous column is not allowed, and the dialog only lists columns with few levels.</p>
+    <h3>Is my data uploaded somewhere?</h3>
+    <p>No. The model is estimated on your computer. The only signal the app sends automatically is an anonymous installation counter — no data, no names, no e-mail.</p>
+  </div>
+</section>
+
+<p class="container" style="text-align:center;margin:0 auto 48px;"><a href="/psychometrics/" class="btn btn-ghost">Psychometrics &rarr;</a>
+  <a href="/r-alternative/" class="btn btn-ghost">R alternative &rarr;</a></p>
+
+<footer class="footer">
+  <div class="footer-inner container">
+    <div class="footer-brand">
+      <img src="/assets/img/logo.png" alt="Magic Stat" class="brand-logo">
+      <span class="brand-name">Magic&nbsp;Stat</span>
+    </div>
+    <p class="footer-note">The statistical suite for macOS, Windows and Linux &mdash; publication-quality analysis with built-in intelligence.</p>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/spss-alternative/">SPSS alternative</a>
+      <a href="/apa-tables-word/">APA tables in Word</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <p class="footer-copy">Contact: <a href="mailto:magicstat@proton.me">magicstat@proton.me</a></p>
+  </div>
+</footer>
+<script src="/assets/js/track.js?v=2"></script>
+</body>
+</html>
