@@ -176,6 +176,24 @@ def bloco(sec: dict | None, alt: bool = False) -> str:
     return "\n".join(out)
 
 
+def captura(m: dict) -> str:
+    """Screenshot opcional: {"src", "alt", "caption"}. Sem shot, nada sai."""
+    s = m.get("shot")
+    if not s:
+        return ""
+    legenda = f'<p class="container" style="text-align:center;color:#a6aed6;">{s["caption"]}</p>' if s.get("caption") else ""
+    return (
+        '<section class="section" id="shot">\n'
+        '  <div class="section-head container">\n'
+        '    <span class="eyebrow">In the software</span>\n'
+        '  </div>\n'
+        '  <div class="container" style="text-align:center;">\n'
+        f'    <img src="{s["src"]}" alt="{esc(s["alt"])}" '
+        'loading="lazy" decoding="async" style="max-width:100%;height:auto;'
+        'border:1px solid rgba(255,255,255,.08);border-radius:10px;">\n'
+        f'  </div>\n{legenda}\n</section>\n')
+
+
 def faq(site: dict, m: dict) -> str:
     if not m.get("faq"):
         return ""
@@ -231,6 +249,7 @@ def rodape(site: dict) -> str:
 def pagina(site: dict, m: dict, todos: dict[str, dict]) -> str:
     partes = [head(site, m),
               bloco(m["intro"]),
+              captura(m),
               bloco(m["gives"], alt=True),
               bloco(m.get("how")),
               bloco(m.get("options"), alt=True),
@@ -260,6 +279,20 @@ def valida(metodos: list[dict]) -> list[str]:
                     and f"/{outro}/" not in PAGINAS_PREEXISTENTES:
                 erros.append(f"[{nome}] related aponta para '{outro}', "
                              f"que não existe")
+        shot = m.get("shot")
+        if shot:
+            if not shot.get("src") or not shot.get("alt"):
+                erros.append(f"[{nome}] shot precisa de 'src' e 'alt'")
+            else:
+                caminho = ROOT / str(shot["src"]).lstrip("/")
+                if not caminho.exists():
+                    erros.append(f"[{nome}] shot não existe no repo: "
+                                 f"{shot['src']}")
+                elif not str(shot["src"]).lower().endswith(
+                        (".png", ".jpg", ".jpeg", ".webp")):
+                    erros.append(f"[{nome}] shot SEM EXTENSÃO de imagem "
+                                 f"(: {shot['src']}) — o Cloudflare recusa "
+                                 f"cachear (ver AGENTS.md)")
     return erros
 
 
