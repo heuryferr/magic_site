@@ -748,7 +748,7 @@
         },
         {
           "q": "What does it cost?",
-          "a": "US$1,400 per year, with a free 48-hour trial and no card required. If you already work in R, stats::cancor and the CCP package reproduce this analysis and offer the same tests."
+          "a": "US$99 per year, with a free 48-hour trial and no card required. If you already work in R, stats::cancor and the CCP package reproduce this analysis and offer the same tests."
         }
       ],
       "related": [
@@ -940,7 +940,7 @@
         },
         {
           "q": "What does it cost?",
-          "a": "US$1,400 per year with a free 48-hour trial and no card. If your analysis needs methods that are not here — fuzzy clustering, model-based clustering, or the very large-n optimisations — R's cluster and mclust packages are the right place to look."
+          "a": "US$99 per year with a free 48-hour trial and no card. If your analysis needs methods that are not here — fuzzy clustering, model-based clustering, or the very large-n optimisations — R's cluster and mclust packages are the right place to look."
         }
       ],
       "related": [
@@ -4607,7 +4607,7 @@
         },
         {
           "q": "Is it free?",
-          "a": "No. There is a free 48-hour trial with no credit card, then US$1,400 per year. R — and JASP and jamovi — are free and genuinely good; if budget is the deciding factor, they are the honest recommendation."
+          "a": "No. There is a free 48-hour trial with no credit card, then US$99 per year. R — and JASP and jamovi — are free and genuinely good; if budget is the deciding factor, they are the honest recommendation."
         },
         {
           "q": "Does it cover everything R does?",
@@ -4702,7 +4702,7 @@
         },
         {
           "q": "Is it open source?",
-          "a": "No. Magic Stat is a commercial application — a free 48-hour trial with no card, then US$1,400 per year."
+          "a": "No. Magic Stat is a commercial application — a free 48-hour trial with no card, then US$99 per year."
         },
         {
           "q": "Do my data leave my computer?",
@@ -4795,7 +4795,7 @@
         },
         {
           "q": "Is it free?",
-          "a": "No — a free 48-hour trial with no card, then US$1,400 per year."
+          "a": "No — a free 48-hour trial with no card, then US$99 per year."
         },
         {
           "q": "What is the main difference?",
@@ -4896,7 +4896,7 @@
         },
         {
           "q": "Is it free?",
-          "a": "No — a free 48-hour trial with no card, then US$1,400 per year."
+          "a": "No — a free 48-hour trial with no card, then US$99 per year."
         },
         {
           "q": "Which systems?",
