@@ -93,7 +93,7 @@ await handler({ query: { token: "token-de-teste", days: "1", format: "html" }, h
 igual("com token → 200", res.statusCode, 200);
 const html = String(res.body || "");
 
-igual("secao de TRIALS aparece", html.includes("Trials started (48-hour trial)"), true);
+igual("secao de TRIALS aparece", html.includes("Trials started (7-day trial)"), true);
 igual(
   "linha do dia: 2 macos + 1 windows + 3 linux = 6 (conta a mao)",
   html.includes("<tr><td>" + DIA + "</td><td>2</td><td>1</td><td>3</td><td><b>6</b></td></tr>"),
@@ -141,7 +141,7 @@ await handler(
 igual("o LINK privado do dono abre o relatorio", resLink.statusCode, 200);
 igual(
   "e traz as secoes novas",
-  String(resLink.body || "").includes("Trials started (48-hour trial)") &&
+  String(resLink.body || "").includes("Trials started (7-day trial)") &&
     String(resLink.body || "").includes("Sales / activations (licensed)"),
   true,
 );

@@ -3,7 +3,7 @@
 // Magic Stat — QUANTAS PESSOAS INSTALARAM (trial iniciado = instalou e abriu).
 // ----------------------------------------------------------------------
 // Pedido do dono (2026-09-23): *"exatamente quantas pessoas instalaram ... o
-// cara instalou, entra, trial de 48h ja e ativada, ai conta 1 ... se puder
+// cara instalou, entra, trial de 7 dias ja e ativada, ai conta 1 ... se puder
 // dizer mais: sistema operacional, pais cidade, etc"*.
 //
 // POR QUE ESTE NÚMERO NÃO É O DE DOWNLOADS:

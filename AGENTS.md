@@ -82,5 +82,5 @@ npm test        # tools/test_ccf.mjs · test_download.mjs · test_stats.mjs — 
 - **Vídeo "In action"** = embed do **YouTube** (`youtube-nocookie`, 1080p).
   **Não re-encode** o vídeo (perde definição) nem volte a hospedar o `.mp4` no repo.
 - **Testemunhos** são reais (recebidos por e-mail), traduzidos e **sem nomes**.
-- O trial é **48 h** para instalações novas (versões anteriores mantêm os 7 dias
-  já prometidos). A duração é imposta **no app**, não no backend.
+- O trial é de **7 dias** para instalações novas. A duração é imposta
+  **no app** (`utils/licensing.py`, `TRIAL_DURATION_DAYS`), não no backend.
