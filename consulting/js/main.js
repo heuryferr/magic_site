@@ -527,6 +527,8 @@ function validateField(field) {
 
 function collectFormData(form) {
     const formData = new FormData(form);
+    // Origem do trafego (Google Ads / campanhas) SEM depender de tags do Google
+    const params = new URLSearchParams(window.location.search);
     
     // Get selected services (checkboxes)
     const services = [];
@@ -550,6 +552,14 @@ function collectFormData(form) {
         database: formData.get('database') || '',
         objectives: formData.get('objectives') || '',
         referral: formData.get('referral') || '',
+        gclid: params.get('gclid') || '',
+        gbraid: params.get('gbraid') || '',
+        wbraid: params.get('wbraid') || '',
+        utm_source: params.get('utm_source') || '',
+        utm_medium: params.get('utm_medium') || '',
+        utm_campaign: params.get('utm_campaign') || '',
+        landing_page: window.location.href,
+        referrer: document.referrer || '',
         submittedAt: new Date().toLocaleString('en-US', {
             timeZone: 'America/New_York'
         })
@@ -578,6 +588,14 @@ async function sendFormData(data) {
             database: data.database,
             objectives: data.objectives,
             referral: data.referral,
+            gclid: data.gclid,
+            gbraid: data.gbraid,
+            wbraid: data.wbraid,
+            utm_source: data.utm_source,
+            utm_medium: data.utm_medium,
+            utm_campaign: data.utm_campaign,
+            landing_page: data.landing_page,
+            referrer: data.referrer,
             submittedAt: data.submittedAt,
             _subject: `New Quote Request - ${data.name} - ${data.workType}`,
             _replyto: data.email
