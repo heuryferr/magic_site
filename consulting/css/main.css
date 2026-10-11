@@ -2238,3 +2238,10 @@ button {
         font-size: 3rem;
     }
 }
+
+/* Two-column grid for the "what you send / what you get" block */
+.benefits__grid--two {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 900px;
+    margin: 0 auto;
+}
