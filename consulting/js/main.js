@@ -419,6 +419,7 @@ function initEmailTracking() {
 function initBudgetForm() {
     const form = document.getElementById('budgetForm');
     if (!form) return;
+    form.setAttribute('data-t0', String(Date.now()));
 
     const submitBtn = document.getElementById('formSubmit');
     const submitText = submitBtn.querySelector('.form__submit-text');
@@ -458,13 +459,16 @@ function initBudgetForm() {
             return;
         }
 
+        // Collect form data
+        const formData = collectFormData(form);
+
+        // Anti-spam: block bots and joke submissions
+        if (handleFormSpam(form, formData, successMsg)) return;
+
         // Show loading state
         submitBtn.disabled = true;
         submitText.style.display = 'none';
         submitLoading.style.display = 'inline-flex';
-
-        // Collect form data
-        const formData = collectFormData(form);
 
         try {
             // Send via Formspree
@@ -605,6 +609,44 @@ async function sendFormData(data) {
     if (!response.ok) {
         throw new Error('Failed to submit form');
     }
+}
+
+/* ============================================================
+   Anti-spam: block bots and low-effort/joke submissions
+   ============================================================ */
+function formLooksLikeSpam(formEl, data) {
+    var honey = formEl.querySelector('[name="_gotcha"]');
+    if (honey && honey.value.trim() !== '') return 'honeypot';
+    var t0 = Number(formEl.getAttribute('data-t0') || 0);
+    if (t0 && (Date.now() - t0) < 3000) return 'too-fast';
+    var text = [data.name, data.email, data.objectives, data.database, data.university, data.mensagem, data.empresa]
+        .filter(Boolean).join('\n');
+    if (/(.)\1{5,}/i.test(text)) return 'gibberish';
+    if (/(asdf|qwer|zxcv|hjkl|asdasd|testing|test123|123123|abcabc)/i.test(text)) return 'gibberish';
+    var letters = text.match(/[a-z]/gi) || [];
+    if (letters.length >= 12) {
+        var vowels = (text.match(/[aeiou]/gi) || []).length;
+        var ratio = vowels / letters.length;
+        if (ratio < 0.12 || ratio > 0.85) return 'gibberish';
+    }
+    if ((text.match(/https?:\/\/|www\./gi) || []).length > 2) return 'links';
+    return null;
+}
+
+function handleFormSpam(formEl, data, successMsg) {
+    var reason = formLooksLikeSpam(formEl, data);
+    if (!reason) return false;
+    console.warn('Submission blocked (possible spam):', reason);
+    if (reason === 'honeypot' || reason === 'too-fast') {
+        var grid = formEl.querySelector('.form__grid');
+        var actions = formEl.querySelector('.form__actions');
+        if (grid) grid.style.display = 'none';
+        if (actions) actions.style.display = 'none';
+        if (successMsg) successMsg.style.display = 'block';
+    } else {
+        alert('Please describe your project in a bit more detail and try again.');
+    }
+    return true;
 }
 
 console.log('🏛️ Dr. Heury Ferr - Statistical Analysis Consulting');
