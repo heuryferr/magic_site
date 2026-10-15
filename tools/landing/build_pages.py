@@ -125,6 +125,7 @@ def head(site: dict, m: dict) -> str:
       <a href="{site['downloads']['macos']}" class="btn btn-ghost">Download for macOS</a>
       <a href="{site['downloads']['linux']}" class="btn btn-ghost">Download for Linux</a>
     </div>
+    <p class="hero-sub" style="margin-top:14px;font-size:14.5px;color:#a6aed6;">{site.get('team_note','')}</p>
   </div>
 </header>
 """

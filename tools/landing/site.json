@@ -6,6 +6,7 @@
   "style_css": "/assets/css/style.css?v=11",
   "track_js": "/assets/js/track.js?v=2",
   "buy_url": "/#pricing",
+  "team_note": "Company, lab or consultancy? <a href=\"mailto:contato@getmagicstat.com?subject=Magic%20Stat%20team%20licence\">Request a team licence</a> \u2014 multi-seat pricing and annual invoice available.",
   "downloads": {
     "windows": "/api/download?file=windows",
     "macos": "/api/download?file=macos",
@@ -13,6 +14,7 @@
   },
   "nav": [
     ["Features", "/#features"],
+    ["For teams", "/for-teams/"],
     ["AI Assistant", "/#ai"],
     ["Gallery", "/#gallery"],
     ["Pricing", "/#pricing"],
@@ -20,6 +22,8 @@
   ],
   "footer_links": [
     ["Home", "/"],
+    ["For teams", "/for-teams/"],
+    ["Statistical consulting", "/consulting/"],
     ["SPSS alternative", "/spss-alternative/"],
     ["APA tables in Word", "/apa-tables-word/"],
     ["Pricing", "/#pricing"]
