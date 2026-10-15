@@ -4913,7 +4913,7 @@
       "eyebrow": "For teams and companies",
       "h1": "Statistical analysis software for teams that <span class=\"grad\">deliver analysis as a service</span>",
       "seo_title": "Statistical analysis software for teams, consultancies and CROs | Magic Stat",
-      "meta": "A no-code statistical suite for analytics teams, consultancies and CROs. Client data never leaves the machine. Team licences, multi-seat pricing, annual invoice.",
+      "meta": "A no-code statistical suite for analytics teams, consultancies and CROs. Client data never leaves the machine. Licences for teams, annual invoice.",
       "og_title": "Statistical analysis software for teams",
       "og_desc": "No-code statistics for analytics teams \u2014 with client data staying on the machine.",
       "hero_sub": "If you sell analysis, the constraints that decide whether a project is profitable are not curiosity \u2014 they are turnaround, consistency and confidentiality. Magic Stat is a desktop suite where the whole team runs t-tests to SEM/PLS without code, and where client data never leaves the machine.",
@@ -4946,7 +4946,7 @@
         "steps": [
           {"t": "Try it on a real project", "d": "download on one machine and run your own data \u2014 not the demo set. The trial is 7 days with every feature and no card."},
           {"t": "Check the methods you actually sell", "d": "the full list is on this site: regression and GLM, mixed models and GEE, SEM/PLS, ordination, meta-analysis, time series, psychometrics, medical, econometrics and ecology."},
-          {"t": "Request a team licence", "d": "tell us the number of seats and the billing entity; we send a quote."},
+          {"t": "Request a team licence", "d": "tell us how many licences you need and the billing entity; we send a quote."},
           {"t": "Deploy", "d": "the same installer goes out to the team; a licence activates on 2 computers."}
         ]
       },
@@ -4954,15 +4954,15 @@
         "eyebrow": "Licensing",
         "title": "How buying works for <span class=\"grad\">a company</span>",
         "paras": [
-          "<strong>Single seat:</strong> US$1,200 per year, one licence, activation on 2 computers.",
-          "<strong>Team licence:</strong> 5, 10 and 25 seats, priced per seat. Request a quote \u2014 we send it with the invoice details.",
+          "<strong>One licence:</strong> US$1,200 per year. A licence activates on 2 computers.",
+          "<strong>More than one licence (a team):</strong> tell us how many licences you need and we send a quote with the invoice details.",
           "<strong>Payment:</strong> annual invoice, by bank transfer or card.",
           "<strong>Trial:</strong> 7 days, every feature unlocked, no credit card."
         ]
       },
       "faq_title": "Questions a company actually asks",
       "faq": [
-        {"q": "Can you issue an invoice?", "a": "Yes. Team licences are invoiced annually. Send the billing entity, the number of seats and any field your purchasing process requires, and the quote comes back with those details filled in."}, {"q": "Do we have to send the client data to you?", "a": "No \u2014 and that is the point. There is nothing to send: the analysis runs on your machine. The only signal the software sends automatically is an anonymous installation counter, with no data in it."}, {"q": "How many seats do we need?", "a": "One seat is one licence, and a licence activates on 2 computers. If your team shares machines or rotates laptops, that is worth counting before you order."}, {"q": "Is there support?", "a": "Email support from the person who builds it. For team licences we also answer method questions about your own data, within reason \u2014 that is usually faster than a forum."}, {"q": "We already work in R. Why would we change?", "a": "If R works for your team, it is a real asset and you should keep it. The case for Magic Stat is narrower and practical: work that currently queues behind one person, and the formatting hours after the analysis."}, {"q": "Can we use it with data under NDA?", "a": "The software runs locally and does not transmit the data. Whether that satisfies a specific contract is a question for your client and your legal review \u2014 but there is no upload and no cloud processing on our side."}
+        {"q": "Can you issue an invoice?", "a": "Yes. Licences are invoiced annually. Send the billing entity, how many licences you need, and any field your purchasing process requires \u2014 the quote comes back with those filled in."}, {"q": "Do we have to send the client data to you?", "a": "No \u2014 and that is the point. There is nothing to send: the analysis runs on your machine. The only signal the software sends automatically is an anonymous installation counter, with no data in it."}, {"q": "How does licensing work for a team?", "a": "One licence activates on 2 computers. A larger team simply buys more licences \u2014 tell us how many and we send the quote. If your team shares machines or rotates laptops, that is worth counting before you order."}, {"q": "Is there support?", "a": "Email support from the person who builds it. For team licences we also answer method questions about your own data, within reason \u2014 that is usually faster than a forum."}, {"q": "We already work in R. Why would we change?", "a": "If R works for your team, it is a real asset and you should keep it. The case for Magic Stat is narrower and practical: work that currently queues behind one person, and the formatting hours after the analysis."}, {"q": "Can we use it with data under NDA?", "a": "The software runs locally and does not transmit the data. Whether that satisfies a specific contract is a question for your client and your legal review \u2014 but there is no upload and no cloud processing on our side."}
       ]
     }
   ]

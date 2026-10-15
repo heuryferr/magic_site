@@ -6,7 +6,7 @@
   "style_css": "/assets/css/style.css?v=11",
   "track_js": "/assets/js/track.js?v=2",
   "buy_url": "/#pricing",
-  "team_note": "Company, lab or consultancy? <a href=\"mailto:contato@getmagicstat.com?subject=Magic%20Stat%20team%20licence\">Request a team licence</a> \u2014 multi-seat pricing and annual invoice available.",
+  "team_note": "Company, lab or consultancy? <a href=\"mailto:contato@getmagicstat.com?subject=Magic%20Stat%20team%20licence\">Talk to us about licences for a team</a> \u2014 annual invoice.",
   "downloads": {
     "windows": "/api/download?file=windows",
     "macos": "/api/download?file=macos",
