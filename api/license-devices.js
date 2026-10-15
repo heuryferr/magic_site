@@ -80,7 +80,9 @@ async function withRedis(fn) {
   throw lastErr || new Error("redis unavailable");
 }
 
-const DEVICE_LIMIT = 2;
+// Decisão do dono (2026-10-04): UMA licença cobre até 10 computadores.
+// Igual ao api/verify-license.js — se um mudar, o outro muda junto.
+const DEVICE_LIMIT = 10;
 const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 
 const json = (res, status, body) => res.status(status).json(body);

@@ -117,7 +117,11 @@ function redisReason(opFailed, err) {
 }
 
 // Nº máximo de dispositivos por chave de licença.
-const DEVICE_LIMIT = 2;
+// Decisão do dono (2026-10-04): UMA licença cobre até 10 computadores.
+// Antes eram 2 (modelo individual: laptop + desktop); o foco passou a ser
+// empresas que entregam análise como serviço, e uma equipe de análise cabe
+// num único licence. Não há SKU de equipe separado: é este.
+const DEVICE_LIMIT = 10;
 
 // product_id interno (NÃO o permalink/slug "hjjfhq"): é o que o Gumroad aceita
 // no campo product_id do verify — conferido na resposta do teste real. (O app
