@@ -563,7 +563,8 @@
   }
   .pricing-sub{color:#a6aed6;font-size:17px;margin:0}
 
-  .pricing-card{max-width:480px;margin:0 auto}
+  .pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;max-width:1060px;margin:0 auto;align-items:start}
+  .pricing-card{max-width:none;margin:0}
   .pricing-frame{
     position:relative;border-radius:26px;padding:1px;
     background:linear-gradient(160deg,rgba(124,140,255,.6),rgba(185,134,255,.45) 50%,rgba(79,216,200,.45));
@@ -626,6 +627,7 @@
     .pricing-inner{padding:34px 22px}
     .pricing-price{font-size:52px}
   }
+  @media(max-width:880px){.pricing-grid{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){.pricing-cta{transition:none}}
 </style>
 
@@ -657,45 +659,85 @@
 <section class="pricing-section" id="pricing">
   <div class="pricing-head">
     <span class="pricing-eyebrow">Pricing</span>
-    <h2 class="pricing-title">One license, <span class="grad">annual access</span>.</h2>
-    <p class="pricing-sub">US$ 1,200 per year. No subscriptions, no surprises.</p>
+    <h2 class="pricing-title">Two licenses, <span class="grad">annual access</span>.</h2>
+    <p class="pricing-sub">Individual from US$ 299 per year; teams US$ 1,200. No subscriptions, no surprises.</p>
     <p class="pricing-sub"><img class="emoji" src="assets/img/icons/1f381.svg" alt="gift"> <strong>7-day free trial</strong> — full access to every feature, totally free, no card required.</p>
   </div>
 
-  <div class="pricing-card">
-    <div class="pricing-frame">
-      <div class="pricing-inner">
-        <span class="pricing-badge"><img class="emoji" src="assets/img/icons/1f4c5.svg" alt="calendar"> Annual license</span>
-        <h3 class="pricing-name">Annual License</h3>
-        <p class="pricing-tagline">Every feature of Magic Stat on macOS, Windows and Linux — for one full year, on up to 10 computers.</p>
+  <div class="pricing-grid">
 
-        <div class="pricing-price-row">
-          <span class="pricing-currency">$</span>
-          <span class="pricing-price">1,200</span>
-          <span class="pricing-period">USD / year</span>
-        </div>
-        <p class="pricing-payonce">One payment per year · no hidden fees</p>
-        <p class="pricing-payonce">Company, lab or consultancy? <a href="/for-teams/">Talk to us about licences for a team</a> — annual invoice.</p>
+    <div class="pricing-card">
+      <div class="pricing-frame">
+        <div class="pricing-inner">
+          <span class="pricing-badge"><img class="emoji" src="assets/img/icons/1f4c5.svg" alt="calendar"> Individual · annual</span>
+          <h3 class="pricing-name">Individual License</h3>
+          <p class="pricing-tagline">For one researcher: every feature of Magic Stat on macOS, Windows and Linux — for one full year, on up to 2 of your own computers (your laptop and your desktop).</p>
 
-        <ul class="pricing-features">
-          <li><span class="check">✓</span> Full access to every analysis &amp; feature on macOS, Windows &amp; Linux</li>
-          <li><span class="check">✓</span> AI assistant included (bring your own key)</li>
-          <li><span class="check">✓</span> APA-ready figures, tables &amp; reports</li>
-          <li><span class="check">✓</span> All updates included with your subscription</li>
-          <li><span class="check">✓</span> Activation on up to 10 computers</li>
-        </ul>
+          <div class="pricing-price-row">
+            <span class="pricing-currency">$</span>
+            <span class="pricing-price">299</span>
+            <span class="pricing-period">USD / year</span>
+          </div>
+          <p class="pricing-payonce">One payment per year · no hidden fees</p>
+          <p class="pricing-payonce">Personal licence — for your own research. Teams and labs use the Team License.</p>
 
-        <a class="pricing-cta gumroad-button" data-ev="buy-cta"
-           href="https://magicstat.gumroad.com/l/hjjfhq">
-          Buy now — activate for 1 year
-        </a>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Full access to every analysis &amp; feature on macOS, Windows &amp; Linux</li>
+            <li><span class="check">✓</span> AI assistant included (bring your own key)</li>
+            <li><span class="check">✓</span> APA-ready figures, tables &amp; reports</li>
+            <li><span class="check">✓</span> All updates included with your subscription</li>
+            <li><span class="check">✓</span> Activation on up to 2 computers</li>
+          </ul>
 
-        <div class="pricing-trust">
-          <span><img class="emoji" src="assets/img/icons/1f512.svg" alt="lock"> Secure checkout by Gumroad</span>
-          <span><img class="emoji" src="assets/img/icons/26a1.svg" alt="instant"> Instant delivery</span>
+          <a class="pricing-cta gumroad-button" data-ev="buy-cta-individual"
+             href="https://magicstat.gumroad.com/">
+            Buy now — activate for 1 year
+          </a>
+
+          <div class="pricing-trust">
+            <span><img class="emoji" src="assets/img/icons/1f512.svg" alt="lock"> Secure checkout by Gumroad</span>
+            <span><img class="emoji" src="assets/img/icons/26a1.svg" alt="instant"> Instant delivery</span>
+          </div>
         </div>
       </div>
     </div>
+
+    <div class="pricing-card">
+      <div class="pricing-frame">
+        <div class="pricing-inner">
+          <span class="pricing-badge"><img class="emoji" src="assets/img/icons/1f4c5.svg" alt="calendar"> Team · annual</span>
+          <h3 class="pricing-name">Team License</h3>
+          <p class="pricing-tagline">Every feature of Magic Stat on macOS, Windows and Linux — for one full year, on up to 10 computers.</p>
+
+          <div class="pricing-price-row">
+            <span class="pricing-currency">$</span>
+            <span class="pricing-price">1,200</span>
+            <span class="pricing-period">USD / year</span>
+          </div>
+          <p class="pricing-payonce">One payment per year · no hidden fees</p>
+          <p class="pricing-payonce">Company, lab or consultancy? <a href="/for-teams/">Talk to us about licences for a team</a> — annual invoice.</p>
+
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Full access to every analysis &amp; feature on macOS, Windows &amp; Linux</li>
+            <li><span class="check">✓</span> AI assistant included (bring your own key)</li>
+            <li><span class="check">✓</span> APA-ready figures, tables &amp; reports</li>
+            <li><span class="check">✓</span> All updates included with your subscription</li>
+            <li><span class="check">✓</span> Activation on up to 10 computers</li>
+          </ul>
+
+          <a class="pricing-cta gumroad-button" data-ev="buy-cta-team"
+             href="https://magicstat.gumroad.com/l/hjjfhq">
+            Buy now — activate for 1 year
+          </a>
+
+          <div class="pricing-trust">
+            <span><img class="emoji" src="assets/img/icons/1f512.svg" alt="lock"> Secure checkout by Gumroad</span>
+            <span><img class="emoji" src="assets/img/icons/26a1.svg" alt="instant"> Instant delivery</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </section>
