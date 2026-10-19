@@ -117,11 +117,16 @@ function redisReason(opFailed, err) {
 }
 
 // Nº máximo de dispositivos por chave de licença.
-// Decisão do dono (2026-10-04): UMA licença cobre até 10 computadores.
-// Antes eram 2 (modelo individual: laptop + desktop); o foco passou a ser
-// empresas que entregam análise como serviço, e uma equipe de análise cabe
-// num único licence. Não há SKU de equipe separado: é este.
-const DEVICE_LIMIT = 10;
+// Limite de dispositivos POR PRODUTO do Gumroad (2026-10-04).
+// A app desktop manda SEMPRE o product_id da licença individual — por isso a
+// rota tenta o ID enviado e, se não achar a compra, tenta os outros produtos
+// conhecidos. Sem isso, quem comprasse a licença de EQUIPE receberia a chave
+// e o app responderia "licença inválida" (venda perdida).
+const DEVICE_LIMITS = {
+  "rrU3Ea0rVRwxQQoOlEDQbw==": 2,   // individual — US$ 199/ano
+  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // equipe     — US$ 1.200/ano
+};
+const DEVICE_LIMIT = 10; // teto de segurança / fallback
 
 // product_id interno (NÃO o permalink/slug "hjjfhq"): é o que o Gumroad aceita
 // no campo product_id do verify — conferido na resposta do teste real. (O app
@@ -254,11 +259,30 @@ export default async function handler(req, res) {
   }
 
   // ----------------------------------------------------------------
-  // 1) Valida a chave no Gumroad.
+  // 1) Valida a chave no Gumroad — em QUALQUER produto conhecido.
+  //    A app manda sempre o ID do individual; a licença de equipe é outro
+  //    produto. Tentamos o ID enviado primeiro e, se a compra não existir
+  //    lá, os demais. Reembolso/chargeback é veredito: para na hora.
   // ----------------------------------------------------------------
-  let gum;
+  let gum = null;
+  let effectiveProductId = product_id;
+  let deviceLimit = DEVICE_LIMITS[product_id] || DEVICE_LIMIT;
+  const candidatos = [
+    product_id,
+    ...Object.keys(DEVICE_LIMITS).filter((p) => p !== product_id),
+  ];
   try {
-    gum = await verifyWithGumroad(license_key, product_id, increment_uses_count);
+    for (const pid of candidatos) {
+      gum = await verifyWithGumroad(license_key, pid, increment_uses_count);
+      if (gum?.body?.success) {
+        effectiveProductId = pid;
+        deviceLimit = DEVICE_LIMITS[pid] || DEVICE_LIMIT;
+        break;
+      }
+      if (gum?.body?.purchase?.refunded || gum?.body?.purchase?.chargebacked) {
+        break;
+      }
+    }
   } catch (err) {
     console.error("Erro ao chamar o Gumroad:", err?.message ?? err);
     return serverError(res, "Falha ao contatar o Gumroad.");
@@ -316,7 +340,7 @@ export default async function handler(req, res) {
       const resultado = await withRedis(async (redis) => {
         let membros = await redis.smembers(registryKey);
         if (!membros.includes(hardware_id)) {
-          if (membros.length >= DEVICE_LIMIT) return { lim: DEVICE_LIMIT };
+          if (membros.length >= deviceLimit) return { lim: deviceLimit };
           await redis.sadd(registryKey, hardware_id);
         }
         // Renova o TTL a cada validação: usuário ativo nunca perde o registro.
@@ -387,13 +411,13 @@ export default async function handler(req, res) {
     message: "Licença válida e registrada para este dispositivo.",
     devices: members,
     device_count: members.length,
-    device_limit: DEVICE_LIMIT,
+    device_limit: deviceLimit,
     device_lock_applied: deviceLockApplied,
     device_lock_reason: deviceLockApplied ? "ok" : lockReason,
     uses: purchase.uses ?? null,
     purchase: {
       license_key: purchase.license_key || license_key,
-      product_id: purchase.product_id || product_id,
+      product_id: purchase.product_id || effectiveProductId,
       email: purchase.email ?? null,
       product_name: purchase.product_name ?? null,
       refunded: Boolean(purchase.refunded),

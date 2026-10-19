@@ -120,7 +120,7 @@ def head(site: dict, m: dict) -> str:
     <h1 class="hero-title">{m['h1']}</h1>
     <p class="hero-sub">{m['hero_sub']}</p>
     <div class="hero-actions">
-      <a href="{site['buy_url']}" class="btn btn-primary">Buy now</a>
+      <a href="{m.get('buy_url') or site['buy_url']}" class="btn btn-primary">{m.get('buy_label') or 'Buy now'}</a>
       <a href="{site['downloads']['windows']}" class="btn btn-ghost">Download for Windows</a>
       <a href="{site['downloads']['macos']}" class="btn btn-ghost">Download for macOS</a>
       <a href="{site['downloads']['linux']}" class="btn btn-ghost">Download for Linux</a>

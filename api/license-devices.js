@@ -80,9 +80,13 @@ async function withRedis(fn) {
   throw lastErr || new Error("redis unavailable");
 }
 
-// Decisão do dono (2026-10-04): UMA licença cobre até 10 computadores.
-// Igual ao api/verify-license.js — se um mudar, o outro muda junto.
-const DEVICE_LIMIT = 10;
+// Limite de dispositivos POR PRODUTO do Gumroad — igual ao
+// api/verify-license.js. Se um mudar, o outro muda junto.
+const DEVICE_LIMITS = {
+  "rrU3Ea0rVRwxQQoOlEDQbw==": 2,   // individual — US$ 199/ano
+  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // equipe     — US$ 1.200/ano
+};
+const DEVICE_LIMIT = 10; // teto de segurança / fallback
 const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
 
 const json = (res, status, body) => res.status(status).json(body);
@@ -151,10 +155,25 @@ export default async function handler(req, res) {
     });
   }
 
-  // 1) Só o dono da chave vê a lista.
-  let gum;
+  // 1) Só o dono da chave vê a lista. A app manda o product_id do
+  //    individual; a licença de equipe é outro produto — tentamos os dois.
+  let gum = null;
+  let deviceLimit = DEVICE_LIMITS[product_id] || DEVICE_LIMIT;
+  const candidatos = [
+    product_id,
+    ...Object.keys(DEVICE_LIMITS).filter((p) => p !== product_id),
+  ];
   try {
-    gum = await verifyWithGumroad(license_key, product_id);
+    for (const pid of candidatos) {
+      gum = await verifyWithGumroad(license_key, pid);
+      if (gum?.body?.success) {
+        deviceLimit = DEVICE_LIMITS[pid] || DEVICE_LIMIT;
+        break;
+      }
+      if (gum?.body?.purchase?.refunded || gum?.body?.purchase?.chargebacked) {
+        break;
+      }
+    }
   } catch (err) {
     console.error("Erro ao chamar o Gumroad:", err?.message ?? err);
     return json(res, 500, {
@@ -240,6 +259,6 @@ export default async function handler(req, res) {
     success: true,
     devices,
     device_count: devices.length,
-    device_limit: DEVICE_LIMIT,
+    device_limit: deviceLimit,
   });
 }
