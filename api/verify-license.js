@@ -118,13 +118,12 @@ function redisReason(opFailed, err) {
 
 // Nº máximo de dispositivos por chave de licença.
 // Limite de dispositivos POR PRODUTO do Gumroad (2026-10-04).
-// A app desktop manda SEMPRE o product_id da licença individual — por isso a
-// rota tenta o ID enviado e, se não achar a compra, tenta os outros produtos
-// conhecidos. Sem isso, quem comprasse a licença de EQUIPE receberia a chave
-// e o app responderia "licença inválida" (venda perdida).
+// Uma licença única cobre até 10 computadores. Os DOIS product_ids são
+// aceitos de propósito: a app manda sempre o do produto antigo, e não podemos
+// quebrar a chave de quem já comprou no outro produto.
 const DEVICE_LIMITS = {
-  "rrU3Ea0rVRwxQQoOlEDQbw==": 2,   // individual — US$ 199/ano
-  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // equipe     — US$ 1.200/ano
+  "rrU3Ea0rVRwxQQoOlEDQbw==": 10,  // produto antigo
+  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // licença única atual
 };
 const DEVICE_LIMIT = 10; // teto de segurança / fallback
 

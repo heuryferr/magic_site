@@ -81,10 +81,10 @@ async function withRedis(fn) {
 }
 
 // Limite de dispositivos POR PRODUTO do Gumroad — igual ao
-// api/verify-license.js. Se um mudar, o outro muda junto.
+// api/verify-license.js. Uma licença única = até 10 computadores.
 const DEVICE_LIMITS = {
-  "rrU3Ea0rVRwxQQoOlEDQbw==": 2,   // individual — US$ 199/ano
-  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // equipe     — US$ 1.200/ano
+  "rrU3Ea0rVRwxQQoOlEDQbw==": 10,  // produto antigo
+  "Zcx8iGRODfiB6oMGdgrN1w==": 10,  // licença única atual
 };
 const DEVICE_LIMIT = 10; // teto de segurança / fallback
 const DEFAULT_PRODUCT_ID = "rrU3Ea0rVRwxQQoOlEDQbw==";
