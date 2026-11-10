@@ -18,7 +18,8 @@
 //   GET /api/installs-stats?token=STATS_TOKEN&funnel=1   (cliques x instalacoes)
 //   GET /api/installs-stats?token=STATS_TOKEN&rows=1     (auditoria: linhas cruas)
 //
-// Token: o MESMO `STATS_TOKEN` de /api/stats.
+// Token: o MESMO `STATS_TOKEN` de /api/stats ou o link privado do dono
+// (`LINK_TOKEN`), para o painel de telemetria nao depender de reler o segredo.
 // Fonte: Postgres (Neon) — SEM Redis (o Upstash ficou reservado à licença).
 //
 // SEM dados pessoais: sem email, sem IP, sem hardware_id. Pais/estado/cidade
@@ -28,6 +29,7 @@
 import { contagemInstalacoes, listarInstalacoes, agregados,
          contagemAberturas, contagemFeatures,
          eventosDaInstalacao } from "./_db.js";
+import { LINK_TOKEN } from "./stats.js";
 
 const json = (res, status, body) => res.status(status).json(body);
 
@@ -79,7 +81,11 @@ async function funilDiario(dados) {
 export default async function handler(req, res) {
   const expected = process.env.STATS_TOKEN;
   const given = String((req.query && req.query.token) || "").trim();
-  if (!expected || given !== expected) {
+  // O link privado do dono vale sempre (mesma porta de emergencia do
+  // /api/stats): assim o painel de telemetria nao depende de reler o segredo
+  // STATS_TOKEN no Vercel (a Vercel nao mostra segredo ja salvo).
+  const viaLink = Boolean(given) && given === LINK_TOKEN;
+  if (!viaLink && (!expected || given !== expected)) {
     return json(res, 401, {
       success: false,
       error: "unauthorized",

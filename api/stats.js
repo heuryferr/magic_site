@@ -94,7 +94,8 @@ async function cachedWindow(chave, fn) {
 // o link" do Google Docs. NÃO COMPARTILHE: quem tem o link vê as contagens.
 // Aqui só há número agregado (cliques/visitas/trials/vendas) e as SUAS contas
 // de disparo — nunca e-mail de comprador, chave ou dado de cliente.
-const LINK_TOKEN = "ms-aeb509acecfb305a6173a871";
+// Exportado porque o /api/installs-stats aceita a mesma porta de emergência.
+export const LINK_TOKEN = "ms-aeb509acecfb305a6173a871";
 
 function localDayKey(offsetDays = 0) {
   const now = Date.now() + REPORT_TZ_OFFSET_MINUTES * 60 * 1000;
